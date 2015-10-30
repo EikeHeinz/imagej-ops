@@ -33,20 +33,17 @@ public abstract class AbstractStatPixelFeatureOp<T extends RealType<T>> extends 
 		RandomAccess<T> outLocation = output.randomAccess();
 		// iterate over each pixel and create the corresponding neighborhood
 		Cursor<T> center = Views.iterable(input).localizingCursor();
-		center.next();
 		long[] position = new long[input.numDimensions()];
 		// consider each pixel with delta distance to center point
 		RectangleShape shape = new RectangleShape(2*(delta-1)+1, skipCenter);
 		for(Neighborhood<T> localNeighborhood : shape.neighborhoods(input)) {
+			center.next();
 			
 			// TODO create Function and calculate output
 			
 			center.localize(position);
 			outLocation.setPosition(position);
 			//outLocation.get().set(value);	
-			
-			// take next pixel as center
-			center.next();
 		}
 		return output;
 	}
