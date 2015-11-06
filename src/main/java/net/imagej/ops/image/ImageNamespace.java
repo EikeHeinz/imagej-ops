@@ -230,6 +230,24 @@ public class ImageNamespace extends AbstractNamespace {
 				in);
 		return result;
 	}
+	
+	// -- minpxfeature
+	
+	@OpMethod(op = net.imagej.ops.image.pixelfeature.MinPixelFeature.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> minPxFeature(final RandomAccessibleInterval<T> in, final int delta) {
+		final RandomAccessibleInterval<T> result =
+			(RandomAccessibleInterval<T>) ops().run(net.imagej.ops.image.pixelfeature.MinPixelFeature.class, in, delta);
+		return result;
+	}
+
+	@OpMethod(op = net.imagej.ops.image.pixelfeature.MinPixelFeature.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> minPxFeature(final RandomAccessibleInterval<T> in, final int delta, final boolean skipCenter) {
+		final RandomAccessibleInterval<T> result =
+			(RandomAccessibleInterval<T>) ops().run(net.imagej.ops.image.pixelfeature.MinPixelFeature.class, in, delta, skipCenter);
+		return result;
+	}
+	
+	
 
 	// -- normalize --
 
