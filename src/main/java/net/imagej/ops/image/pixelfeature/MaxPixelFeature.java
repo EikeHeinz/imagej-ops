@@ -12,7 +12,6 @@ public class MaxPixelFeature<T extends RealType<T>> extends AbstractNeighborhood
 
 	@Override
 	protected T getValue(Neighborhood<T> neighborhood) {
-		
 		return ops.stats().max(neighborhood);
 	}
 

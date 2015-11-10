@@ -10,7 +10,6 @@ import net.imglib2.type.numeric.RealType;
 public abstract class AbstractPixelFeatureOp<T extends RealType<T>>
 		extends AbstractFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> {
 	
-	// TODO output might be a stack of RAIs
 	// TODO add labeling as optional parameter?
 	// TODO is this class necessary?
 

@@ -36,7 +36,7 @@ public abstract class AbstractNeighborhoodPixelFeatureOp<T extends RealType<T>> 
 
 		RandomAccess<T> outLocation = computationOutput.randomAccess();
 
-		final RectangleShape shape = new RectangleShape(span, false);
+		final RectangleShape shape = new RectangleShape(span, skipCenter);
 
 		for (Neighborhood<T> localNeighborhood : shape
 				.neighborhoods(computationInput)) {
