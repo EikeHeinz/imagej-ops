@@ -14,7 +14,7 @@ import net.imglib2.type.numeric.real.FloatType;
 
 public class GaussPixelFeatureTest extends AbstractOpTest {
 
-//	@Test
+	@Test
 	public void test() {
 		Img<FloatType> img1 = generateFloatArrayTestImg(false, new long[] { 500, 500 });
 
