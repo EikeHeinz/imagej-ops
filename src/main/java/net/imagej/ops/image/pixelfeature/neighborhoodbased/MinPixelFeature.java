@@ -1,4 +1,4 @@
-package net.imagej.ops.image.pixelfeature;
+package net.imagej.ops.image.pixelfeature.neighborhoodbased;
 
 import net.imagej.ops.Ops;
 import net.imagej.ops.Ops.Image.MinPxFeature;

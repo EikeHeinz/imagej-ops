@@ -1,4 +1,4 @@
-package net.imagej.ops.image.pixelfeature;
+package net.imagej.ops.image.pixelfeature.neighborhoodbased;
 
 import org.scijava.plugin.Plugin;
 

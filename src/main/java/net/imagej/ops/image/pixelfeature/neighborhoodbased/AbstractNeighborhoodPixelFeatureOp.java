@@ -1,5 +1,6 @@
-package net.imagej.ops.image.pixelfeature;
+package net.imagej.ops.image.pixelfeature.neighborhoodbased;
 
+import net.imagej.ops.image.pixelfeature.AbstractPixelFeatureOp;
 import net.imglib2.Interval;
 import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessibleInterval;
