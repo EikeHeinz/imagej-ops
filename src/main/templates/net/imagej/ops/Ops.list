@@ -168,6 +168,8 @@ namespaces = ```
 		[name: "meanPxFeature",               iface: "MeanPxFeature"],
 		[name: "stdDevPxFeature",             iface: "StdDevPxFeature"],
 		[name: "medianPxFeature",             iface: "MedianPxFeature"],
+		[name: "gaussPxFeature",              iface: "GaussPxFeature"],
+		[name: "dogPxFeature",                iface: "DoGPxFeature"],
 	]],
 	[name: "imagemoments", iface: "ImageMoments", ops: [
 		[name: "centralMoment00",             iface: "CentralMoment00"],

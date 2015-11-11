@@ -289,6 +289,20 @@ public class ImageNamespace extends AbstractNamespace {
 		return result;
 	}
 	
+	@OpMethod(op = net.imagej.ops.image.pixelfeature.GaussPixelFeature.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> gaussPxFeature(final RandomAccessibleInterval<T> in, final double minSigma, final double maxSigma) {
+		final RandomAccessibleInterval<T> result =
+			(RandomAccessibleInterval<T>) ops().run(net.imagej.ops.image.pixelfeature.GaussPixelFeature.class, in, minSigma, maxSigma);
+		return result;
+	}
+	
+	@OpMethod(op = net.imagej.ops.image.pixelfeature.DoGPixelFeature.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> dogPxFeature(final RandomAccessibleInterval<T> in, final double minSigma, final double maxSigma) {
+		final RandomAccessibleInterval<T> result =
+			(RandomAccessibleInterval<T>) ops().run(net.imagej.ops.image.pixelfeature.DoGPixelFeature.class, in, minSigma, maxSigma);
+		return result;
+	}
+	
 	
 
 	// -- normalize --
