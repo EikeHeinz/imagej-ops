@@ -21,33 +21,4 @@ public abstract class AbstractNeighborhoodPixelFeatureOp<T extends RealType<T>> 
 
 	@Parameter(type = ItemIO.INPUT, required = false)
 	protected boolean skipCenter = false;
-
-	@Override
-	public RandomAccessibleInterval<T> compute(RandomAccessibleInterval<T> input) {
-
-		RandomAccessibleInterval<T> output = ops.create().img(input);
-
-		Interval interval = Intervals.expand(input, -span);
-
-
-		RandomAccessibleInterval<T> computationInput = Views.interval(input,
-				interval);
-		RandomAccessibleInterval<T> computationOutput = Views.interval(output,
-				interval);
-
-		RandomAccess<T> outLocation = computationOutput.randomAccess();
-
-		final RectangleShape shape = new RectangleShape(span, skipCenter);
-
-		for (Neighborhood<T> localNeighborhood : shape
-				.neighborhoods(computationInput)) {
-
-			outLocation.setPosition(localNeighborhood);
-			outLocation.get().set(getValue(localNeighborhood));
-		}
-
-		return output;
-	}
-	
-	 protected abstract T getValue(Neighborhood<T> neighborhood);
 }
