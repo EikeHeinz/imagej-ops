@@ -13,7 +13,4 @@ public abstract class AbstractPixelFeatureOp<T extends RealType<T>>
 	// TODO add labeling as optional parameter?
 	// TODO is this class necessary?
 
-	@Parameter
-	protected OpService ops;
-
 }
