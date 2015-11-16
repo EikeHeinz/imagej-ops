@@ -57,7 +57,6 @@ public class GaussPixelFeature<T extends RealType<T>> extends AbstractPixelFeatu
 
 		RandomAccessibleInterval<T> extendedIn = Views.interval(Views.extendMirrorDouble(in), in);
 
-		// FIXME for i >2 throws array index out of bounds exception
 		for (int i = 0; i < gaussOps.size(); i++) {
 			IntervalView<T> outSlice = Views.hyperSlice(Views.hyperSlice(output, 3, 0), 2, i);
 
