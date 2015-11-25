@@ -9,6 +9,7 @@ import net.imagej.ops.Ops;
 import net.imagej.ops.Ops.Create;
 import net.imagej.ops.Ops.Image.LoGPxFeature;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.img.Img;
 import net.imglib2.type.numeric.RealType;
 
 @Plugin(type = Ops.Image.LoGPxFeature.class, name = Ops.Image.LoGPxFeature.NAME)
@@ -30,8 +31,8 @@ public class LoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeature
 		RandomAccessibleInterval<T> kernel = ops().create().kernelLog(2, sigma);
 		RandomAccessibleInterval<T> output = createRAIOp.compute(input);
 		
-		// inputs do not conform to op rules
-		ops().filter().convolve(output, input, kernel);
+		// TODO fix casts
+		ops().filter().convolve((Img<T>)output, (Img<T>)input, kernel);
 
 		return output;
 	}
