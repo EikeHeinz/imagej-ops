@@ -56,11 +56,12 @@ public class GaussPixelFeature<T extends RealType<T>> extends AbstractPixelFeatu
 	public RandomAccessibleInterval<T> compute(RandomAccessibleInterval<T> in) {
 
 		RandomAccessibleInterval<T> extendedIn = Views.interval(Views.extendMirrorDouble(in), in);
-
-		for (int i = 0; i < gaussOps.size(); i++) {
+		int i = 0;
+		for (ComputerOp<RandomAccessibleInterval, RandomAccessibleInterval> gaussOp : gaussOps) {
 			IntervalView<T> outSlice = Views.hyperSlice(Views.hyperSlice(output, 3, 0), 2, i);
 
-			gaussOps.get(i).compute(extendedIn, outSlice);
+			gaussOp.compute(extendedIn, outSlice);
+			i++;
 		}
 
 		return output;
