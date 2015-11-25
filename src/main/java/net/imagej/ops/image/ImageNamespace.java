@@ -303,6 +303,12 @@ public class ImageNamespace extends AbstractNamespace {
 		return result;
 	}
 	
+	@OpMethod(op = net.imagej.ops.image.pixelfeature.LoGPixelFeature.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> loGPxFeature(final RandomAccessibleInterval<T> in, final double sigma) {
+		final RandomAccessibleInterval<T> result =
+			(RandomAccessibleInterval<T>) ops().run(net.imagej.ops.image.pixelfeature.LoGPixelFeature.class, in, sigma);
+		return result;
+	}
 	
 
 	// -- normalize --
