@@ -14,7 +14,6 @@ import net.imagej.ops.Ops;
 import net.imagej.ops.Ops.Filter.Gauss;
 import net.imagej.ops.Ops.Image.GaussPxFeature;
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
