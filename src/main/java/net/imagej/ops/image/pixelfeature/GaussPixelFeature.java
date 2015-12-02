@@ -27,19 +27,28 @@ public class GaussPixelFeature<T extends RealType<T>> extends AbstractPixelFeatu
 	@Parameter(type = ItemIO.INPUT)
 	private double maxSigma;
 
-	private FunctionOp<RandomAccessibleInterval, RandomAccessibleInterval> createOp;
+	private FunctionOp<long[], RandomAccessibleInterval> createOp;
 
 	private List<ComputerOp<RandomAccessibleInterval, RandomAccessibleInterval>> gaussOps;
 
 	private RandomAccessibleInterval<T> output;
 
+	private long[] dims;
+
 	@Override
 	public void initialize() {
 		double temp = Math.log(maxSigma) / Math.log(2);
 		double maxSteps = ops().math().floor(temp);
-		// FIXME remove dimension restriction
-		output = (RandomAccessibleInterval<T>) ops().create().img(in().dimension(0), in().dimension(1), in().dimension(2),
-				(long) maxSteps);
+
+		dims = new long[in().numDimensions() + 2];
+		for (int i = 0; i < dims.length - 1; i++) {
+			dims[i] = in().dimension(i);
+		}
+		dims[dims.length - 1] = (long) maxSteps;
+
+		// FIXME replace with createOp = ops().function(Create.Img.class,
+		// RandomAccessibleInterval.class, long[].class);
+		output = (RandomAccessibleInterval<T>) ops().create().img(dims);
 
 		gaussOps = new ArrayList<ComputerOp<RandomAccessibleInterval, RandomAccessibleInterval>>();
 
@@ -53,6 +62,8 @@ public class GaussPixelFeature<T extends RealType<T>> extends AbstractPixelFeatu
 
 	@Override
 	public RandomAccessibleInterval<T> compute(RandomAccessibleInterval<T> in) {
+		
+		//RandomAccessibleInterval out = createOp.compute(dims);
 
 		RandomAccessibleInterval<T> extendedIn = Views.interval(Views.extendMirrorDouble(in), in);
 		int i = 0;

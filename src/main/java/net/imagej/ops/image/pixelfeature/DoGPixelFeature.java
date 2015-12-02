@@ -34,10 +34,16 @@ public class DoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeature
 	@Override
 	public void initialize() {
 		maxSteps = ops().math().floor(Math.log(maxSigma) / Math.log(2));
+		
+		long[] dims = new long[in().numDimensions() + 2];
+		for (int i = 0; i < dims.length-1; i++) {
+			dims[i] = in().dimension(i);
+		}
+		dims[dims.length-1] = (long) maxSteps;
 
-		// FIXME limited to two dimensions
-		output = (RandomAccessibleInterval<T>) ops().create().img(in().dimension(0), in().dimension(1),
-				in().dimension(2), (long) maxSteps);
+		// FIXME replace with createOp = ops().function(Create.Img.class,
+		// RandomAccessibleInterval.class, long[].class);
+		output = (RandomAccessibleInterval<T>) ops().create().img(dims);
 
 		doGOps = new ArrayList<ComputerOp<RandomAccessibleInterval, RandomAccessibleInterval>>();
 		for (int i = 0; i < maxSteps - 1; i++) {
@@ -47,6 +53,7 @@ public class DoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeature
 				Arrays.fill(sigmas1, Math.pow(2, i) * minSigma);
 				Arrays.fill(sigmas2, Math.pow(2, j) * minSigma);
 				// Nullpointer in DoGVaryingSigmas.conforms()
+				// Might be, because in() is not defined in conforms method
 				ComputerOp<RandomAccessibleInterval, RandomAccessibleInterval> tempOp = ops().computer(
 						Ops.Filter.DoG.class, RandomAccessibleInterval.class, RandomAccessibleInterval.class, sigmas1,
 						sigmas2);
