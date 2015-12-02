@@ -4,9 +4,11 @@ import org.scijava.ItemIO;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
+import net.imagej.ops.ComputerOp;
 import net.imagej.ops.FunctionOp;
 import net.imagej.ops.Ops;
 import net.imagej.ops.Ops.Create;
+import net.imagej.ops.Ops.Filter.Convolve;
 import net.imagej.ops.Ops.Image.LoGPxFeature;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
@@ -19,20 +21,25 @@ public class LoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeature
 	private double sigma;
 	
 	private FunctionOp<RandomAccessibleInterval, RandomAccessibleInterval> createRAIOp;
+
+	private ComputerOp<Img, Img> loGOp;
 	
 	@Override
 	public void initialize() {
 		createRAIOp = ops().function(Create.Img.class, RandomAccessibleInterval.class, RandomAccessibleInterval.class);
+		RandomAccessibleInterval<T> kernel = ops().create().kernelLog(in().numDimensions(), sigma);
+		loGOp = ops().computer(Convolve.class, Img.class, Img.class, kernel);
 	}
 
 	@Override
 	public RandomAccessibleInterval<T> compute(RandomAccessibleInterval<T> input) {
 
-		RandomAccessibleInterval<T> kernel = ops().create().kernelLog(2, sigma);
+//		RandomAccessibleInterval<T> kernel = ops().create().kernelLog(2, sigma);
 		RandomAccessibleInterval<T> output = createRAIOp.compute(input);
+		loGOp.compute((Img<T>)input, (Img<T>)output);
 		
 		// TODO fix casts
-		ops().filter().convolve((Img<T>)output, (Img<T>)input, kernel);
+//		ops().filter().convolve((Img<T>)output, (Img<T>)input, kernel);
 
 		return output;
 	}
