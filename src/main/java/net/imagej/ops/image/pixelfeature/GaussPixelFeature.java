@@ -37,8 +37,7 @@ public class GaussPixelFeature<T extends RealType<T>> extends AbstractPixelFeatu
 
 	@Override
 	public void initialize() {
-		double temp = Math.log(maxSigma) / Math.log(2);
-		double maxSteps = ops().math().floor(temp);
+		double maxSteps = ops().math().floor(Math.log(maxSigma) / Math.log(2));
 
 		dims = new long[in().numDimensions() + 2];
 		for (int i = 0; i < dims.length - 1; i++) {
@@ -62,8 +61,8 @@ public class GaussPixelFeature<T extends RealType<T>> extends AbstractPixelFeatu
 
 	@Override
 	public RandomAccessibleInterval<T> compute(RandomAccessibleInterval<T> in) {
-		
-		//RandomAccessibleInterval out = createOp.compute(dims);
+
+		// RandomAccessibleInterval out = createOp.compute(dims);
 
 		RandomAccessibleInterval<T> extendedIn = Views.interval(Views.extendMirrorDouble(in), in);
 		int i = 0;

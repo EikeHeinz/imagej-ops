@@ -52,8 +52,8 @@ public class DoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeature
 				double[] sigmas2 = new double[(int) maxSteps];
 				Arrays.fill(sigmas1, Math.pow(2, i) * minSigma);
 				Arrays.fill(sigmas2, Math.pow(2, j) * minSigma);
-				// Nullpointer in DoGVaryingSigmas.conforms()
-				// Might be, because in() is not defined in conforms method
+				// FIXME Nullpointer in DoGVaryingSigmas.conforms()
+				// in() is not initialized in conforms method, because no input is given
 				ComputerOp<RandomAccessibleInterval, RandomAccessibleInterval> tempOp = ops().computer(
 						Ops.Filter.DoG.class, RandomAccessibleInterval.class, RandomAccessibleInterval.class, sigmas1,
 						sigmas2);
