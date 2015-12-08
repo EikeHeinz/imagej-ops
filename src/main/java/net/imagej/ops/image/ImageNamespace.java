@@ -310,6 +310,13 @@ public class ImageNamespace extends AbstractNamespace {
 		return result;
 	}
 	
+	@OpMethod(op = net.imagej.ops.image.pixelfeature.GaussianGradientMagnitudePixelFeature.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> gaussianGradientMagnitude(final RandomAccessibleInterval<T> in, double sigma) {
+		final RandomAccessibleInterval<T> result =
+			(RandomAccessibleInterval<T>) ops().run(net.imagej.ops.image.pixelfeature.GaussianGradientMagnitudePixelFeature.class, in, sigma);
+		return result;
+	}
+	
 
 	// -- normalize --
 
