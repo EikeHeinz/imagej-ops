@@ -41,7 +41,7 @@ public class GaussPixelFeatureTest extends AbstractOpTest {
 		img1RA.setPosition(new long[] { 250, 250 });
 		img1RA.get().set(200);
 		ImageJFunctions.show(img1, "input");
-		RandomAccessibleInterval<FloatType> out = ops.image().dogPxFeature(img1, 1.0d, 16.0d);
+		RandomAccessibleInterval<FloatType> out = ops.image().doGPxFeature(img1, 1.0d, 16.0d);
 		ImageJFunctions.show(out, "output");
 		System.out.println("breakpoint");
 	}

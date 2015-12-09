@@ -269,7 +269,7 @@ public class ImageNamespace extends AbstractNamespace {
 	}
 	
 	@OpMethod(op = net.imagej.ops.image.pixelfeature.DoGPixelFeature.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> dogPxFeature(final RandomAccessibleInterval<T> in, final double minSigma, final double maxSigma) {
+	public <T extends RealType<T>> RandomAccessibleInterval<T> doGPxFeature(final RandomAccessibleInterval<T> in, final double minSigma, final double maxSigma) {
 		final RandomAccessibleInterval<T> result =
 			(RandomAccessibleInterval<T>) ops().run(net.imagej.ops.image.pixelfeature.DoGPixelFeature.class, in, minSigma, maxSigma);
 		return result;
@@ -283,7 +283,7 @@ public class ImageNamespace extends AbstractNamespace {
 	}
 	
 	@OpMethod(op = net.imagej.ops.image.pixelfeature.GaussianGradientMagnitudePixelFeature.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> gaussianGradientMagnitude(final RandomAccessibleInterval<T> in, double sigma) {
+	public <T extends RealType<T>> RandomAccessibleInterval<T> gaussianGradientMagnitude(final RandomAccessibleInterval<T> in, final double sigma) {
 		final RandomAccessibleInterval<T> result =
 			(RandomAccessibleInterval<T>) ops().run(net.imagej.ops.image.pixelfeature.GaussianGradientMagnitudePixelFeature.class, in, sigma);
 		return result;
