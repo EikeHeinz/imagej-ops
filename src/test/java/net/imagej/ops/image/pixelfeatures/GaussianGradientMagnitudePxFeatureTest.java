@@ -35,9 +35,9 @@ public class GaussianGradientMagnitudePxFeatureTest extends AbstractOpTest {
 				counterX =0;
 			}
 		}
-		ImageJFunctions.show(img, "input");
 		System.out.println("breakpoint");
-		RandomAccessibleInterval<T> out = ops.image().gaussianGradientMagnitude((RandomAccessibleInterval<T>) img, 16.0d);
+		ImageJFunctions.show(img, "input");
+		RandomAccessibleInterval<T> out = ops.image().gaussianGradientMagnitude((RandomAccessibleInterval<T>) img, 2.0d);
 				
 		ImageJFunctions.show(out, "output");
 		System.out.println("breakpoint");
