@@ -33,14 +33,10 @@ public class LoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeature
 
 	@Override
 	public RandomAccessibleInterval<T> compute(RandomAccessibleInterval<T> input) {
-
-//		RandomAccessibleInterval<T> kernel = ops().create().kernelLog(2, sigma);
 		RandomAccessibleInterval<T> output = createRAIOp.compute(input);
+		// TODO fix casts
 		loGOp.compute((Img<T>)input, (Img<T>)output);
 		
-		// TODO fix casts
-//		ops().filter().convolve((Img<T>)output, (Img<T>)input, kernel);
-
 		return output;
 	}
 
