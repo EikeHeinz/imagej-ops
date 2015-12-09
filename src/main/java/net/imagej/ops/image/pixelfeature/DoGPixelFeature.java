@@ -34,9 +34,9 @@ public class DoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeature
 	public void initialize() {
 		maxSteps = ops().math().floor(Math.log(maxSigma) / Math.log(2));
 
-		// maxSteps+1 choose 2
-		double amountOfOutSlices = maxSteps * (maxSteps + 1) / 2;
-		
+		// maxSteps+1 choose 2 -1 because counting starts with 0
+		double amountOfOutSlices = (maxSteps * (maxSteps + 1) / 2) - 1;
+
 		long[] dims = new long[in().numDimensions() + 2];
 		for (int i = 0; i < dims.length - 1; i++) {
 			dims[i] = in().dimension(i);
@@ -68,7 +68,7 @@ public class DoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeature
 		int i = 0;
 		for (FunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> doGOp : doGOpsFunction) {
 
-			RandomAccessibleInterval<T> outSlice = Views.hyperSlice(Views.hyperSlice(output, 3, 1), 2, i);
+			RandomAccessibleInterval<T> outSlice = Views.hyperSlice(Views.hyperSlice(output, 3, 0), 2, i);
 			RandomAccessibleInterval tempOut = doGOp.compute(extendedIn);
 			ops().copy().rai(outSlice, tempOut);
 
