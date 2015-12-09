@@ -240,13 +240,6 @@ public class ImageNamespace extends AbstractNamespace {
 		return result;
 	}
 
-	@OpMethod(op = net.imagej.ops.image.pixelfeature.neighborhoodbased.MinPixelFeature.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> minPxFeature(final RandomAccessibleInterval<T> in, final int delta, final boolean skipCenter) {
-		final RandomAccessibleInterval<T> result =
-			(RandomAccessibleInterval<T>) ops().run(net.imagej.ops.image.pixelfeature.neighborhoodbased.MinPixelFeature.class, in, delta, skipCenter);
-		return result;
-	}
-	
 	@OpMethod(op = net.imagej.ops.image.pixelfeature.neighborhoodbased.MaxPixelFeature.class)
 	public <T extends RealType<T>> RandomAccessibleInterval<T> maxPxFeature(final RandomAccessibleInterval<T> in, final int span) {
 		final RandomAccessibleInterval<T> result =
@@ -254,13 +247,6 @@ public class ImageNamespace extends AbstractNamespace {
 		return result;
 	}
 
-	@OpMethod(op = net.imagej.ops.image.pixelfeature.neighborhoodbased.MaxPixelFeature.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> maxPxFeature(final RandomAccessibleInterval<T> in, final int span, final boolean skipCenter) {
-		final RandomAccessibleInterval<T> result =
-			(RandomAccessibleInterval<T>) ops().run(net.imagej.ops.image.pixelfeature.neighborhoodbased.MaxPixelFeature.class, in, span, skipCenter);
-		return result;
-	}
-	
 	@OpMethod(op = net.imagej.ops.image.pixelfeature.neighborhoodbased.MeanPixelFeature.class)
 	public <T extends RealType<T>> RandomAccessibleInterval<T> meanPxFeature(final RandomAccessibleInterval<T> in, final int span) {
 		final RandomAccessibleInterval<T> result =
@@ -268,13 +254,6 @@ public class ImageNamespace extends AbstractNamespace {
 		return result;
 	}
 
-	@OpMethod(op = net.imagej.ops.image.pixelfeature.neighborhoodbased.MeanPixelFeature.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> meanPxFeature(final RandomAccessibleInterval<T> in, final int span, final boolean skipCenter) {
-		final RandomAccessibleInterval<T> result =
-			(RandomAccessibleInterval<T>) ops().run(net.imagej.ops.image.pixelfeature.neighborhoodbased.MeanPixelFeature.class, in, span, skipCenter);
-		return result;
-	}
-	
 	@OpMethod(op = net.imagej.ops.image.pixelfeature.neighborhoodbased.StdDevPixelFeature.class)
 	public <T extends RealType<T>> RandomAccessibleInterval<T> stdDevPxFeature(final RandomAccessibleInterval<T> in, final int span) {
 		final RandomAccessibleInterval<T> result =
@@ -282,13 +261,6 @@ public class ImageNamespace extends AbstractNamespace {
 		return result;
 	}
 
-	@OpMethod(op = net.imagej.ops.image.pixelfeature.neighborhoodbased.StdDevPixelFeature.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> stdDevPxFeature(final RandomAccessibleInterval<T> in, final int span, final boolean skipCenter) {
-		final RandomAccessibleInterval<T> result =
-			(RandomAccessibleInterval<T>) ops().run(net.imagej.ops.image.pixelfeature.neighborhoodbased.StdDevPixelFeature.class, in, span, skipCenter);
-		return result;
-	}
-	
 	@OpMethod(op = net.imagej.ops.image.pixelfeature.GaussPixelFeature.class)
 	public <T extends RealType<T>> RandomAccessibleInterval<T> gaussPxFeature(final RandomAccessibleInterval<T> in, final double minSigma, final double maxSigma) {
 		final RandomAccessibleInterval<T> result =

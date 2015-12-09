@@ -26,7 +26,7 @@ public class MaxPixelFeature<T extends RealType<T>> extends AbstractNeighborhood
 	public void initialize() {
 		createOp = ops().function(Create.Img.class, RandomAccessibleInterval.class, RandomAccessibleInterval.class);
 		mapOp = ops().computer(Max.class, RandomAccessibleInterval.class, RandomAccessibleInterval.class,
-				new RectangleShape(span, skipCenter));
+				new RectangleShape(span, false));
 	}
 
 	@Override

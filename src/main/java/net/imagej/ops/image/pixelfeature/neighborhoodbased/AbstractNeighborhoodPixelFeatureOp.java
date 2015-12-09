@@ -12,7 +12,4 @@ public abstract class AbstractNeighborhoodPixelFeatureOp<T extends RealType<T>> 
 	@Parameter(type = ItemIO.INPUT)
 	protected int span;
 
-	// TODO skipcenter necessary?
-	@Parameter(type = ItemIO.INPUT, required = false)
-	protected boolean skipCenter = false;
 }

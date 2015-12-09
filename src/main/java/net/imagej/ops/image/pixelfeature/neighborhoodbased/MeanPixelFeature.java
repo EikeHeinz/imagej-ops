@@ -24,7 +24,7 @@ public class MeanPixelFeature<T extends RealType<T>> extends AbstractNeighborhoo
 	public void initialize() {
 		createOp = ops().function(Create.Img.class, RandomAccessibleInterval.class, RandomAccessibleInterval.class);
 		mapOp = ops().computer(Mean.class, RandomAccessibleInterval.class, RandomAccessibleInterval.class,
-				new RectangleShape(span, skipCenter));
+				new RectangleShape(span, false));
 	}
 	
 	@Override
