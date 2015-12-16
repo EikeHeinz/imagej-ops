@@ -172,6 +172,7 @@ namespaces = ```
 		[name: "doGPxFeature",                iface: "DoGPxFeature"],
 		[name: "loGPxFeature",                iface: "LoGPxFeature"],
 		[name: "gaussianGradientMagnitude",   iface: "GaussianGradientMagnitudePxFeature"],
+		[name: "hessianPixelFeature",         iface: "HessianPxFeature"],
 	]],
 	[name: "imagemoments", iface: "ImageMoments", ops: [
 		[name: "centralMoment00",             iface: "CentralMoment00"],

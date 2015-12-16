@@ -289,6 +289,13 @@ public class ImageNamespace extends AbstractNamespace {
 		return result;
 	}
 	
+	@OpMethod(op = net.imagej.ops.image.pixelfeature.HessianPixelFeatureOp.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> hessianPixelFeature(final RandomAccessibleInterval<T> in) {
+		final RandomAccessibleInterval<T> result =
+			(RandomAccessibleInterval<T>) ops().run(net.imagej.ops.image.pixelfeature.HessianPixelFeatureOp.class, in);
+		return result;
+	}
+	
 
 	// -- normalize --
 
