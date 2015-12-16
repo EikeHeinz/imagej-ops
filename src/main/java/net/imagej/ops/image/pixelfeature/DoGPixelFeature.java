@@ -6,9 +6,10 @@ import java.util.List;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
-import net.imagej.ops.FunctionOp;
 import net.imagej.ops.Ops;
 import net.imagej.ops.Ops.Image.DoGPxFeature;
+import net.imagej.ops.special.Functions;
+import net.imagej.ops.special.UnaryFunctionOp;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
@@ -26,7 +27,7 @@ public class DoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeature
 
 	private RandomAccessibleInterval<T> output;
 
-	private List<FunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval>> doGOpsFunction;
+	private List<UnaryFunctionOp<RandomAccessibleInterval, RandomAccessibleInterval>> doGOpsFunction;
 
 	private RandomAccessibleInterval<T> extendedIn;
 
@@ -49,13 +50,13 @@ public class DoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeature
 		// FIXME extension necessary?
 		extendedIn = (RandomAccessibleInterval<T>) Views.interval(Views.extendMirrorDouble(in()), in());
 
-		doGOpsFunction = new ArrayList<FunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval>>();
+		doGOpsFunction = new ArrayList<UnaryFunctionOp<RandomAccessibleInterval, RandomAccessibleInterval>>();
 
 		for (int i = 0; i < maxSteps - 1; i++) {
 			for (int j = i + 1; j <= maxSteps; j++) {
-				FunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> tempOp = ops().function(
-						Ops.Filter.DoG.class, RandomAccessibleInterval.class, extendedIn, Math.pow(2, i) * minSigma,
-						Math.pow(2, j) * minSigma);
+				UnaryFunctionOp<RandomAccessibleInterval, RandomAccessibleInterval> tempOp = Functions.unary(ops(),
+						Ops.Filter.DoG.class, RandomAccessibleInterval.class, in(),
+						new Double(Math.pow(2, i) * minSigma), new Double(Math.pow(2, j) * minSigma));
 				doGOpsFunction.add(tempOp);
 
 			}
@@ -63,13 +64,12 @@ public class DoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeature
 	}
 
 	@Override
-	public RandomAccessibleInterval<T> compute(RandomAccessibleInterval<T> input) {
-
+	public RandomAccessibleInterval<T> compute1(RandomAccessibleInterval<T> input) {
 		int i = 0;
-		for (FunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> doGOp : doGOpsFunction) {
+		for (UnaryFunctionOp<RandomAccessibleInterval, RandomAccessibleInterval> doGOp : doGOpsFunction) {
 
 			RandomAccessibleInterval<T> outSlice = Views.hyperSlice(Views.hyperSlice(output, 3, 0), 2, i);
-			RandomAccessibleInterval tempOut = doGOp.compute(extendedIn);
+			RandomAccessibleInterval tempOut = doGOp.compute1(extendedIn);
 			ops().copy().rai(outSlice, tempOut);
 
 			i++;
