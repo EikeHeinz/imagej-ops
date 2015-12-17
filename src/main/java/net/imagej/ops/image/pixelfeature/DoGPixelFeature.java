@@ -47,16 +47,18 @@ public class DoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeature
 		// FIXME replace with createOp = ops().function(Create.Img.class,
 		// RandomAccessibleInterval.class, long[].class);
 		output = (RandomAccessibleInterval<T>) ops().create().img(dims);
-		// FIXME extension necessary?
+
 		extendedIn = (RandomAccessibleInterval<T>) Views.interval(Views.extendMirrorDouble(in()), in());
 
 		doGOpsFunction = new ArrayList<UnaryFunctionOp<RandomAccessibleInterval, RandomAccessibleInterval>>();
 
 		for (int i = 0; i < maxSteps - 1; i++) {
 			for (int j = i + 1; j <= maxSteps; j++) {
-				UnaryFunctionOp<RandomAccessibleInterval, RandomAccessibleInterval> tempOp = Functions.unary(ops(),
-						Ops.Filter.DoG.class, RandomAccessibleInterval.class, in(),
-						new Double(Math.pow(2, i) * minSigma), new Double(Math.pow(2, j) * minSigma));
+				Double sigma1 = new Double(Math.pow(2, i) * minSigma);
+				Double sigma2 = new Double(Math.pow(2, j) * minSigma);
+				UnaryFunctionOp<RandomAccessibleInterval, RandomAccessibleInterval> tempOp = Functions.unary(
+						ops(), Ops.Filter.DoG.class, RandomAccessibleInterval.class, in(), sigma1,
+						sigma2);
 				doGOpsFunction.add(tempOp);
 
 			}
@@ -69,8 +71,8 @@ public class DoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeature
 		for (UnaryFunctionOp<RandomAccessibleInterval, RandomAccessibleInterval> doGOp : doGOpsFunction) {
 
 			RandomAccessibleInterval<T> outSlice = Views.hyperSlice(Views.hyperSlice(output, 3, 0), 2, i);
-			RandomAccessibleInterval tempOut = doGOp.compute1(extendedIn);
-			ops().copy().rai(outSlice, tempOut);
+			 RandomAccessibleInterval<T> tempOut = doGOp.compute1(extendedIn);
+			 ops().copy().rai(outSlice, tempOut);
 
 			i++;
 		}

@@ -13,8 +13,8 @@ import net.imagej.ops.Ops.Filter.Gauss;
 import net.imagej.ops.Ops.Image.GaussPxFeature;
 import net.imagej.ops.special.Computers;
 import net.imagej.ops.special.UnaryComputerOp;
-import net.imagej.ops.special.UnaryFunctionOp;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.img.Img;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
@@ -28,13 +28,15 @@ public class GaussPixelFeature<T extends RealType<T>> extends AbstractPixelFeatu
 	@Parameter(type = ItemIO.INPUT)
 	private double maxSigma;
 
-	private UnaryFunctionOp<long[], RandomAccessibleInterval> createOp;
+//	private UnaryFunctionOp<long[], RandomAccessibleInterval> createOp;
 
-	private List<UnaryComputerOp<RandomAccessibleInterval, RandomAccessibleInterval>> gaussOps;
+	private List<UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>> gaussOps;
 
 	private RandomAccessibleInterval<T> output;
 
 	private long[] dims;
+
+	private IntervalView<T> extendedIn;
 
 	@Override
 	public void initialize() {
@@ -50,13 +52,14 @@ public class GaussPixelFeature<T extends RealType<T>> extends AbstractPixelFeatu
 		// RandomAccessibleInterval.class, long[].class);
 		output = (RandomAccessibleInterval<T>) ops().create().img(dims);
 
-		gaussOps = new ArrayList<UnaryComputerOp<RandomAccessibleInterval, RandomAccessibleInterval>>();
+		gaussOps = new ArrayList<UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>>();
+		extendedIn = Views.interval(Views.extendMirrorDouble(in()), in());
 
 		for (int i = 0; i < maxSteps; i++) {
 			double[] sigmas = new double[(int) maxSteps];
 			Arrays.fill(sigmas, Math.pow(2, i) * minSigma);
-			gaussOps.add(Computers.unary(ops(), Gauss.class, RandomAccessibleInterval.class,
-					RandomAccessibleInterval.class, sigmas));
+			gaussOps.add(Computers.unary(ops(), Gauss.class, in(),
+					extendedIn, sigmas));
 		}
 	}
 
@@ -65,9 +68,8 @@ public class GaussPixelFeature<T extends RealType<T>> extends AbstractPixelFeatu
 
 		// RandomAccessibleInterval out = createOp.compute(dims);
 
-		RandomAccessibleInterval<T> extendedIn = Views.interval(Views.extendMirrorDouble(in), in);
 		int i = 0;
-		for (UnaryComputerOp<RandomAccessibleInterval, RandomAccessibleInterval> gaussOp : gaussOps) {
+		for (UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> gaussOp : gaussOps) {
 			IntervalView<T> outSlice = Views.hyperSlice(Views.hyperSlice(output, 3, 0), 2, i);
 
 			gaussOp.compute1(extendedIn, outSlice);
