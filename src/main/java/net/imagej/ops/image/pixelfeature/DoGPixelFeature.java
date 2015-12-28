@@ -7,15 +7,15 @@ import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
 import net.imagej.ops.Ops;
-import net.imagej.ops.Ops.Image.DoGPxFeature;
 import net.imagej.ops.special.Functions;
 import net.imagej.ops.special.UnaryFunctionOp;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 
 @Plugin(type = Ops.Image.DoGPxFeature.class, name = Ops.Image.DoGPxFeature.NAME)
-public class DoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeatureOp<T> implements DoGPxFeature {
+public class DoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeatureOp<T> {
 
 	@Parameter
 	private double minSigma;
@@ -27,10 +27,10 @@ public class DoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeature
 
 	private RandomAccessibleInterval<T> output;
 
+	@SuppressWarnings("rawtypes")
 	private List<UnaryFunctionOp<RandomAccessibleInterval, RandomAccessibleInterval>> doGOpsFunction;
 
-	private RandomAccessibleInterval<T> extendedIn;
-
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void initialize() {
 		maxSteps = ops().math().floor(Math.log(maxSigma) / Math.log(2));
@@ -44,11 +44,7 @@ public class DoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeature
 		}
 		dims[dims.length - 1] = (long) amountOfOutSlices;
 
-		// FIXME replace with createOp = ops().function(Create.Img.class,
-		// RandomAccessibleInterval.class, long[].class);
 		output = (RandomAccessibleInterval<T>) ops().create().img(dims);
-
-		extendedIn = (RandomAccessibleInterval<T>) Views.interval(Views.extendMirrorDouble(in()), in());
 
 		doGOpsFunction = new ArrayList<UnaryFunctionOp<RandomAccessibleInterval, RandomAccessibleInterval>>();
 
@@ -56,26 +52,30 @@ public class DoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeature
 			for (int j = i + 1; j <= maxSteps; j++) {
 				Double sigma1 = new Double(Math.pow(2, i) * minSigma);
 				Double sigma2 = new Double(Math.pow(2, j) * minSigma);
-				UnaryFunctionOp<RandomAccessibleInterval, RandomAccessibleInterval> tempOp = Functions.unary(
-						ops(), Ops.Filter.DoG.class, RandomAccessibleInterval.class, in(), sigma1,
-						sigma2);
+				UnaryFunctionOp<RandomAccessibleInterval, RandomAccessibleInterval> tempOp = Functions.unary(ops(),
+						Ops.Filter.DoG.class, RandomAccessibleInterval.class, in(), sigma1, sigma2);
+
 				doGOpsFunction.add(tempOp);
 
 			}
 		}
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public RandomAccessibleInterval<T> compute1(RandomAccessibleInterval<T> input) {
+		IntervalView<T> extendedIn = Views
+				.interval(Views.extendMirrorDouble(input), input);
 		int i = 0;
 		for (UnaryFunctionOp<RandomAccessibleInterval, RandomAccessibleInterval> doGOp : doGOpsFunction) {
 
 			RandomAccessibleInterval<T> outSlice = Views.hyperSlice(Views.hyperSlice(output, 3, 0), 2, i);
-			 RandomAccessibleInterval<T> tempOut = doGOp.compute1(extendedIn);
-			 ops().copy().rai(outSlice, tempOut);
+			RandomAccessibleInterval<T> tempOut = doGOp.compute1(extendedIn);
+			ops().copy().rai(outSlice, tempOut);
 
 			i++;
 		}
+
 		return output;
 	}
 

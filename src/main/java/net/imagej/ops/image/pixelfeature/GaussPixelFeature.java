@@ -10,17 +10,15 @@ import org.scijava.plugin.Plugin;
 
 import net.imagej.ops.Ops;
 import net.imagej.ops.Ops.Filter.Gauss;
-import net.imagej.ops.Ops.Image.GaussPxFeature;
 import net.imagej.ops.special.Computers;
 import net.imagej.ops.special.UnaryComputerOp;
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.img.Img;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 
 @Plugin(type = Ops.Image.GaussPxFeature.class, name = Ops.Image.GaussPxFeature.NAME)
-public class GaussPixelFeature<T extends RealType<T>> extends AbstractPixelFeatureOp<T> implements GaussPxFeature {
+public class GaussPixelFeature<T extends RealType<T>> extends AbstractPixelFeatureOp<T> {
 
 	@Parameter(type = ItemIO.INPUT)
 	private double minSigma;
@@ -28,45 +26,36 @@ public class GaussPixelFeature<T extends RealType<T>> extends AbstractPixelFeatu
 	@Parameter(type = ItemIO.INPUT)
 	private double maxSigma;
 
-//	private UnaryFunctionOp<long[], RandomAccessibleInterval> createOp;
-
 	private List<UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>> gaussOps;
 
 	private RandomAccessibleInterval<T> output;
 
-	private long[] dims;
-
-	private IntervalView<T> extendedIn;
-
+	@SuppressWarnings("unchecked")
 	@Override
 	public void initialize() {
 		double maxSteps = ops().math().floor(Math.log(maxSigma) / Math.log(2));
 
-		dims = new long[in().numDimensions() + 2];
+		long[] dims = new long[in().numDimensions() + 2];
 		for (int i = 0; i < dims.length - 1; i++) {
 			dims[i] = in().dimension(i);
 		}
 		dims[dims.length - 1] = (long) maxSteps;
 
-		// FIXME replace with createOp = ops().function(Create.Img.class,
-		// RandomAccessibleInterval.class, long[].class);
 		output = (RandomAccessibleInterval<T>) ops().create().img(dims);
 
 		gaussOps = new ArrayList<UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>>();
-		extendedIn = Views.interval(Views.extendMirrorDouble(in()), in());
 
 		for (int i = 0; i < maxSteps; i++) {
 			double[] sigmas = new double[(int) maxSteps];
 			Arrays.fill(sigmas, Math.pow(2, i) * minSigma);
 			gaussOps.add(Computers.unary(ops(), Gauss.class, in(),
-					extendedIn, sigmas));
+					in(), sigmas));
 		}
 	}
 
 	@Override
-	public RandomAccessibleInterval<T> compute1(RandomAccessibleInterval<T> in) {
-
-		// RandomAccessibleInterval out = createOp.compute(dims);
+	public RandomAccessibleInterval<T> compute1(RandomAccessibleInterval<T> input) {
+		IntervalView<T> extendedIn = Views.interval(Views.extendMirrorDouble(input), input);
 
 		int i = 0;
 		for (UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> gaussOp : gaussOps) {
