@@ -13,14 +13,26 @@ public class LoGPxFeatureTest extends AbstractOpTest {
 
 	@Test
 	public void test() {
-		Img<FloatType> img1 = generateFloatArrayTestImg(false, new long[] { 500, 500 });
+		Img<FloatType> img = generateFloatArrayTestImg(false, new long[] {
+				500, 500 });
 
-		Cursor<FloatType> cursor = img1.cursor();
-		while (cursor.hasNext()) {
-			cursor.next().setZero();
+		Cursor<FloatType> cursorImg = img.cursor();
+		int counterX = 0;
+		int counterY = 0;
+		while (cursorImg.hasNext()) {
+			if(counterX > 240 && counterX < 260 || counterY > 120000 && counterY < 130000) {
+				cursorImg.next().set(255);
+			} else {
+			cursorImg.next().setZero();
+			}
+			counterX++;
+			counterY++;
+			if(counterX == 500) {
+				counterX =0;
+			}
 		}
-		RandomAccessibleInterval<FloatType> out = ops.image().loGPxFeature(img1, 1.0d);
-		ImageJFunctions.show(img1);
+		RandomAccessibleInterval<FloatType> out = ops.image().loGPxFeature(img, 1.0d);
+		ImageJFunctions.show(out);
 		System.out.println("breakpoint");
 	}
 
