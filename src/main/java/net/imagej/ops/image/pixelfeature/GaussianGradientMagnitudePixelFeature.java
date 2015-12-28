@@ -8,10 +8,13 @@ import org.scijava.plugin.Plugin;
 
 import net.imagej.ops.Ops;
 import net.imagej.ops.Ops.Image.GaussianGradientMagnitudePxFeature;
+import net.imagej.ops.Ops.Math.Sqr;
+import net.imagej.ops.Ops.Math.Sqrt;
+import net.imagej.ops.special.Computers;
 import net.imagej.ops.special.Functions;
+import net.imagej.ops.special.UnaryComputerOp;
 import net.imagej.ops.special.UnaryFunctionOp;
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgs;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
@@ -23,15 +26,27 @@ public class GaussianGradientMagnitudePixelFeature<T extends RealType<T>> extend
 	@Parameter(type = ItemIO.INPUT)
 	private double sigma;
 
-	private UnaryFunctionOp<RandomAccessibleInterval, RandomAccessibleInterval> createOp;
-	private UnaryFunctionOp<RandomAccessibleInterval, RandomAccessibleInterval> gaussOp;
-	private UnaryFunctionOp<RandomAccessibleInterval, RandomAccessibleInterval> convolverKernelX;
-	private UnaryFunctionOp<RandomAccessibleInterval, RandomAccessibleInterval> convolverKernelY;
+
+
+	@SuppressWarnings("rawtypes")
+	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> createOp;
+
+	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> gaussOp;
+
+	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> convolverKernelX;
+
+	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> convolverKernelY;
+
+	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> squareMapOp;
+
+	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> sqrtMapOp;
+
+	private UnaryComputerOp<RandomAccessibleInterval, RandomAccessibleInterval> test;
+
 
 	@Override
 	public void initialize() {
-		createOp = Functions.unary(ops(), Ops.Create.Img.class, RandomAccessibleInterval.class,
-				RandomAccessibleInterval.class);
+		createOp = Functions.unary(ops(), Ops.Create.Img.class,RandomAccessibleInterval.class, in());
 		// FIXME hardcoded
 		RandomAccessibleInterval<T> kernelX = (RandomAccessibleInterval<T>) ArrayImgs
 				.doubles(new double[] { 1, 2, 1, 0, 0, 0, -1, -2, -1 }, 3L, 3L);
@@ -39,34 +54,42 @@ public class GaussianGradientMagnitudePixelFeature<T extends RealType<T>> extend
 				.doubles(new double[] { -1, 0, 1, -2, 0, 2, -1, 0, 1 }, 3L, 3L);
 		double[] sigmas = new double[in().numDimensions()];
 		Arrays.fill(sigmas, sigma);
-		gaussOp = Functions.unary(ops(), Ops.Filter.Gauss.class, RandomAccessibleInterval.class,
-				RandomAccessibleInterval.class, sigmas);
-		convolverKernelX = Functions.unary(ops(), Ops.Filter.Convolve.class, RandomAccessibleInterval.class, in(),
-				kernelX);
-		convolverKernelY = Functions.unary(ops(), Ops.Filter.Convolve.class, RandomAccessibleInterval.class, in(),
-				kernelY);
+		gaussOp = Computers.unary(ops(), Ops.Filter.Gauss.class, in(), in(), sigmas);
+		convolverKernelX = Computers.unary(ops(), Ops.Filter.Convolve.class, in(), in(), kernelX);
+		convolverKernelY = Computers.unary(ops(), Ops.Filter.Convolve.class, in(), in(), kernelY);
+		Sqr squareOp = ops().op(Ops.Math.Sqr.class, RealType.class, RealType.class);
+		squareMapOp = Computers.unary(ops(), Ops.Map.class, in(), in(), squareOp);
+		Sqrt sqrtOp = ops().op(Ops.Math.Sqrt.class, RealType.class, RealType.class);
+		sqrtMapOp = Computers.unary(ops(), Ops.Map.class, in(), in(), sqrtOp);
+//		test = Computers.unary(ops(), Ops.Math.Add.class, RandomAccessibleInterval.class,
+//				RandomAccessibleInterval.class);
 	}
 
 	@Override
 	public RandomAccessibleInterval<T> compute1(RandomAccessibleInterval<T> input) {
-		RandomAccessibleInterval<T> output = createOp.compute1(input);
 
 		RandomAccessibleInterval<T> extended = Views.interval(Views.extendMirrorSingle(input), input);
 		// smoothing image
-		RandomAccessibleInterval<T> blurred = gaussOp.compute1(input);
+		RandomAccessibleInterval<T> blurred = createOp.compute1(input);
+		gaussOp.compute1(extended, blurred);
 
-		// TODO maybe use separable kernel?
-
-		RandomAccessibleInterval<T> convolveX = convolverKernelX.compute1((Img<T>) blurred);
-		RandomAccessibleInterval<T> convolveY = convolverKernelY.compute1((Img<T>) blurred);
+		RandomAccessibleInterval<T> convolveX = createOp.compute1(input);
+		RandomAccessibleInterval<T> convolveY = createOp.compute1(input);
+		convolverKernelX.compute1(blurred, convolveX);
+		convolverKernelY.compute1(blurred, convolveY);
 
 		// calculate gradient magnitude in each pixel G = sqrt(Gx^2 + Gy^2)
-		ops().map(convolveX, convolveX, ops().op(Ops.Math.Sqr.class, RealType.class, RealType.class));
-		ops().map(convolveY, convolveY, ops().op(Ops.Math.Sqr.class, RealType.class, RealType.class));
+		squareMapOp.compute1(convolveX, convolveX);
+		squareMapOp.compute1(convolveY, convolveY);
 
+		// test.compute1(convolveX, output);
+		// test.compute1(convolveY, output);
+		RandomAccessibleInterval<T> output = createOp.compute1(input);
+		// FIXME create Op in initialize method
 		output = (RandomAccessibleInterval<T>) ops().math().add(output, convolveX);
 		output = (RandomAccessibleInterval<T>) ops().math().add(output, convolveY);
-		ops().map(output, output, ops().op(Ops.Math.Sqrt.class, RealType.class, RealType.class));
+
+		sqrtMapOp.compute1(output, output);
 
 		return output;
 	}

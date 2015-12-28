@@ -16,7 +16,6 @@ public class GaussianGradientMagnitudePxFeatureTest extends AbstractOpTest {
 	public <T extends RealType<T>> void test() {
 		
 		
-		
 		Img<FloatType> img = generateFloatArrayTestImg(false, new long[] {
 				500, 500 });
 
@@ -35,10 +34,8 @@ public class GaussianGradientMagnitudePxFeatureTest extends AbstractOpTest {
 				counterX =0;
 			}
 		}
-		System.out.println("breakpoint");
 		ImageJFunctions.show(img, "input");
 		RandomAccessibleInterval<T> out = ops.image().gaussianGradientMagnitude((RandomAccessibleInterval<T>) img, 2.0d);
-				
 		ImageJFunctions.show(out, "output");
 		System.out.println("breakpoint");
 	}
