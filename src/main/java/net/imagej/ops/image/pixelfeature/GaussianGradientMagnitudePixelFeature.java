@@ -26,8 +26,6 @@ public class GaussianGradientMagnitudePixelFeature<T extends RealType<T>> extend
 	@Parameter(type = ItemIO.INPUT)
 	private double sigma;
 
-
-
 	@SuppressWarnings("rawtypes")
 	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> createOp;
 
@@ -41,8 +39,6 @@ public class GaussianGradientMagnitudePixelFeature<T extends RealType<T>> extend
 
 	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> sqrtMapOp;
 
-	private UnaryComputerOp<RandomAccessibleInterval, RandomAccessibleInterval> test;
-
 
 	@Override
 	public void initialize() {
@@ -52,19 +48,22 @@ public class GaussianGradientMagnitudePixelFeature<T extends RealType<T>> extend
 				.doubles(new double[] { 1, 2, 1, 0, 0, 0, -1, -2, -1 }, 3L, 3L);
 		RandomAccessibleInterval<T> kernelY = (RandomAccessibleInterval<T>) ArrayImgs
 				.doubles(new double[] { -1, 0, 1, -2, 0, 2, -1, 0, 1 }, 3L, 3L);
+		
 		double[] sigmas = new double[in().numDimensions()];
 		Arrays.fill(sigmas, sigma);
 		gaussOp = Computers.unary(ops(), Ops.Filter.Gauss.class, in(), in(), sigmas);
+		
 		convolverKernelX = Computers.unary(ops(), Ops.Filter.Convolve.class, in(), in(), kernelX);
 		convolverKernelY = Computers.unary(ops(), Ops.Filter.Convolve.class, in(), in(), kernelY);
+		
 		Sqr squareOp = ops().op(Ops.Math.Sqr.class, RealType.class, RealType.class);
 		squareMapOp = Computers.unary(ops(), Ops.Map.class, in(), in(), squareOp);
 		Sqrt sqrtOp = ops().op(Ops.Math.Sqrt.class, RealType.class, RealType.class);
 		sqrtMapOp = Computers.unary(ops(), Ops.Map.class, in(), in(), sqrtOp);
-//		test = Computers.unary(ops(), Ops.Math.Add.class, RandomAccessibleInterval.class,
-//				RandomAccessibleInterval.class);
+			
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public RandomAccessibleInterval<T> compute1(RandomAccessibleInterval<T> input) {
 
@@ -82,12 +81,11 @@ public class GaussianGradientMagnitudePixelFeature<T extends RealType<T>> extend
 		squareMapOp.compute1(convolveX, convolveX);
 		squareMapOp.compute1(convolveY, convolveY);
 
-		// test.compute1(convolveX, output);
-		// test.compute1(convolveY, output);
 		RandomAccessibleInterval<T> output = createOp.compute1(input);
+		
 		// FIXME create Op in initialize method
 		output = (RandomAccessibleInterval<T>) ops().math().add(output, convolveX);
-		output = (RandomAccessibleInterval<T>) ops().math().add(output, convolveY);
+		output = (RandomAccessibleInterval<T>) ops().math().add(output,convolveY);
 
 		sqrtMapOp.compute1(output, output);
 
