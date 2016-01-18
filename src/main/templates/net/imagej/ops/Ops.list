@@ -63,6 +63,7 @@ namespaces = ```
 		[name: "integerType",                 iface: "IntegerType"],
 		[name: "kernelGauss",                 iface: "KernelGauss"],
 		[name: "kernelLog",                   iface: "KernelLog"],
+		[name: "kernelSobel",                 iface: "KernelSobel"],
 		[name: "labelingMapping",             iface: "LabelingMapping"],
 		[name: "nativeImg",                   iface: "NativeImg"],
 		[name: "nativeType",                  iface: "NativeType"],
