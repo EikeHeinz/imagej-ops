@@ -15,7 +15,6 @@ import net.imagej.ops.special.Functions;
 import net.imagej.ops.special.UnaryComputerOp;
 import net.imagej.ops.special.UnaryFunctionOp;
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.img.array.ArrayImgs;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
 
@@ -43,11 +42,11 @@ public class GaussianGradientMagnitudePixelFeature<T extends RealType<T>> extend
 	@Override
 	public void initialize() {
 		createOp = Functions.unary(ops(), Ops.Create.Img.class,RandomAccessibleInterval.class, in());
-		// FIXME hardcoded
-		RandomAccessibleInterval<T> kernelX = (RandomAccessibleInterval<T>) ArrayImgs
-				.doubles(new double[] { 1, 2, 1, 0, 0, 0, -1, -2, -1 }, 3L, 3L);
-		RandomAccessibleInterval<T> kernelY = (RandomAccessibleInterval<T>) ArrayImgs
-				.doubles(new double[] { -1, 0, 1, -2, 0, 2, -1, 0, 1 }, 3L, 3L);
+
+		// TODO get dimensionality from input
+		RandomAccessibleInterval<T> sobelKernel = (RandomAccessibleInterval<T>) ops().create().kernelSobel(new double[]{3,3});
+		RandomAccessibleInterval<T> kernelX = Views.hyperSlice(Views.hyperSlice(sobelKernel, 3, 0), 2, 0);
+		RandomAccessibleInterval<T> kernelY = Views.hyperSlice(Views.hyperSlice(sobelKernel, 3, 0), 2, 1);
 		
 		double[] sigmas = new double[in().numDimensions()];
 		Arrays.fill(sigmas, sigma);
