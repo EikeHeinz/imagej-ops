@@ -1171,6 +1171,23 @@ public class FilterNamespace extends AbstractNamespace {
 				outOfBoundsFactory, range, minPixelFraction);
 		return result;
 	}
+	
+	// -- Sobel
+	
+	@OpMethod(op = net.imagej.ops.filter.sobel.DefaultSobelRAI.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> sobel(final RandomAccessibleInterval<T> in) {
+		final RandomAccessibleInterval<T> result =
+			(RandomAccessibleInterval<T>) ops().run(net.imagej.ops.filter.sobel.DefaultSobelRAI.class, in);
+		return result;
+	}
+
+	@OpMethod(op = net.imagej.ops.filter.sobel.DefaultSobelRAI.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> sobel(final RandomAccessibleInterval<T> out, final RandomAccessibleInterval<T> in) {
+		final RandomAccessibleInterval<T> result =
+			(RandomAccessibleInterval<T>) ops().run(net.imagej.ops.filter.sobel.DefaultSobelRAI.class, out, in);
+		return result;
+	}
+
 
 	/** Executes the "variance" filter operation on the given arguments. */
 	@OpMethod(op = net.imagej.ops.filter.variance.DefaultVarianceFilter.class)

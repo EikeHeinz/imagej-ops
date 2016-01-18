@@ -98,6 +98,7 @@ namespaces = ```
 		[name: "min",                         iface: "Min",                 aliases: ["minFilter", "filterMin"]],
 		[name: "sigma",                       iface: "Sigma",               aliases: ["sigmaFilter", "filterSigma"]],
 		[name: "variance",                    iface: "Variance",            aliases: ["varianceFilter", "filterVariance", "var", "varFilter", "filterVar"]],
+	    [name: "sobel",                       iface: "Sobel"],
 	]],
 	[name: "geom", iface: "Geometric", ops: [
 		[name: "boundary",                    iface: "Boundary"],
