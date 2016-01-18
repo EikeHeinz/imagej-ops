@@ -30,7 +30,7 @@ public class DoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeature
 	@SuppressWarnings("rawtypes")
 	private List<UnaryFunctionOp<RandomAccessibleInterval, RandomAccessibleInterval>> doGOpsFunction;
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "rawtypes" })
 	@Override
 	public void initialize() {
 		maxSteps = ops().math().floor(Math.log(maxSigma) / Math.log(2));

@@ -30,7 +30,6 @@ public class GaussPixelFeature<T extends RealType<T>> extends AbstractPixelFeatu
 
 	private RandomAccessibleInterval<T> output;
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void initialize() {
 		double maxSteps = ops().math().floor(Math.log(maxSigma) / Math.log(2));
