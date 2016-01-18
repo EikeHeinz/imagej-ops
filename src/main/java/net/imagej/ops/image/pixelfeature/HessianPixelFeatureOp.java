@@ -3,11 +3,14 @@ package net.imagej.ops.image.pixelfeature;
 import org.scijava.plugin.Plugin;
 
 import net.imagej.ops.Ops;
+import net.imagej.ops.Ops.Math.Add;
 import net.imagej.ops.Ops.Math.Sqrt;
 import net.imagej.ops.special.Computers;
 import net.imagej.ops.special.Functions;
 import net.imagej.ops.special.UnaryComputerOp;
 import net.imagej.ops.special.UnaryFunctionOp;
+import net.imglib2.Dimensions;
+import net.imglib2.FinalDimensions;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Util;
@@ -17,7 +20,7 @@ import net.imglib2.view.Views;
 @Plugin(type = Ops.Image.HessianPxFeature.class, name = Ops.Image.HessianPxFeature.NAME)
 public class HessianPixelFeatureOp<T extends RealType<T>> extends AbstractPixelFeatureOp<T> {
 
-	// TODO init()
+	// TODO init() - create all used ops in init
 
 	@SuppressWarnings("rawtypes")
 	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> convolverKernelX;
@@ -36,6 +39,13 @@ public class HessianPixelFeatureOp<T extends RealType<T>> extends AbstractPixelF
 				kernelX);
 		convolverKernelY = Functions.unary(ops(), Ops.Filter.Convolve.class, RandomAccessibleInterval.class, in(),
 				kernelY);
+		// Computers.unary(ops(), Ops.Math.Add.class,
+		// RandomAccessibleInterval.class, in());
+		Add addOp = ops().op(Ops.Math.Add.class, RealType.class, RealType.class);
+		// addMapOp = Computers.unary(ops(), Ops.Map.class,
+		// RandomAccessibleInterval.class, RandomAccessibleInterval.class,
+		// addOp);
+
 		Sqrt sqrtOp = ops().op(Ops.Math.Sqrt.class, RealType.class, RealType.class);
 		sqrtMapOp = Computers.unary(ops(), Ops.Map.class, in(), in(), sqrtOp);
 
@@ -56,6 +66,17 @@ public class HessianPixelFeatureOp<T extends RealType<T>> extends AbstractPixelF
 		convolveX = null;
 		convolveY = null;
 
+		/*
+		 * output px value in hessian matrix is: [[XX,XY],[YX,YY]] =
+		 * 
+		 * [[a,b],[c,d]] 
+		 * Trace T=a+d 
+		 * Determinant D=ad-bc
+		 * 
+		 * First eigenvalue: (T/2) + sqrt((4b^2+(a-d)^2)/2)
+		 * Second eigenvalue: (T/2) - sqrt((4b^2+(a-d)^2)/2)
+		 */
+
 		// create output img containing slice for each feature
 		// (trace,determinant, 1st/2nd eigenvalue)
 		long[] dims = new long[in().numDimensions() + 2];
@@ -63,9 +84,10 @@ public class HessianPixelFeatureOp<T extends RealType<T>> extends AbstractPixelF
 			dims[i] = in().dimension(i);
 		}
 		dims[dims.length - 1] = 4;
+		Dimensions dim = FinalDimensions.wrap(dims);
 		// TODO create Dimensions object instead of using long array
-		RandomAccessibleInterval<T> output = (RandomAccessibleInterval<T>) ops().create().img(dims);
-		// TODO optimize runtime
+		RandomAccessibleInterval<T> output = ops().create().img(dim);
+
 		IntervalView<T> traceSlice = Views.hyperSlice(Views.hyperSlice(output, 3, 0), 2, 0);
 		IntervalView<T> determinantSlice = Views.hyperSlice(Views.hyperSlice(output, 3, 0), 2, 1);
 		IntervalView<T> eigenvalue1Slice = Views.hyperSlice(Views.hyperSlice(output, 3, 0), 2, 2);
@@ -85,33 +107,25 @@ public class HessianPixelFeatureOp<T extends RealType<T>> extends AbstractPixelF
 				multiplyXYYX);
 		ops().copy().rai(determinantSlice, determinant);
 
-		// eigenvalues
-		RandomAccessibleInterval<T> tempTraceSquare = (RandomAccessibleInterval<T>) ops().math().multiply(trace, trace);
+		// eigenvalues using trace and determinant:
+		// (1/2) * (trace +/- sqrt(trace*trace - 4*determinant))
+		RandomAccessibleInterval<T> traceSquare = (RandomAccessibleInterval<T>) ops().math().multiply(trace, trace);
 		T type = Util.getTypeFromInterval(determinant);
-		type.setReal(4.0f);
+		type.setReal(4.0d);
 		RandomAccessibleInterval<T> tempDeterminant = (RandomAccessibleInterval<T>) ops().math().multiply(determinant,
 				type);
-		RandomAccessibleInterval<T> temp = ops().create().img(input);
-		RandomAccessibleInterval<T> temp1 = (RandomAccessibleInterval<T>) ops().math().subtract(tempTraceSquare,
+		RandomAccessibleInterval<T> sqrt = ops().create().img(input);
+		RandomAccessibleInterval<T> sqrtSubtraction = (RandomAccessibleInterval<T>) ops().math().subtract(traceSquare,
 				tempDeterminant);
-		sqrtMapOp.compute1(temp1, temp);
-		RandomAccessibleInterval<T> addSqrt = (RandomAccessibleInterval<T>) ops().math().add(temp, trace);
-		RandomAccessibleInterval<T> subtractSqrt = (RandomAccessibleInterval<T>) ops().math().subtract(temp, trace);
+		sqrtMapOp.compute1(sqrtSubtraction, sqrt);
+		RandomAccessibleInterval<T> addSqrt = (RandomAccessibleInterval<T>) ops().math().add(sqrt, trace);
+		RandomAccessibleInterval<T> subtractSqrt = (RandomAccessibleInterval<T>) ops().math().subtract(sqrt, trace);
 		type.setReal(2.0d);
-		
+
 		RandomAccessibleInterval<T> eigenvalue1 = (RandomAccessibleInterval<T>) ops().math().divide(addSqrt, type);
 		RandomAccessibleInterval<T> eigenvalue2 = (RandomAccessibleInterval<T>) ops().math().divide(subtractSqrt, type);
 		ops().copy().rai(eigenvalue1Slice, eigenvalue1);
 		ops().copy().rai(eigenvalue2Slice, eigenvalue2);
-		// output px value in hessian matrix is: [[XX,XY],[YX,YY]] =
-		// [[a,b],[c,d]]
-		// Trace T=a+d
-		// Determinant D=ad-bc
-
-		// First eigenvalue: (T/2) + sqrt((4b^2+(a-d)^2)/2)
-		// Second eigenvalue: (T/2) - sqrt((4b^2+(a-d)^2)/2)
-		// using trace and determinant: (1/2) * (trace +/- sqrt(trace*trace -
-		// 4*determinant))
 
 		return output;
 
