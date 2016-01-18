@@ -543,6 +543,36 @@ public class CreateNamespace extends AbstractNamespace {
 		return result;
 	}
 
+	// -- kernelSobel --
+	
+	@OpMethod(op = net.imagej.ops.create.kernelSobel.CreateKernelSobel.class)
+	public <T extends ComplexType<T> & NativeType<T>> Img<T> kernelSobel(final double[] sigma) {
+		final Img<T> result =
+			(Img<T>) ops().run(net.imagej.ops.create.kernelSobel.CreateKernelSobel.class, sigma);
+		return result;
+	}
+
+	@OpMethod(op = net.imagej.ops.create.kernelSobel.CreateKernelSobel.class)
+	public <T extends ComplexType<T> & NativeType<T>> Img<T> kernelSobel(final Type<T> outType, final double[] sigma) {
+		final Img<T> result =
+			(Img<T>) ops().run(net.imagej.ops.create.kernelSobel.CreateKernelSobel.class, outType, sigma);
+		return result;
+	}
+
+	@OpMethod(op = net.imagej.ops.create.kernelSobel.CreateKernelSobel.class)
+	public <T extends ComplexType<T> & NativeType<T>> Img<T> kernelSobel(final Type<T> outType, final ImgFactory<T> fac, final double[] sigma) {
+		final Img<T> result =
+			(Img<T>) ops().run(net.imagej.ops.create.kernelSobel.CreateKernelSobel.class, outType, fac, sigma);
+		return result;
+	}
+
+	@OpMethod(op = net.imagej.ops.create.kernelSobel.CreateKernelSobel.class)
+	public <T extends ComplexType<T> & NativeType<T>> Img<T> kernelSobel(final Type<T> outType, final ImgFactory<T> fac, final double[] sigma, final double[] calibration) {
+		final Img<T> result =
+			(Img<T>) ops().run(net.imagej.ops.create.kernelSobel.CreateKernelSobel.class, outType, fac, sigma, calibration);
+		return result;
+	}
+
 
 	// -- labelingMapping --
 
