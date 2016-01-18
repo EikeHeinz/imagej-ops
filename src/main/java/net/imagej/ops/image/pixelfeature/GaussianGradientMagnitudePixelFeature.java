@@ -22,7 +22,7 @@ import net.imglib2.view.Views;
 public class GaussianGradientMagnitudePixelFeature<T extends RealType<T>> extends AbstractPixelFeatureOp<T>
 		implements GaussianGradientMagnitudePxFeature {
 
-	@Parameter(type = ItemIO.INPUT)
+	@Parameter
 	private double sigma;
 
 	@SuppressWarnings("rawtypes")
@@ -54,6 +54,8 @@ public class GaussianGradientMagnitudePixelFeature<T extends RealType<T>> extend
 		
 		convolverKernelX = Computers.unary(ops(), Ops.Filter.Convolve.class, in(), in(), kernelX);
 		convolverKernelY = Computers.unary(ops(), Ops.Filter.Convolve.class, in(), in(), kernelY);
+		
+		
 		
 		Sqr squareOp = ops().op(Ops.Math.Sqr.class, RealType.class, RealType.class);
 		squareMapOp = Computers.unary(ops(), Ops.Map.class, in(), in(), squareOp);

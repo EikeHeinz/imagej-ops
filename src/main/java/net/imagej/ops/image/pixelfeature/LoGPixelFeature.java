@@ -14,7 +14,7 @@ import net.imglib2.type.numeric.RealType;
 @Plugin(type = Ops.Image.LoGPxFeature.class, name = Ops.Image.LoGPxFeature.NAME)
 public class LoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeatureOp<T> {
 
-	@Parameter(type = ItemIO.INPUT)
+	@Parameter
 	private double sigma;
 
 	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> loGOp;

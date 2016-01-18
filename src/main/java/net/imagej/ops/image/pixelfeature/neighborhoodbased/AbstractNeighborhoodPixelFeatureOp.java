@@ -9,7 +9,7 @@ import net.imglib2.type.numeric.RealType;
 public abstract class AbstractNeighborhoodPixelFeatureOp<T extends RealType<T>> extends
 		AbstractPixelFeatureOp<T> {
 
-	@Parameter(type = ItemIO.INPUT)
+	@Parameter
 	protected int span;
 
 }
