@@ -9,6 +9,8 @@ import org.scijava.plugin.Plugin;
 import net.imagej.ops.Ops;
 import net.imagej.ops.special.Functions;
 import net.imagej.ops.special.UnaryFunctionOp;
+import net.imglib2.Dimensions;
+import net.imglib2.FinalDimensions;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.IntervalView;
@@ -43,8 +45,9 @@ public class DoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeature
 			dims[i] = in().dimension(i);
 		}
 		dims[dims.length - 1] = (long) amountOfOutSlices;
+		Dimensions dim = FinalDimensions.wrap(dims);
 
-		output = (RandomAccessibleInterval<T>) ops().create().img(dims);
+		output = ops().create().img(dim);
 
 		doGOpsFunction = new ArrayList<UnaryFunctionOp<RandomAccessibleInterval, RandomAccessibleInterval>>();
 
