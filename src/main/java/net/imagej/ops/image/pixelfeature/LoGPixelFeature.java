@@ -1,6 +1,5 @@
 package net.imagej.ops.image.pixelfeature;
 
-import org.scijava.ItemIO;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 

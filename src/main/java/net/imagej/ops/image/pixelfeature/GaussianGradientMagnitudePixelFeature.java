@@ -2,7 +2,6 @@ package net.imagej.ops.image.pixelfeature;
 
 import java.util.Arrays;
 
-import org.scijava.ItemIO;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
@@ -44,7 +43,7 @@ public class GaussianGradientMagnitudePixelFeature<T extends RealType<T>> extend
 		createOp = Functions.unary(ops(), Ops.Create.Img.class,RandomAccessibleInterval.class, in());
 
 		// TODO get dimensionality from input
-		RandomAccessibleInterval<T> sobelKernel = (RandomAccessibleInterval<T>) ops().create().kernelSobel(new double[]{3,3});
+		RandomAccessibleInterval<T> sobelKernel = ops().create().kernelSobel(in().numDimensions());
 		RandomAccessibleInterval<T> kernelX = Views.hyperSlice(Views.hyperSlice(sobelKernel, 3, 0), 2, 0);
 		RandomAccessibleInterval<T> kernelY = Views.hyperSlice(Views.hyperSlice(sobelKernel, 3, 0), 2, 1);
 		

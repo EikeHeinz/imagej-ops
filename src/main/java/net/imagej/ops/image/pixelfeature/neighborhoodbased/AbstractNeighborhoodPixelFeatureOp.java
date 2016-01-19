@@ -1,6 +1,5 @@
 package net.imagej.ops.image.pixelfeature.neighborhoodbased;
 
-import org.scijava.ItemIO;
 import org.scijava.plugin.Parameter;
 
 import net.imagej.ops.image.pixelfeature.AbstractPixelFeatureOp;
