@@ -27,16 +27,32 @@ public class DoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeature
 
 	private double maxSteps;
 
-	private RandomAccessibleInterval<T> output;
-
-	@SuppressWarnings("rawtypes")
-	private List<UnaryFunctionOp<RandomAccessibleInterval, RandomAccessibleInterval>> doGOpsFunction;
+	private List<UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>> doGOpsFunction;
 
 	@SuppressWarnings({ "rawtypes" })
 	@Override
 	public void initialize() {
 		maxSteps = ops().math().floor(Math.log(maxSigma) / Math.log(2));
 
+		doGOpsFunction = new ArrayList<UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>>();
+
+		for (int i = 0; i < maxSteps - 1; i++) {
+			for (int j = i + 1; j <= maxSteps; j++) {
+				Double sigma1 = new Double(Math.pow(2, i) * minSigma);
+				Double sigma2 = new Double(Math.pow(2, j) * minSigma);
+
+				@SuppressWarnings("unchecked")
+				UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> tempOp = (UnaryFunctionOp) Functions
+						.unary(ops(), Ops.Filter.DoG.class, RandomAccessibleInterval.class, in(), sigma1, sigma2);
+
+				doGOpsFunction.add(tempOp);
+
+			}
+		}
+	}
+
+	@Override
+	public RandomAccessibleInterval<T> compute1(RandomAccessibleInterval<T> input) {
 		// maxSteps+1 choose 2 -1 because counting starts with 0
 		double amountOfOutSlices = (maxSteps * (maxSteps + 1) / 2) - 1;
 
@@ -47,30 +63,11 @@ public class DoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeature
 		dims[dims.length - 1] = (long) amountOfOutSlices;
 		Dimensions dim = FinalDimensions.wrap(dims);
 
-		output = ops().create().img(dim);
+		RandomAccessibleInterval<T> output = ops().create().img(dim);
 
-		doGOpsFunction = new ArrayList<UnaryFunctionOp<RandomAccessibleInterval, RandomAccessibleInterval>>();
-
-		for (int i = 0; i < maxSteps - 1; i++) {
-			for (int j = i + 1; j <= maxSteps; j++) {
-				Double sigma1 = new Double(Math.pow(2, i) * minSigma);
-				Double sigma2 = new Double(Math.pow(2, j) * minSigma);
-				UnaryFunctionOp<RandomAccessibleInterval, RandomAccessibleInterval> tempOp = Functions.unary(ops(),
-						Ops.Filter.DoG.class, RandomAccessibleInterval.class, in(), sigma1, sigma2);
-
-				doGOpsFunction.add(tempOp);
-
-			}
-		}
-	}
-
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@Override
-	public RandomAccessibleInterval<T> compute1(RandomAccessibleInterval<T> input) {
-		IntervalView<T> extendedIn = Views
-				.interval(Views.extendMirrorDouble(input), input);
+		IntervalView<T> extendedIn = Views.interval(Views.extendMirrorDouble(input), input);
 		int i = 0;
-		for (UnaryFunctionOp<RandomAccessibleInterval, RandomAccessibleInterval> doGOp : doGOpsFunction) {
+		for (UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> doGOp : doGOpsFunction) {
 
 			RandomAccessibleInterval<T> outSlice = Views.hyperSlice(Views.hyperSlice(output, 3, 0), 2, i);
 			RandomAccessibleInterval<T> tempOut = doGOp.compute1(extendedIn);

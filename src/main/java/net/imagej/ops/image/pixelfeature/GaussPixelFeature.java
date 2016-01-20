@@ -35,13 +35,6 @@ public class GaussPixelFeature<T extends RealType<T>> extends AbstractPixelFeatu
 	public void initialize() {
 		double maxSteps = ops().math().floor(Math.log(maxSigma) / Math.log(2));
 
-		long[] dims = new long[in().numDimensions() + 2];
-		for (int i = 0; i < dims.length - 1; i++) {
-			dims[i] = in().dimension(i);
-		}
-		dims[dims.length - 1] = (long) maxSteps;
-		Dimensions dim = FinalDimensions.wrap(dims);
-		output = ops().create().img(dim);
 
 		gaussOps = new ArrayList<UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>>();
 
@@ -55,6 +48,13 @@ public class GaussPixelFeature<T extends RealType<T>> extends AbstractPixelFeatu
 
 	@Override
 	public RandomAccessibleInterval<T> compute1(RandomAccessibleInterval<T> input) {
+		long[] dims = new long[in().numDimensions() + 2];
+		for (int i = 0; i < dims.length - 1; i++) {
+			dims[i] = in().dimension(i);
+		}
+		dims[dims.length - 1] = gaussOps.size();
+		Dimensions dim = FinalDimensions.wrap(dims);
+		output = ops().create().img(dim);
 		IntervalView<T> extendedIn = Views.interval(Views.extendMirrorDouble(input), input);
 
 		int i = 0;
