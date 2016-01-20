@@ -24,8 +24,7 @@ public class GaussianGradientMagnitudePixelFeature<T extends RealType<T>> extend
 	@Parameter
 	private double sigma;
 
-	@SuppressWarnings("rawtypes")
-	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> createOp;
+	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> createOp;
 
 	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> gaussOp;
 
@@ -37,33 +36,31 @@ public class GaussianGradientMagnitudePixelFeature<T extends RealType<T>> extend
 
 	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> sqrtMapOp;
 
-
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void initialize() {
-		createOp = Functions.unary(ops(), Ops.Create.Img.class,RandomAccessibleInterval.class, in());
+		createOp = (UnaryFunctionOp) Functions.unary(ops(), Ops.Create.Img.class, RandomAccessibleInterval.class,
+				in() != null ? in() : RandomAccessibleInterval.class);
 
 		// TODO get dimensionality from input
 		RandomAccessibleInterval<T> sobelKernel = ops().create().kernelSobel(in().numDimensions());
 		RandomAccessibleInterval<T> kernelX = Views.hyperSlice(Views.hyperSlice(sobelKernel, 3, 0), 2, 0);
 		RandomAccessibleInterval<T> kernelY = Views.hyperSlice(Views.hyperSlice(sobelKernel, 3, 0), 2, 1);
-		
+
 		double[] sigmas = new double[in().numDimensions()];
 		Arrays.fill(sigmas, sigma);
 		gaussOp = Computers.unary(ops(), Ops.Filter.Gauss.class, in(), in(), sigmas);
-		
+
 		convolverKernelX = Computers.unary(ops(), Ops.Filter.Convolve.class, in(), in(), kernelX);
 		convolverKernelY = Computers.unary(ops(), Ops.Filter.Convolve.class, in(), in(), kernelY);
-		
-		
-		
+
 		Sqr squareOp = ops().op(Ops.Math.Sqr.class, RealType.class, RealType.class);
 		squareMapOp = Computers.unary(ops(), Ops.Map.class, in(), in(), squareOp);
 		Sqrt sqrtOp = ops().op(Ops.Math.Sqrt.class, RealType.class, RealType.class);
 		sqrtMapOp = Computers.unary(ops(), Ops.Map.class, in(), in(), sqrtOp);
-			
+
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public RandomAccessibleInterval<T> compute1(RandomAccessibleInterval<T> input) {
 
@@ -82,13 +79,12 @@ public class GaussianGradientMagnitudePixelFeature<T extends RealType<T>> extend
 		squareMapOp.compute1(convolveY, convolveY);
 
 		RandomAccessibleInterval<T> output = createOp.compute1(input);
-		
+
 		// FIXME create Op in initialize method
 		output = (RandomAccessibleInterval<T>) ops().math().add(output, convolveX);
-		output = (RandomAccessibleInterval<T>) ops().math().add(output,convolveY);
+		output = (RandomAccessibleInterval<T>) ops().math().add(output, convolveY);
 
 		sqrtMapOp.compute1(output, output);
-
 		return output;
 	}
 
