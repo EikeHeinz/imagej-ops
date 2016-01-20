@@ -10,6 +10,7 @@ import net.imagej.ops.special.Functions;
 import net.imagej.ops.special.UnaryComputerOp;
 import net.imagej.ops.special.UnaryFunctionOp;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.img.Img;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
 
@@ -26,12 +27,8 @@ public class DefaultSobelRAI<T extends RealType<T>>
 
 	@Override
 	public void initialize() {
-		double[] dims = new double[in().numDimensions()];
-		for (int i = 0; i < in().numDimensions(); i++) {
-			dims[i] = 3;
-		}
 		createOutputOp = Functions.unary(ops(), Ops.Create.Img.class, RandomAccessibleInterval.class, in());
-		RandomAccessibleInterval<T> kernel = (RandomAccessibleInterval<T>) ops().create().kernelSobel(dims);
+		RandomAccessibleInterval<T> kernel = ops().create().kernelSobel(in().numDimensions());
 		RandomAccessibleInterval<T> kernelX = Views.hyperSlice(Views.hyperSlice(kernel, 3, 0), 2, 0);
 		RandomAccessibleInterval<T> kernelY = Views.hyperSlice(Views.hyperSlice(kernel, 3, 0), 2, 0);
 		convolverX = Computers.unary(ops(), Convolve.class, RandomAccessibleInterval.class, in(), kernelX);

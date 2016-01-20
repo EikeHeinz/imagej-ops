@@ -46,6 +46,7 @@ import net.imglib2.type.NativeType;
 import net.imglib2.type.Type;
 import net.imglib2.type.numeric.ComplexType;
 import net.imglib2.type.numeric.IntegerType;
+import net.imglib2.type.numeric.RealType;
 
 import org.scijava.plugin.Plugin;
 
@@ -546,30 +547,23 @@ public class CreateNamespace extends AbstractNamespace {
 	// -- kernelSobel --
 	
 	@OpMethod(op = net.imagej.ops.create.kernelSobel.CreateKernelSobel.class)
-	public <T extends ComplexType<T> & NativeType<T>> Img<T> kernelSobel(final double[] sigma) {
+	public <T extends ComplexType<T>> Img<T> kernelSobel(final int dimensionality) {
 		final Img<T> result =
-			(Img<T>) ops().run(net.imagej.ops.create.kernelSobel.CreateKernelSobel.class, sigma);
+			(Img<T>) ops().run(net.imagej.ops.create.kernelSobel.CreateKernelSobel.class, dimensionality);
 		return result;
 	}
 
 	@OpMethod(op = net.imagej.ops.create.kernelSobel.CreateKernelSobel.class)
-	public <T extends ComplexType<T> & NativeType<T>> Img<T> kernelSobel(final Type<T> outType, final double[] sigma) {
+	public <T extends RealType<T>> Img<T> kernelSobel(final Type outType, final int dimensionality) {
 		final Img<T> result =
-			(Img<T>) ops().run(net.imagej.ops.create.kernelSobel.CreateKernelSobel.class, outType, sigma);
+			(Img<T>) ops().run(net.imagej.ops.create.kernelSobel.CreateKernelSobel.class, outType, dimensionality);
 		return result;
 	}
 
 	@OpMethod(op = net.imagej.ops.create.kernelSobel.CreateKernelSobel.class)
-	public <T extends ComplexType<T> & NativeType<T>> Img<T> kernelSobel(final Type<T> outType, final ImgFactory<T> fac, final double[] sigma) {
+	public <T extends RealType<T>> Img<T> kernelSobel(final Type outType, final ImgFactory fac, final int dimensionality) {
 		final Img<T> result =
-			(Img<T>) ops().run(net.imagej.ops.create.kernelSobel.CreateKernelSobel.class, outType, fac, sigma);
-		return result;
-	}
-
-	@OpMethod(op = net.imagej.ops.create.kernelSobel.CreateKernelSobel.class)
-	public <T extends ComplexType<T> & NativeType<T>> Img<T> kernelSobel(final Type<T> outType, final ImgFactory<T> fac, final double[] sigma, final double[] calibration) {
-		final Img<T> result =
-			(Img<T>) ops().run(net.imagej.ops.create.kernelSobel.CreateKernelSobel.class, outType, fac, sigma, calibration);
+			(Img<T>) ops().run(net.imagej.ops.create.kernelSobel.CreateKernelSobel.class, outType, fac, dimensionality);
 		return result;
 	}
 
