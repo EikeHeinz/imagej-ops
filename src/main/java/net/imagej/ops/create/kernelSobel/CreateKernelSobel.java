@@ -4,20 +4,35 @@ import org.scijava.plugin.Plugin;
 
 import net.imagej.ops.Ops;
 import net.imagej.ops.create.AbstractCreateKernel;
+import net.imagej.ops.create.AbstractCreateSobelKernel;
 import net.imglib2.Cursor;
+import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgFactory;
+import net.imglib2.img.array.ArrayImgs;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.ComplexType;
 import net.imglib2.type.numeric.real.DoubleType;
 
 @Plugin(type = Ops.Create.KernelSobel.class, name = Ops.Create.KernelSobel.NAME)
-public class CreateKernelSobel<T extends ComplexType<T> & NativeType<T>> extends AbstractCreateKernel<T> {
+public class CreateKernelSobel<T extends ComplexType<T> & NativeType<T>> extends AbstractCreateSobelKernel<T> {
 
 	// TODO fix inputs maybe create new abstract kernel class for sobel
 	// TODO fix type
 
 	@Override
 	protected void createKernel() {
+		
+//		long[] dim = new long[dimensionality];
+//
+//
+//		dim[0] = 3;
+//		dim[1] = 1;
+//
+//		for (int k = 2; k < dim.length; k++)
+//			dim[k] = 1;
+//		
+//		Img<DoubleType> h = ArrayImgs.doubles(new double[] { 1, 2, 1 }, dim);
+//		Img<DoubleType> hp = ArrayImgs.doubles(new double[] { -1, 0, 1 }, dim);
 
 		// case: 2d
 		if (numDimensions == 2) {
