@@ -9,8 +9,8 @@ import org.scijava.plugin.Plugin;
 
 import net.imagej.ops.Ops;
 import net.imagej.ops.Ops.Filter.Gauss;
-import net.imagej.ops.special.Computers;
-import net.imagej.ops.special.UnaryComputerOp;
+import net.imagej.ops.special.computer.Computers;
+import net.imagej.ops.special.computer.UnaryComputerOp;
 import net.imglib2.Dimensions;
 import net.imglib2.FinalDimensions;
 import net.imglib2.RandomAccessibleInterval;

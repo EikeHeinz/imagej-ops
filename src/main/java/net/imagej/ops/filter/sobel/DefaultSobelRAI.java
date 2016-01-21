@@ -4,11 +4,11 @@ import org.scijava.plugin.Plugin;
 
 import net.imagej.ops.Ops;
 import net.imagej.ops.Ops.Filter.Convolve;
-import net.imagej.ops.special.AbstractUnaryHybridOp;
-import net.imagej.ops.special.Computers;
-import net.imagej.ops.special.Functions;
-import net.imagej.ops.special.UnaryComputerOp;
-import net.imagej.ops.special.UnaryFunctionOp;
+import net.imagej.ops.special.computer.Computers;
+import net.imagej.ops.special.function.Functions;
+import net.imagej.ops.special.hybrid.AbstractUnaryHybridCF;
+import net.imagej.ops.special.computer.UnaryComputerOp;
+import net.imagej.ops.special.function.UnaryFunctionOp;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.type.numeric.RealType;
@@ -16,10 +16,11 @@ import net.imglib2.view.Views;
 
 @Plugin(type = Ops.Filter.Sobel.class, name = Ops.Filter.Sobel.NAME)
 public class DefaultSobelRAI<T extends RealType<T>>
-		extends AbstractUnaryHybridOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> {
+		extends AbstractUnaryHybridCF<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> {
 	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> convolverX;
 	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> createOutputOp;
 	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> convolverY;
+	
 
 	// TODO how to return convolved image? combine into one? create parameter
 	// for kernel selection and only return one derivative?

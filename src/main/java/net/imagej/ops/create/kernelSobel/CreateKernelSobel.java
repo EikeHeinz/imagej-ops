@@ -3,7 +3,6 @@ package net.imagej.ops.create.kernelSobel;
 import org.scijava.plugin.Plugin;
 
 import net.imagej.ops.Ops;
-import net.imagej.ops.create.AbstractCreateKernel;
 import net.imagej.ops.create.AbstractCreateSobelKernel;
 import net.imglib2.Cursor;
 import net.imglib2.img.Img;
