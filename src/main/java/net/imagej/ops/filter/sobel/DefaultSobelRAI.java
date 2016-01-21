@@ -3,7 +3,6 @@ package net.imagej.ops.filter.sobel;
 import org.scijava.plugin.Plugin;
 
 import net.imagej.ops.Ops;
-import net.imagej.ops.Ops.Filter.Convolve;
 import net.imagej.ops.Ops.Math.Sqr;
 import net.imagej.ops.Ops.Math.Sqrt;
 import net.imagej.ops.special.computer.Computers;
@@ -12,9 +11,7 @@ import net.imagej.ops.special.function.Functions;
 import net.imagej.ops.special.function.UnaryFunctionOp;
 import net.imagej.ops.special.hybrid.AbstractUnaryHybridCF;
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.numeric.RealType;
-import net.imglib2.util.Util;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 
