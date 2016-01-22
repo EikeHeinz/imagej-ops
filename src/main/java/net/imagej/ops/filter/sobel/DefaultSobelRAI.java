@@ -30,9 +30,7 @@ public class DefaultSobelRAI<T extends RealType<T>>
 	@Override
 	public void initialize() {
 		createOutputOp = Functions.unary(ops(), Ops.Create.Img.class, RandomAccessibleInterval.class, in());
-		RandomAccessibleInterval<T> kernel = ops().create().kernelSobel(2);
-		kernelX = Views.hyperSlice(Views.hyperSlice(kernel, 3, 0), 2, 0);
-		kernelY = Views.hyperSlice(Views.hyperSlice(kernel, 3, 0), 2, 1);
+
 		
 		Sqr squareOp = ops().op(Ops.Math.Sqr.class, RealType.class, RealType.class);
 		squareMapOp = Computers.unary(ops(),
@@ -48,33 +46,9 @@ public class DefaultSobelRAI<T extends RealType<T>>
 
 		for (int i = 0; i < input.numDimensions(); i++) {
 
-			int dimension = i;
-
-			RandomAccessibleInterval<T> aux = ops().create().img(input);
-			ops().copy().rai(aux, input);
-
-			// calculate derivative on that direction with 1-d filter
-			for (int j = input.numDimensions() - 1; j >= 0; j--) {
-				RandomAccessibleInterval<T> derivative = ops().create().img(aux);
-
-				if (j != 0) {
-					IntervalView<T> filter = dimension == j ? Views.rotate(kernelY, 0, j) : Views.rotate(kernelX, 0, j);
-					ops().filter().convolve(derivative, Views.extendMirrorSingle(aux), filter);
-				} else {
-					if (dimension == j) {
-						IntervalView<T> filter = Views.interval(kernelY, kernelY);
-						ops().filter().convolve(derivative, Views.extendMirrorSingle(aux), filter);
-					} else {
-						IntervalView<T> filter = Views.interval(kernelX, kernelX);
-						ops().filter().convolve(derivative, Views.extendMirrorSingle(aux), filter);
-					}
-				}
-				aux = derivative;
-
-			}
-			RandomAccessibleInterval<T> out = aux;
-
-
+			RandomAccessibleInterval<T> out = createOutputOp.compute1(input);
+			ops().filter().directionalDerivative(out, input, i);
+			
 			squareMapOp.compute1(out, out);
 			RandomAccessibleInterval<T> temp = (RandomAccessibleInterval<T>) ops().math().add(output, out);
 			ops().copy().rai(output,temp);
@@ -90,7 +64,7 @@ public class DefaultSobelRAI<T extends RealType<T>>
 
 	@Override
 	public RandomAccessibleInterval<T> compute1(RandomAccessibleInterval<T> input) {
-		RandomAccessibleInterval<T> output = createOutputOp.compute1(input);
+		RandomAccessibleInterval<T> output = createOutput(input);
 		compute1(input, output);
 		return output;
 	}
