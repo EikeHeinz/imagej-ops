@@ -622,6 +622,22 @@ public class FilterNamespace extends AbstractNamespace {
 			raiExtendedInput, raiExtendedKernel, fftInput, fftKernel, output,
 			performInputFFT, performKernelFFT);
 	}
+	
+	// -- directional derivative --
+	
+	@OpMethod(op = net.imagej.ops.filter.derivative.DirectionalDerivativeRAI.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> directionalDerivative(final RandomAccessibleInterval<T> in, final int dimension) {
+		final RandomAccessibleInterval<T> result =
+			(RandomAccessibleInterval<T>) ops().run(net.imagej.ops.filter.derivative.DirectionalDerivativeRAI.class, in, dimension);
+		return result;
+	}
+
+	@OpMethod(op = net.imagej.ops.filter.derivative.DirectionalDerivativeRAI.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> directionalDerivative(final RandomAccessibleInterval<T> out, final RandomAccessibleInterval<T> in, final int dimension) {
+		final RandomAccessibleInterval<T> result =
+			(RandomAccessibleInterval<T>) ops().run(net.imagej.ops.filter.derivative.DirectionalDerivativeRAI.class, out, in, dimension);
+		return result;
+	}
 
 	// -- fft --
 
