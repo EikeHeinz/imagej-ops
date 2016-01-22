@@ -99,6 +99,7 @@ namespaces = ```
 		[name: "sigma",                       iface: "Sigma",               aliases: ["sigmaFilter", "filterSigma"]],
 		[name: "variance",                    iface: "Variance",            aliases: ["varianceFilter", "filterVariance", "var", "varFilter", "filterVar"]],
 	    [name: "sobel",                       iface: "Sobel"],
+	    [name: "directionalDerivative",       iface: "DirectionalDerivative"],
 	]],
 	[name: "geom", iface: "Geometric", ops: [
 		[name: "boundary",                    iface: "Boundary"],
