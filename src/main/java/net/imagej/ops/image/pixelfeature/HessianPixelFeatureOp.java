@@ -25,30 +25,12 @@ public class HessianPixelFeatureOp<T extends RealType<T>> extends AbstractPixelF
 
 	// TODO init() - create all used ops in init
 
-	@SuppressWarnings("rawtypes")
-	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> convolverKernelX;
-	@SuppressWarnings("rawtypes")
-	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> convolverKernelY;
+
 	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> sqrtMapOp;
 	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> addMapOp;
 
 	@Override
 	public void initialize() {
-		// TODO get dimensionality from input
-		RandomAccessibleInterval<T> sobelKernel = ops().create().kernelSobel(in().numDimensions());
-		RandomAccessibleInterval<T> kernelX = Views.hyperSlice(Views.hyperSlice(sobelKernel, 3, 0), 2, 0);
-		RandomAccessibleInterval<T> kernelY = Views.hyperSlice(Views.hyperSlice(sobelKernel, 3, 0), 2, 1);
-		convolverKernelX = Functions.unary(ops(), Ops.Filter.Convolve.class, RandomAccessibleInterval.class, in(),
-				kernelX);
-		convolverKernelY = Functions.unary(ops(), Ops.Filter.Convolve.class, RandomAccessibleInterval.class, in(),
-				kernelY);
-		// Computers.unary(ops(), Ops.Math.Add.class,
-		// RandomAccessibleInterval.class, in());
-		//Add addOp = ops().op(Ops.Math.Add.class, RealType.class, RealType.class);
-		// addMapOp = Computers.unary(ops(), Ops.Map.class,
-		// RandomAccessibleInterval.class, RandomAccessibleInterval.class,
-		// addOp);
-
 		Sqrt sqrtOp = ops().op(Ops.Math.Sqrt.class, RealType.class, RealType.class);
 		sqrtMapOp = Computers.unary(ops(), Ops.Map.class, in(), in(), sqrtOp);
 		Add addOp = ops().op(Ops.Math.Add.class, RealType.class, RealType.class, RealType.class);
@@ -59,17 +41,22 @@ public class HessianPixelFeatureOp<T extends RealType<T>> extends AbstractPixelF
 	@Override
 	public RandomAccessibleInterval<T> compute1(RandomAccessibleInterval<T> input) {
 
-		// TODO optimize convolve calls
-		RandomAccessibleInterval<T> convolveX = convolverKernelX.compute1(input);
-		RandomAccessibleInterval<T> convolveY = convolverKernelY.compute1(input);
-		RandomAccessibleInterval<T> convolveXX = convolverKernelX.compute1(convolveX);
-		RandomAccessibleInterval<T> convolveXY = convolverKernelY.compute1(convolveX);
-		RandomAccessibleInterval<T> convolveYX = convolverKernelX.compute1(convolveY);
-		RandomAccessibleInterval<T> convolveYY = convolverKernelY.compute1(convolveY);
+		// TODO n dimensional solution
+		
+		RandomAccessibleInterval<T> x = ops().filter().directionalDerivative(input, 0);
+		RandomAccessibleInterval<T> xx = ops().filter().directionalDerivative(x, 0);
+		
 
+		RandomAccessibleInterval<T> xy = ops().filter().directionalDerivative(x, 1);
+
+		RandomAccessibleInterval<T> y = ops().filter().directionalDerivative(input, 1);
+		RandomAccessibleInterval<T> yx = ops().filter().directionalDerivative(y, 0);
+		
+		RandomAccessibleInterval<T> yy = ops().filter().directionalDerivative(y, 1);
+		
 		// dereference X and Y??
-		convolveX = null;
-		convolveY = null;
+		x = null;
+		y = null;
 
 		/*
 		 * output px value in hessian matrix is: [[XX,XY],[YX,YY]] =
@@ -97,17 +84,17 @@ public class HessianPixelFeatureOp<T extends RealType<T>> extends AbstractPixelF
 		IntervalView<T> eigenvalue2Slice = Views.hyperSlice(Views.hyperSlice(output, 3, 0), 2, 3);
 
 		// calculate trace
-		RandomAccessibleInterval<T> trace = (RandomAccessibleInterval<T>) ops().math().add(convolveXX, convolveYY);
+		RandomAccessibleInterval<T> trace = (RandomAccessibleInterval<T>) ops().math().add(xx, yy);
 		
 		//ImageJFunctions.show(traceSlice);
 		ops().copy().rai(traceSlice, trace);
 
 		// calculate determinant
-		RandomAccessibleInterval<T> multiplyXXYY = (RandomAccessibleInterval<T>) ops().math().multiply(convolveXX,
-				convolveYY);
+		RandomAccessibleInterval<T> multiplyXXYY = (RandomAccessibleInterval<T>) ops().math().multiply(xx,
+				yy);
 
-		RandomAccessibleInterval<T> multiplyXYYX = (RandomAccessibleInterval<T>) ops().math().multiply(convolveXY,
-				convolveYX);
+		RandomAccessibleInterval<T> multiplyXYYX = (RandomAccessibleInterval<T>) ops().math().multiply(xy,
+				yx);
 		RandomAccessibleInterval<T> determinant = (RandomAccessibleInterval<T>) ops().math().subtract(multiplyXXYY,
 				multiplyXYYX);
 		ops().copy().rai(determinantSlice, determinant);
