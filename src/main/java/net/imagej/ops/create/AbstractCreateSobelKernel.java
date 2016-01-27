@@ -14,8 +14,8 @@ import net.imglib2.type.numeric.real.FloatType;
 public abstract class AbstractCreateSobelKernel<T extends ComplexType<T> & NativeType<T>>
 		extends AbstractCreateKernelImg<T, DoubleType, ArrayImgFactory<DoubleType>> implements Contingent {
 	
-	@Parameter
-	protected int numDimensions;
+//	@Parameter
+//	protected int numDimensions;
 	
 	@Override
 	public void run() {

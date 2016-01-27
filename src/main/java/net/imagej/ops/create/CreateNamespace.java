@@ -547,23 +547,23 @@ public class CreateNamespace extends AbstractNamespace {
 	// -- kernelSobel --
 	
 	@OpMethod(op = net.imagej.ops.create.kernelSobel.CreateKernelSobel.class)
-	public <T extends ComplexType<T>> Img<T> kernelSobel(final int dimensionality) {
+	public <T extends ComplexType<T>> Img<T> kernelSobel() {
 		final Img<T> result =
-			(Img<T>) ops().run(net.imagej.ops.create.kernelSobel.CreateKernelSobel.class, dimensionality);
+			(Img<T>) ops().run(net.imagej.ops.create.kernelSobel.CreateKernelSobel.class);
+		return result;
+	}
+	
+	@OpMethod(op = net.imagej.ops.create.kernelSobel.CreateKernelSobel.class)
+	public <T extends ComplexType<T>> Img<T> kernelSobel(final Type<T> outType) {
+		final Img<T> result =
+			(Img<T>) ops().run(net.imagej.ops.create.kernelSobel.CreateKernelSobel.class, outType);
 		return result;
 	}
 
 	@OpMethod(op = net.imagej.ops.create.kernelSobel.CreateKernelSobel.class)
-	public <T extends RealType<T>> Img<T> kernelSobel(final Type outType, final int dimensionality) {
+	public <T extends ComplexType<T>> Img<T> kernelSobel(final Type<T> outType, final ImgFactory<T> fac) {
 		final Img<T> result =
-			(Img<T>) ops().run(net.imagej.ops.create.kernelSobel.CreateKernelSobel.class, outType, dimensionality);
-		return result;
-	}
-
-	@OpMethod(op = net.imagej.ops.create.kernelSobel.CreateKernelSobel.class)
-	public <T extends RealType<T>> Img<T> kernelSobel(final Type outType, final ImgFactory fac, final int dimensionality) {
-		final Img<T> result =
-			(Img<T>) ops().run(net.imagej.ops.create.kernelSobel.CreateKernelSobel.class, outType, fac, dimensionality);
+			(Img<T>) ops().run(net.imagej.ops.create.kernelSobel.CreateKernelSobel.class, outType, fac);
 		return result;
 	}
 

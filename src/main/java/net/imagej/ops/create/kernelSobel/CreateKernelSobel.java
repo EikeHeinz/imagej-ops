@@ -17,7 +17,7 @@ public class CreateKernelSobel<T extends ComplexType<T> & NativeType<T>> extends
 	@Override
 	protected void createKernel() {
 
-		long[] dim = new long[numDimensions + 2];
+		long[] dim = new long[4];
 
 		dim[0] = 3;
 		dim[1] = 1;
