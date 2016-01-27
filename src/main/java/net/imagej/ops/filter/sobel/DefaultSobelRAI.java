@@ -3,6 +3,7 @@ package net.imagej.ops.filter.sobel;
 import org.scijava.plugin.Plugin;
 
 import net.imagej.ops.Ops;
+import net.imagej.ops.Ops.Filter.Sobel;
 import net.imagej.ops.Ops.Math.Sqr;
 import net.imagej.ops.Ops.Math.Sqrt;
 import net.imagej.ops.special.computer.BinaryComputerOp;
@@ -16,7 +17,7 @@ import net.imglib2.type.numeric.RealType;
 
 @Plugin(type = Ops.Filter.Sobel.class, name = Ops.Filter.Sobel.NAME)
 public class DefaultSobelRAI<T extends RealType<T>>
-		extends AbstractUnaryHybridCF<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> {
+		extends AbstractUnaryHybridCF<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> implements Sobel {
 
 	@SuppressWarnings("rawtypes")
 	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> createOutputOp;
