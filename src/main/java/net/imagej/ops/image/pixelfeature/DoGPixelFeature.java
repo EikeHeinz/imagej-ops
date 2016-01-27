@@ -7,6 +7,8 @@ import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
 import net.imagej.ops.Ops;
+import net.imagej.ops.special.computer.Computers;
+import net.imagej.ops.special.computer.UnaryComputerOp;
 import net.imagej.ops.special.function.Functions;
 import net.imagej.ops.special.function.UnaryFunctionOp;
 import net.imglib2.Dimensions;
@@ -29,10 +31,20 @@ public class DoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeature
 
 	private List<UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>> doGOpsFunction;
 
+	@SuppressWarnings("rawtypes")
+	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> copyOp;
+
+	private UnaryFunctionOp<Dimensions, RandomAccessibleInterval> createOp;
+
 	@SuppressWarnings({ "rawtypes" })
 	@Override
 	public void initialize() {
 		maxSteps = ops().math().floor(Math.log(maxSigma) / Math.log(2));
+		
+		createOp = Functions.unary(ops(), Ops.Create.Img.class, RandomAccessibleInterval.class,
+				Dimensions.class);
+		
+		copyOp = Computers.unary(ops(), Ops.Copy.RAI.class, RandomAccessibleInterval.class, in());
 
 		doGOpsFunction = new ArrayList<UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>>();
 
@@ -63,7 +75,7 @@ public class DoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeature
 		dims[dims.length - 1] = (long) amountOfOutSlices;
 		Dimensions dim = FinalDimensions.wrap(dims);
 
-		RandomAccessibleInterval<T> output = ops().create().img(dim);
+		RandomAccessibleInterval<T> output = createOp.compute1(dim);
 
 		IntervalView<T> extendedIn = Views.interval(Views.extendMirrorDouble(input), input);
 		int i = 0;
@@ -71,7 +83,7 @@ public class DoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeature
 
 			RandomAccessibleInterval<T> outSlice = Views.hyperSlice(Views.hyperSlice(output, 3, 0), 2, i);
 			RandomAccessibleInterval<T> tempOut = doGOp.compute1(extendedIn);
-			ops().copy().rai(outSlice, tempOut);
+			copyOp.compute1(tempOut, outSlice);
 
 			i++;
 		}
