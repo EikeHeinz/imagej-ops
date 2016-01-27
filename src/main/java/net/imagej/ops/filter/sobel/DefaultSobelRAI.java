@@ -30,6 +30,7 @@ public class DefaultSobelRAI<T extends RealType<T>>
 	private UnaryComputerOp<RandomAccessibleInterval, RandomAccessibleInterval> sqrtMapOp;
 	@SuppressWarnings("rawtypes")
 	private BinaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>, RandomAccessibleInterval> addOp;
+	@SuppressWarnings("rawtypes")
 	private List<UnaryComputerOp<RandomAccessibleInterval, RandomAccessibleInterval>> derivativeComputers;
 
 	@Override
@@ -46,17 +47,18 @@ public class DefaultSobelRAI<T extends RealType<T>>
 		
 		derivativeComputers = new ArrayList<>();
 		for (int i = 0; i < in().numDimensions(); i++) {
-			UnaryComputerOp<RandomAccessibleInterval, RandomAccessibleInterval> temp = Computers.unary(ops(),
+			derivativeComputers.add(Computers.unary(ops(),
 					Ops.Filter.DirectionalDerivative.class, RandomAccessibleInterval.class,
-					in(), i);
-			derivativeComputers.add(temp);
+					in(), i));
 		}
 
 	}
 
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void compute1(RandomAccessibleInterval<T> input, RandomAccessibleInterval<T> output) {
-	
+		
 		for(UnaryComputerOp<RandomAccessibleInterval, RandomAccessibleInterval> derivativeComputer : derivativeComputers) {
 			RandomAccessibleInterval<T> derivative = createOutputOp.compute1(input);
 			derivativeComputer.compute1(input, derivative);
@@ -83,11 +85,13 @@ public class DefaultSobelRAI<T extends RealType<T>>
 		return compute1(in());
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public RandomAccessibleInterval<T> createOutput(RandomAccessibleInterval<T> input) {
 		return createOutputOp.compute1(input);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public RandomAccessibleInterval<T> createOutput() {
 		return createOutputOp.compute1(in());
