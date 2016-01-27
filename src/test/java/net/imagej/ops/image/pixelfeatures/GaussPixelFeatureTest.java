@@ -29,7 +29,7 @@ public class GaussPixelFeatureTest extends AbstractOpTest {
 		System.out.println("breakpoint");
 	}
 	
-	@Test
+//	@Test
 	public void testDoG() {
 		Img<FloatType> img1 = generateFloatArrayTestImg(false, new long[] { 500, 500 });
 

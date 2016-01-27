@@ -11,6 +11,8 @@ import net.imagej.ops.Ops;
 import net.imagej.ops.Ops.Filter.Gauss;
 import net.imagej.ops.special.computer.Computers;
 import net.imagej.ops.special.computer.UnaryComputerOp;
+import net.imagej.ops.special.function.Functions;
+import net.imagej.ops.special.function.UnaryFunctionOp;
 import net.imglib2.Dimensions;
 import net.imglib2.FinalDimensions;
 import net.imglib2.RandomAccessibleInterval;
@@ -31,10 +33,14 @@ public class GaussPixelFeature<T extends RealType<T>> extends AbstractPixelFeatu
 
 	private RandomAccessibleInterval<T> output;
 
+	private UnaryFunctionOp<Dimensions, RandomAccessibleInterval> createOp;
+
 	@Override
 	public void initialize() {
 		double maxSteps = ops().math().floor(Math.log(maxSigma) / Math.log(2));
 
+		createOp = Functions.unary(ops(), Ops.Create.Img.class, RandomAccessibleInterval.class,
+				Dimensions.class);
 
 		gaussOps = new ArrayList<UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>>();
 
@@ -54,7 +60,8 @@ public class GaussPixelFeature<T extends RealType<T>> extends AbstractPixelFeatu
 		}
 		dims[dims.length - 1] = gaussOps.size();
 		Dimensions dim = FinalDimensions.wrap(dims);
-		output = ops().create().img(dim);
+		RandomAccessibleInterval<T> output = createOp.compute1(dim);
+
 		IntervalView<T> extendedIn = Views.interval(Views.extendMirrorDouble(input), input);
 
 		int i = 0;

@@ -38,6 +38,15 @@ public class DefaultSobelRAI<T extends RealType<T>>
 		sqrtMapOp = Computers.unary(ops(), Ops.Map.class, RandomAccessibleInterval.class,
 				RandomAccessibleInterval.class, sqrtOp);
 		addOp = Computers.binary(ops(), Ops.Math.Add.class, RandomAccessibleInterval.class, in(), in());
+		
+//		List<BinaryComputerOp<RandomAccessibleInterval, Integer, RandomAccessibleInterval>> filterList = new ArrayList<>();
+//		for (int i = 0; i < in().numDimensions(); i++) {
+//			BinaryComputerOp<RandomAccessibleInterval, Integer, RandomAccessibleInterval> temp = Computers.binary(ops(),
+//					Ops.Filter.DirectionalDerivative.class, RandomAccessibleInterval.class,
+//					RandomAccessibleInterval.class, Integer.class);
+//			filterList.add(temp);
+//		}
+//		System.out.println("breakpoint");
 	}
 
 	@Override
