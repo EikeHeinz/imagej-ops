@@ -26,6 +26,9 @@ public class GaussianGradientMagnitudePixelFeature<T extends RealType<T>> extend
 
 	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> gaussOp;
 
+	@SuppressWarnings("rawtypes")
+	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> sobelFunction;
+
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
@@ -35,6 +38,7 @@ public class GaussianGradientMagnitudePixelFeature<T extends RealType<T>> extend
 		double[] sigmas = new double[in().numDimensions()];
 		Arrays.fill(sigmas, sigma);
 		gaussOp = Computers.unary(ops(), Ops.Filter.Gauss.class, in(), in(), sigmas);
+		sobelFunction = Functions.unary(ops(), Ops.Filter.Sobel.class, RandomAccessibleInterval.class, in());
 	}
 
 	@Override
@@ -45,7 +49,7 @@ public class GaussianGradientMagnitudePixelFeature<T extends RealType<T>> extend
 		RandomAccessibleInterval<T> blurred = createOp.compute1(input);
 		gaussOp.compute1(extended, blurred);
 
-		RandomAccessibleInterval<T> output = ops().filter().sobel(blurred);
+		RandomAccessibleInterval<T> output = sobelFunction.compute1(blurred);
 
 		return output;
 	}
