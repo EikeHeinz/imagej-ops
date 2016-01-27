@@ -59,6 +59,8 @@ public class GaussPixelFeature<T extends RealType<T>> extends AbstractPixelFeatu
 		}
 		dims[dims.length - 1] = gaussOps.size();
 		Dimensions dim = FinalDimensions.wrap(dims);
+		
+		@SuppressWarnings("unchecked")
 		RandomAccessibleInterval<T> output = createRAIFromDim.compute1(dim);
 
 		IntervalView<T> extendedIn = Views.interval(Views.extendMirrorDouble(input), input);
