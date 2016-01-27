@@ -31,8 +31,7 @@ public class GaussPixelFeature<T extends RealType<T>> extends AbstractPixelFeatu
 
 	private List<UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>> gaussOps;
 
-	private RandomAccessibleInterval<T> output;
-
+	@SuppressWarnings("rawtypes")
 	private UnaryFunctionOp<Dimensions, RandomAccessibleInterval> createOp;
 
 	@Override
