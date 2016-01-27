@@ -35,14 +35,14 @@ public class DoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeature
 	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> copyRAI;
 
 	@SuppressWarnings("rawtypes")
-	private UnaryFunctionOp<Dimensions, RandomAccessibleInterval> createOp;
+	private UnaryFunctionOp<Dimensions, RandomAccessibleInterval> createRAIFromDim;
 
-	@SuppressWarnings({ "rawtypes" })
+
 	@Override
 	public void initialize() {
 		maxSteps = ops().math().floor(Math.log(maxSigma) / Math.log(2));
 		
-		createOp = Functions.unary(ops(), Ops.Create.Img.class, RandomAccessibleInterval.class,
+		createRAIFromDim = Functions.unary(ops(), Ops.Create.Img.class, RandomAccessibleInterval.class,
 				Dimensions.class);
 		
 		copyRAI = Computers.unary(ops(), Ops.Copy.RAI.class, RandomAccessibleInterval.class, in());
@@ -54,7 +54,7 @@ public class DoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeature
 				Double sigma1 = new Double(Math.pow(2, i) * minSigma);
 				Double sigma2 = new Double(Math.pow(2, j) * minSigma);
 
-				@SuppressWarnings("unchecked")
+				@SuppressWarnings({ "unchecked", "rawtypes" })
 				UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> tempOp = (UnaryFunctionOp) Functions
 						.unary(ops(), Ops.Filter.DoG.class, RandomAccessibleInterval.class, in(), sigma1, sigma2);
 
@@ -76,7 +76,8 @@ public class DoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeature
 		dims[dims.length - 1] = (long) amountOfOutSlices;
 		Dimensions dim = FinalDimensions.wrap(dims);
 
-		RandomAccessibleInterval<T> output = createOp.compute1(dim);
+		@SuppressWarnings("unchecked")
+		RandomAccessibleInterval<T> output = createRAIFromDim.compute1(dim);
 
 		IntervalView<T> extendedIn = Views.interval(Views.extendMirrorDouble(input), input);
 		int i = 0;
