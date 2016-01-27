@@ -20,39 +20,45 @@ import net.imglib2.view.Views;
 @Plugin(type = Ops.Image.HessianPxFeature.class, name = Ops.Image.HessianPxFeature.NAME)
 public class HessianPixelFeatureOp<T extends RealType<T>> extends AbstractPixelFeatureOp<T> {
 
-	// TODO init() - create all used ops in init
+	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> sqrtMap;
+	@SuppressWarnings("rawtypes")
+	private BinaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>, RandomAccessibleInterval> addRAI;
+	@SuppressWarnings("rawtypes")
+	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> createRAIFromRAI;
+	@SuppressWarnings("rawtypes")
+	private BinaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>, RandomAccessibleInterval> multiplyRAI;
+	@SuppressWarnings("rawtypes")
+	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> copyRAI;
+	@SuppressWarnings("rawtypes")
+	private BinaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>, RandomAccessibleInterval> subtractRAI;
+	@SuppressWarnings("rawtypes")
+	private UnaryFunctionOp<Dimensions, RandomAccessibleInterval> createRAIFromDim;
+	@SuppressWarnings("rawtypes")
+	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> multiplyRAIby4;
+	@SuppressWarnings("rawtypes")
+	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> divideRAIby2;
 
 
-	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> sqrtMapOp;
-	@SuppressWarnings("rawtypes")
-	private BinaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>, RandomAccessibleInterval> addRAIOp;
-	@SuppressWarnings("rawtypes")
-	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> createRAIOp;
-	@SuppressWarnings("rawtypes")
-	private BinaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>, RandomAccessibleInterval> multiplyRAIOp;
-	@SuppressWarnings("rawtypes")
-	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> copyRAIOp;
-	@SuppressWarnings("rawtypes")
-	private BinaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>, RandomAccessibleInterval> subtractRAIOp;
-	@SuppressWarnings("rawtypes")
-	private UnaryFunctionOp<Dimensions, RandomAccessibleInterval> createRAIFromDimOp;
-
-
-	// TODO initialize multiplyOp(img,type) and divideOp(img,type)
+	// TODO extend to n dimensions
 
 	@Override
 	public void initialize() {
 		Sqrt sqrtOp = ops().op(Ops.Math.Sqrt.class, RealType.class, RealType.class);
-		sqrtMapOp = Computers.unary(ops(), Ops.Map.class, in(), in(), sqrtOp);
-        addRAIOp = Computers.binary(ops(), Ops.Math.Add.class, RandomAccessibleInterval.class, in(), in());
-		multiplyRAIOp = Computers.binary(ops(), Ops.Math.Multiply.class, RandomAccessibleInterval.class, in(), in());
-		
-		subtractRAIOp = Computers.binary(ops(), Ops.Math.Subtract.class, RandomAccessibleInterval.class, in(), in());
-		createRAIOp = Functions.unary(ops(), Ops.Create.Img.class, RandomAccessibleInterval.class,
+		sqrtMap = Computers.unary(ops(), Ops.Map.class, in(), in(), sqrtOp);
+        addRAI = Computers.binary(ops(), Ops.Math.Add.class, RandomAccessibleInterval.class, in(), in());
+		multiplyRAI = Computers.binary(ops(), Ops.Math.Multiply.class, RandomAccessibleInterval.class, in(), in());
+		T type4 = Util.getTypeFromInterval(in());
+		type4.setReal(4.0d);
+		multiplyRAIby4 = Computers.unary(ops(), Ops.Math.Multiply.class, RandomAccessibleInterval.class, in(), type4);
+		T type2 = Util.getTypeFromInterval(in());
+		type2.setReal(2.0d);
+		divideRAIby2 = Computers.unary(ops(), Ops.Math.Divide.class, RandomAccessibleInterval.class, in(), type2);
+		subtractRAI = Computers.binary(ops(), Ops.Math.Subtract.class, RandomAccessibleInterval.class, in(), in());
+		createRAIFromRAI = Functions.unary(ops(), Ops.Create.Img.class, RandomAccessibleInterval.class,
 				in());
-		createRAIFromDimOp = Functions.unary(ops(), Ops.Create.Img.class, RandomAccessibleInterval.class,
+		createRAIFromDim = Functions.unary(ops(), Ops.Create.Img.class, RandomAccessibleInterval.class,
 				Dimensions.class);
-		copyRAIOp = Computers.unary(ops(), Ops.Copy.RAI.class, RandomAccessibleInterval.class, in());
+		copyRAI = Computers.unary(ops(), Ops.Copy.RAI.class, RandomAccessibleInterval.class, in());
 	}
 
 	@Override
@@ -92,8 +98,7 @@ public class HessianPixelFeatureOp<T extends RealType<T>> extends AbstractPixelF
 		}
 		dims[dims.length - 1] = 4;
 		Dimensions dim = FinalDimensions.wrap(dims);
-		// TODO create Dimensions object instead of using long array
-		RandomAccessibleInterval<T> output = createRAIFromDimOp.compute1(dim);
+		RandomAccessibleInterval<T> output = createRAIFromDim.compute1(dim);
 
 		IntervalView<T> traceSlice = Views.hyperSlice(Views.hyperSlice(output, 3, 0), 2, 0);
 		IntervalView<T> determinantSlice = Views.hyperSlice(Views.hyperSlice(output, 3, 0), 2, 1);
@@ -101,49 +106,41 @@ public class HessianPixelFeatureOp<T extends RealType<T>> extends AbstractPixelF
 		IntervalView<T> eigenvalue2Slice = Views.hyperSlice(Views.hyperSlice(output, 3, 0), 2, 3);
 
 		// calculate trace
-		RandomAccessibleInterval<T> trace = createRAIOp.compute1(input);
-		addRAIOp.compute2(xx, yy, trace);
-		copyRAIOp.compute1(trace, traceSlice);
+		RandomAccessibleInterval<T> trace = createRAIFromRAI.compute1(input);
+		addRAI.compute2(xx, yy, trace);
+		copyRAI.compute1(trace, traceSlice);
 
 		// calculate determinant
-		RandomAccessibleInterval<T> multiplyXXYY = createRAIOp.compute1(input);
-		multiplyRAIOp.compute2(xx, yy, multiplyXXYY);
+		RandomAccessibleInterval<T> multiplyXXYY = createRAIFromRAI.compute1(input);
+		multiplyRAI.compute2(xx, yy, multiplyXXYY);
 
-		RandomAccessibleInterval<T> multiplyXYYX = createRAIOp.compute1(input);
-		multiplyRAIOp.compute2(xy, yx, multiplyXYYX);
+		RandomAccessibleInterval<T> multiplyXYYX = createRAIFromRAI.compute1(input);
+		multiplyRAI.compute2(xy, yx, multiplyXYYX);
 
-		RandomAccessibleInterval<T> determinant = createRAIOp.compute1(input);
-		subtractRAIOp.compute2(multiplyXXYY, multiplyXYYX, determinant);
+		RandomAccessibleInterval<T> determinant = createRAIFromRAI.compute1(input);
+		subtractRAI.compute2(multiplyXXYY, multiplyXYYX, determinant);
 
-		copyRAIOp.compute1(determinant, determinantSlice);
+		copyRAI.compute1(determinant, determinantSlice);
 
 		// eigenvalues using trace and determinant:
 		// (1/2) * (trace +/- sqrt(trace*trace - 4*determinant))
-		RandomAccessibleInterval<T> traceSquare = createRAIOp.compute1(input);
-		multiplyRAIOp.compute2(trace, trace, traceSquare);
+		RandomAccessibleInterval<T> traceSquare = createRAIFromRAI.compute1(input);
+		multiplyRAI.compute2(trace, trace, traceSquare);
 
-		T type = Util.getTypeFromInterval(determinant);
-		type.setReal(4.0d);
-		// FIXME see comment above init()
-		RandomAccessibleInterval<T> tempDeterminant = (RandomAccessibleInterval<T>) ops().math().multiply(determinant,
-				type);
-		RandomAccessibleInterval<T> sqrt = createRAIOp.compute1(input);
-		subtractRAIOp.compute2(traceSquare, tempDeterminant, sqrt);
+		RandomAccessibleInterval<T> tempDeterminant = createRAIFromRAI.compute1(input);
+		multiplyRAIby4.compute1(determinant, tempDeterminant);
 		
-		sqrtMapOp.compute1(sqrt, sqrt);
-		RandomAccessibleInterval<T> addSqrt = createRAIOp.compute1(input);
-		addRAIOp.compute2(sqrt, trace, addSqrt);
-		RandomAccessibleInterval<T> subtractSqrt = createRAIOp.compute1(input);
-		subtractRAIOp.compute2(sqrt, trace, subtractSqrt);
+		RandomAccessibleInterval<T> sqrt = createRAIFromRAI.compute1(input);
+		subtractRAI.compute2(traceSquare, tempDeterminant, sqrt);
+		
+		sqrtMap.compute1(sqrt, sqrt);
+		RandomAccessibleInterval<T> addSqrt = createRAIFromRAI.compute1(input);
+		addRAI.compute2(sqrt, trace, addSqrt);
+		RandomAccessibleInterval<T> subtractSqrt = createRAIFromRAI.compute1(input);
+		subtractRAI.compute2(sqrt, trace, subtractSqrt);
 
-		
-		type.setReal(2.0d);
-		// FIXME see comment above init()
-		RandomAccessibleInterval<T> eigenvalue1 = (RandomAccessibleInterval<T>) ops().math().divide(addSqrt, type);
-		RandomAccessibleInterval<T> eigenvalue2 = (RandomAccessibleInterval<T>) ops().math().divide(subtractSqrt, type);
-		
-		copyRAIOp.compute1(eigenvalue1, eigenvalue1Slice);
-		copyRAIOp.compute1(eigenvalue2, eigenvalue2Slice);
+		divideRAIby2.compute1(addSqrt, eigenvalue1Slice);
+		divideRAIby2.compute1(subtractSqrt, eigenvalue2Slice);
 
 		return output;
 
