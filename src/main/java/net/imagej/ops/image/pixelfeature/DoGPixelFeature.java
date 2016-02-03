@@ -29,7 +29,8 @@ public class DoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeature
 
 	private double maxSteps;
 
-	private List<UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>> doGFunctions;
+	@SuppressWarnings("rawtypes")
+	private List<UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval>> doGFunctions;
 
 	@SuppressWarnings("rawtypes")
 	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> copyRAI;
@@ -38,6 +39,7 @@ public class DoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeature
 	private UnaryFunctionOp<Dimensions, RandomAccessibleInterval> createRAIFromDim;
 
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public void initialize() {
 		maxSteps = ops().math().floor(Math.log(maxSigma) / Math.log(2));
@@ -47,15 +49,14 @@ public class DoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeature
 		
 		copyRAI = Computers.unary(ops(), Ops.Copy.RAI.class, RandomAccessibleInterval.class, in());
 
-		doGFunctions = new ArrayList<UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>>();
+		doGFunctions = new ArrayList<UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval>>();
 
 		for (int i = 0; i < maxSteps - 1; i++) {
 			for (int j = i + 1; j <= maxSteps; j++) {
 				Double sigma1 = new Double(Math.pow(2, i) * minSigma);
 				Double sigma2 = new Double(Math.pow(2, j) * minSigma);
 
-				@SuppressWarnings({ "unchecked", "rawtypes" })
-				UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> tempOp = (UnaryFunctionOp) Functions
+				UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> tempOp = Functions
 						.unary(ops(), Ops.Filter.DoG.class, RandomAccessibleInterval.class, in(), sigma1, sigma2);
 
 				doGFunctions.add(tempOp);
@@ -64,6 +65,7 @@ public class DoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeature
 		}
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public RandomAccessibleInterval<T> compute1(RandomAccessibleInterval<T> input) {
 		// maxSteps+1 choose 2 -1 because counting starts with 0
@@ -76,12 +78,11 @@ public class DoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeature
 		dims[dims.length - 1] = (long) amountOfOutSlices;
 		Dimensions dim = FinalDimensions.wrap(dims);
 
-		@SuppressWarnings("unchecked")
 		RandomAccessibleInterval<T> output = createRAIFromDim.compute1(dim);
 
 		IntervalView<T> extendedIn = Views.interval(Views.extendMirrorDouble(input), input);
 		int i = 0;
-		for (UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> doGFunction : doGFunctions) {
+		for (UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> doGFunction : doGFunctions) {
 
 			RandomAccessibleInterval<T> outSlice = Views.hyperSlice(Views.hyperSlice(output, 3, 0), 2, i);
 			RandomAccessibleInterval<T> tempOut = doGFunction.compute1(extendedIn);

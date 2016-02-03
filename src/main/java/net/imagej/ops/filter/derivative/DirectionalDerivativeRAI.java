@@ -44,12 +44,15 @@ public class DirectionalDerivativeRAI<T extends RealType<T>>
 		RandomAccessibleInterval<T> kernel = ops().create().kernelSobel();
 		IntervalView<T> kernelX = Views.hyperSlice(Views.hyperSlice(kernel, 3, 0), 2, 0);
 		IntervalView<T> kernelY = Views.hyperSlice(Views.hyperSlice(kernel, 3, 0), 2, 1);
+		
 		addOp = Computers.binary(ops(), Ops.Math.Add.class, RandomAccessibleInterval.class, in(), in());
+		
 		yConvolver = Computers.unary(ops(), Ops.Filter.Convolve.class, RandomAccessibleInterval.class, in(), kernelY);
 		xConvolver = Computers.unary(ops(), Ops.Filter.Convolve.class, RandomAccessibleInterval.class, in(), kernelX);
+		
 		copyRAI = Computers.unary(ops(), Ops.Copy.RAI.class, RandomAccessibleInterval.class, in());
 		createRAIFromRAI = Functions.unary(ops(), Ops.Create.Img.class, RandomAccessibleInterval.class, in());
-		// this list contains NULL at index dimension
+		
 		IntervalView<T> filter = Views.rotate(kernelY, 0, 1);
 		yConvolverRotated = Computers.unary(ops(), Ops.Filter.Convolve.class, RandomAccessibleInterval.class,
 				in(), filter);

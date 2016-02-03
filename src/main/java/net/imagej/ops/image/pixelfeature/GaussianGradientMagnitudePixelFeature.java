@@ -22,7 +22,8 @@ public class GaussianGradientMagnitudePixelFeature<T extends RealType<T>> extend
 	@Parameter
 	private double sigma;
 
-	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> createOp;
+	@SuppressWarnings("rawtypes")
+	private UnaryFunctionOp<RandomAccessibleInterval, RandomAccessibleInterval> createOp;
 
 	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> gaussOp;
 
@@ -30,17 +31,18 @@ public class GaussianGradientMagnitudePixelFeature<T extends RealType<T>> extend
 	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> sobelFunction;
 
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ })
 	@Override
 	public void initialize() {
-		createOp = (UnaryFunctionOp) Functions.unary(ops(), Ops.Create.Img.class, RandomAccessibleInterval.class,
-				in() != null ? in() : RandomAccessibleInterval.class);
+		createOp = Functions.unary(ops(), Ops.Create.Img.class, RandomAccessibleInterval.class,
+				RandomAccessibleInterval.class);
 		double[] sigmas = new double[in().numDimensions()];
 		Arrays.fill(sigmas, sigma);
 		gaussOp = Computers.unary(ops(), Ops.Filter.Gauss.class, in(), in(), sigmas);
 		sobelFunction = Functions.unary(ops(), Ops.Filter.Sobel.class, RandomAccessibleInterval.class, in());
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public RandomAccessibleInterval<T> compute1(RandomAccessibleInterval<T> input) {
 
