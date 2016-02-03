@@ -59,12 +59,12 @@ public class DirectionalDerivativeRAI<T extends RealType<T>>
 			UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> temp = null;
 			if (i == dimension) {
 				// rotate kernelY
-				IntervalView<T> filter = Views.rotate(kernelY, 0, i);
+				IntervalView<T> filter = Views.rotate(kernelY, 0, 1);
 				yConvolverRotated = Computers.unary(ops(), Ops.Filter.Convolve.class, RandomAccessibleInterval.class,
 						in(), filter);
 			} else {
 				// rotate kernelX
-				IntervalView<T> filter = Views.rotate(kernelX, 0, i);
+				IntervalView<T> filter = Views.rotate(kernelX, 0, 1);
 				temp = Computers.unary(ops(), Ops.Filter.Convolve.class, RandomAccessibleInterval.class, in(), filter);
 			}
 			xConvolverRotatedList.add(temp);
