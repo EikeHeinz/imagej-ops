@@ -43,7 +43,7 @@ public class HessianPixelFeatureOp<T extends RealType<T>> extends AbstractPixelF
 	@SuppressWarnings("rawtypes")
 	private List<UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval>> derivativeComputerList;
 
-	// TODO add 3d case
+	// TODO verify 3d case
 
 	@Override
 	public void initialize() {
@@ -79,8 +79,7 @@ public class HessianPixelFeatureOp<T extends RealType<T>> extends AbstractPixelF
 		for(UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> derivativeFunction : derivativeComputerList){
 			RandomAccessibleInterval<T> temp = derivativeFunction.compute1(input);
 			for(UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> derivativeFunction2 : derivativeComputerList) {
-				RandomAccessibleInterval<T> temp2 = derivativeFunction2.compute1(temp);
-				hesseSlices.add(temp2);
+				hesseSlices.add(derivativeFunction2.compute1(temp));
 			}
 		}
 
@@ -153,7 +152,6 @@ public class HessianPixelFeatureOp<T extends RealType<T>> extends AbstractPixelF
 			divideRAIby2.compute1(subtractSqrt, eigenvalue2Slice);
 			
 		} else if (derivativeComputerList.size() == 3) {
-			// TODO
 			RandomAccessibleInterval<T> xx = hesseSlices.get(0);
 			RandomAccessibleInterval<T> xy = hesseSlices.get(1);
 			RandomAccessibleInterval<T> xz = hesseSlices.get(2);
@@ -173,10 +171,8 @@ public class HessianPixelFeatureOp<T extends RealType<T>> extends AbstractPixelF
 			Dimensions dim = FinalDimensions.wrap(dims);
 			output = createRAIFromDim.compute1(dim);
 			
-			// TODO check indices
-			IntervalView<T> traceSlice = Views.hyperSlice(Views.hyperSlice(output, 3, 0), 2, 0);
-			IntervalView<T> determinantSlice = Views.hyperSlice(Views.hyperSlice(output, 3, 0), 2, 1);
-			
+			IntervalView<T> traceSlice = Views.hyperSlice(Views.hyperSlice(output, 3, 0), 3, 0);
+			IntervalView<T> determinantSlice = Views.hyperSlice(Views.hyperSlice(output, 3, 0), 3, 1);
 		
 			// calculate trace
 			RandomAccessibleInterval<T> trace = createRAIFromRAI.compute1(xx);
@@ -191,25 +187,28 @@ public class HessianPixelFeatureOp<T extends RealType<T>> extends AbstractPixelF
 			multiplyRAI.compute2(yy, zz, yyzz);
 			RandomAccessibleInterval<T> yzzy = createRAIFromRAI.compute1(xx);
 			multiplyRAI.compute2(yz,zy,yzzy);
-			subtractRAI.compute2(yzzy, yyzz, yyzz);
+			RandomAccessibleInterval<T> yyzzyzzy = createRAIFromRAI.compute1(xx);
+			subtractRAI.compute2(yyzz,yzzy, yyzzyzzy);
 			RandomAccessibleInterval<T> intermediateResult1 = createRAIFromRAI.compute1(xx);
-			multiplyRAI.compute2(xx, yyzz, intermediateResult1);
+			multiplyRAI.compute2(xx, yyzzyzzy, intermediateResult1);
 			
 			RandomAccessibleInterval<T> yxzz = createRAIFromRAI.compute1(xx);
 			multiplyRAI.compute2(yx, zz, yxzz);
 			RandomAccessibleInterval<T> yzzx = createRAIFromRAI.compute1(xx);
 			multiplyRAI.compute2(yz,zx,yzzx);
-			subtractRAI.compute2(yzzx, yxzz, yxzz);
+			RandomAccessibleInterval<T> yxzzyzzx = createRAIFromRAI.compute1(xx);
+			subtractRAI.compute2(yxzz,yzzx, yxzzyzzx);
 			RandomAccessibleInterval<T> intermediateResult2 = createRAIFromRAI.compute1(xx);
-			multiplyRAI.compute2(xy, yxzz, intermediateResult2);
+			multiplyRAI.compute2(xy, yxzzyzzx, intermediateResult2);
 			
 			RandomAccessibleInterval<T> yxzy = createRAIFromRAI.compute1(xx);
 			multiplyRAI.compute2(yx, zy, yxzy);
 			RandomAccessibleInterval<T> yyzx = createRAIFromRAI.compute1(xx);
 			multiplyRAI.compute2(yy,zx,yyzx);
-			subtractRAI.compute2(yyzx, yxzy, yxzy);
+			RandomAccessibleInterval<T> yxzyyyzx = createRAIFromRAI.compute1(xx);
+			subtractRAI.compute2(yxzy, yyzx, yxzyyyzx);
 			RandomAccessibleInterval<T> intermediateResult3 = createRAIFromRAI.compute1(xx);
-			multiplyRAI.compute2(xz, yxzy, intermediateResult3);
+			multiplyRAI.compute2(xz, yxzyyyzx, intermediateResult3);
 						
 			subtractRAI.compute2(intermediateResult1, intermediateResult2, determinant);
 			addRAI.compute2(determinant, intermediateResult3, determinantSlice);		
