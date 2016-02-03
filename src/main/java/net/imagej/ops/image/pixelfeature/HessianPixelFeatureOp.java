@@ -121,14 +121,14 @@ public class HessianPixelFeatureOp<T extends RealType<T>> extends AbstractPixelF
 			copyRAI.compute1(trace, traceSlice);
 			
 			// calculate determinant
-			RandomAccessibleInterval<T> multiplyXXYY = createRAIFromRAI.compute1(input);
-			multiplyRAI.compute2(xx, yy, multiplyXXYY);
+			RandomAccessibleInterval<T> xxyy = createRAIFromRAI.compute1(input);
+			multiplyRAI.compute2(xx, yy, xxyy);
 			
-			RandomAccessibleInterval<T> multiplyXYYX = createRAIFromRAI.compute1(input);
-			multiplyRAI.compute2(xy, yx, multiplyXYYX);
+			RandomAccessibleInterval<T> xyyx = createRAIFromRAI.compute1(input);
+			multiplyRAI.compute2(xy, yx, xyyx);
 			
 			RandomAccessibleInterval<T> determinant = createRAIFromRAI.compute1(input);
-			subtractRAI.compute2(multiplyXXYY, multiplyXYYX, determinant);
+			subtractRAI.compute2(xxyy, xyyx, determinant);
 			
 			copyRAI.compute1(determinant, determinantSlice);
 			
@@ -154,6 +154,66 @@ public class HessianPixelFeatureOp<T extends RealType<T>> extends AbstractPixelF
 			
 		} else if (derivativeComputerList.size() == 3) {
 			// TODO
+			RandomAccessibleInterval<T> xx = hesseSlices.get(0);
+			RandomAccessibleInterval<T> xy = hesseSlices.get(1);
+			RandomAccessibleInterval<T> xz = hesseSlices.get(2);
+			RandomAccessibleInterval<T> yx = hesseSlices.get(3);
+			RandomAccessibleInterval<T> yy = hesseSlices.get(4);
+			RandomAccessibleInterval<T> yz = hesseSlices.get(5);
+			RandomAccessibleInterval<T> zx = hesseSlices.get(6);
+			RandomAccessibleInterval<T> zy = hesseSlices.get(7);
+			RandomAccessibleInterval<T> zz = hesseSlices.get(8);
+			
+			long[] dims = new long[in().numDimensions() + 2];
+			for (int i = 0; i < dims.length - 1; i++) {
+				dims[i] = in().dimension(i);
+			}
+			// for now only trace and determinant are supported
+			dims[dims.length - 1] = 2;
+			Dimensions dim = FinalDimensions.wrap(dims);
+			output = createRAIFromDim.compute1(dim);
+			
+			// TODO check indices
+			IntervalView<T> traceSlice = Views.hyperSlice(Views.hyperSlice(output, 3, 0), 2, 0);
+			IntervalView<T> determinantSlice = Views.hyperSlice(Views.hyperSlice(output, 3, 0), 2, 1);
+			
+		
+			// calculate trace
+			RandomAccessibleInterval<T> trace = createRAIFromRAI.compute1(xx);
+			addRAI.compute2(xx, yy, trace);
+			addRAI.compute2(trace, zz, traceSlice);
+			
+			// calculate determinant
+			// det = xx(yyzz - yzzy) - xy(yxzz - yzzx) + xz(yxzy - yyzx)
+			RandomAccessibleInterval<T> determinant = createRAIFromRAI.compute1(xx);
+			
+			RandomAccessibleInterval<T> yyzz = createRAIFromRAI.compute1(xx);
+			multiplyRAI.compute2(yy, zz, yyzz);
+			RandomAccessibleInterval<T> yzzy = createRAIFromRAI.compute1(xx);
+			multiplyRAI.compute2(yz,zy,yzzy);
+			subtractRAI.compute2(yzzy, yyzz, yyzz);
+			RandomAccessibleInterval<T> intermediateResult1 = createRAIFromRAI.compute1(xx);
+			multiplyRAI.compute2(xx, yyzz, intermediateResult1);
+			
+			RandomAccessibleInterval<T> yxzz = createRAIFromRAI.compute1(xx);
+			multiplyRAI.compute2(yx, zz, yxzz);
+			RandomAccessibleInterval<T> yzzx = createRAIFromRAI.compute1(xx);
+			multiplyRAI.compute2(yz,zx,yzzx);
+			subtractRAI.compute2(yzzx, yxzz, yxzz);
+			RandomAccessibleInterval<T> intermediateResult2 = createRAIFromRAI.compute1(xx);
+			multiplyRAI.compute2(xy, yxzz, intermediateResult2);
+			
+			RandomAccessibleInterval<T> yxzy = createRAIFromRAI.compute1(xx);
+			multiplyRAI.compute2(yx, zy, yxzy);
+			RandomAccessibleInterval<T> yyzx = createRAIFromRAI.compute1(xx);
+			multiplyRAI.compute2(yy,zx,yyzx);
+			subtractRAI.compute2(yyzx, yxzy, yxzy);
+			RandomAccessibleInterval<T> intermediateResult3 = createRAIFromRAI.compute1(xx);
+			multiplyRAI.compute2(xz, yxzy, intermediateResult3);
+						
+			subtractRAI.compute2(intermediateResult1, intermediateResult2, determinant);
+			addRAI.compute2(determinant, intermediateResult3, determinantSlice);		
+			
 		}
 		return output;
 	}
