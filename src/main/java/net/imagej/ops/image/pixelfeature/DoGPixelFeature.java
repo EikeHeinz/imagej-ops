@@ -9,6 +9,7 @@ import org.scijava.plugin.Plugin;
 import net.imagej.ops.Ops;
 import net.imagej.ops.special.computer.Computers;
 import net.imagej.ops.special.computer.UnaryComputerOp;
+import net.imagej.ops.special.function.AbstractUnaryFunctionOp;
 import net.imagej.ops.special.function.Functions;
 import net.imagej.ops.special.function.UnaryFunctionOp;
 import net.imglib2.Dimensions;
@@ -19,7 +20,8 @@ import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 
 @Plugin(type = Ops.Image.DoGPxFeature.class, name = Ops.Image.DoGPxFeature.NAME)
-public class DoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeatureOp<T> {
+public class DoGPixelFeature<T extends RealType<T>>
+		extends AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> {
 
 	@Parameter
 	private double minSigma;
@@ -38,26 +40,25 @@ public class DoGPixelFeature<T extends RealType<T>> extends AbstractPixelFeature
 	@SuppressWarnings("rawtypes")
 	private UnaryFunctionOp<Dimensions, RandomAccessibleInterval> createRAIFromDim;
 
-
 	@SuppressWarnings("rawtypes")
 	@Override
 	public void initialize() {
 		maxSteps = ops().math().floor(Math.log(maxSigma) / Math.log(2));
-		
+
 		createRAIFromDim = Functions.unary(ops(), Ops.Create.Img.class, RandomAccessibleInterval.class,
 				Dimensions.class);
-		
+
 		copyRAI = Computers.unary(ops(), Ops.Copy.RAI.class, RandomAccessibleInterval.class, in());
 
-		doGFunctions = new ArrayList<UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval>>();
+		doGFunctions = new ArrayList<>();
 
 		for (int i = 0; i < maxSteps - 1; i++) {
 			for (int j = i + 1; j <= maxSteps; j++) {
 				Double sigma1 = new Double(Math.pow(2, i) * minSigma);
 				Double sigma2 = new Double(Math.pow(2, j) * minSigma);
 
-				UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> tempOp = Functions
-						.unary(ops(), Ops.Filter.DoG.class, RandomAccessibleInterval.class, in(), sigma1, sigma2);
+				UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> tempOp = Functions.unary(ops(),
+						Ops.Filter.DoG.class, RandomAccessibleInterval.class, in(), sigma1, sigma2);
 
 				doGFunctions.add(tempOp);
 

@@ -9,6 +9,7 @@ import net.imagej.ops.Ops;
 import net.imagej.ops.Ops.Image.GaussianGradientMagnitudePxFeature;
 import net.imagej.ops.special.computer.Computers;
 import net.imagej.ops.special.computer.UnaryComputerOp;
+import net.imagej.ops.special.function.AbstractUnaryFunctionOp;
 import net.imagej.ops.special.function.Functions;
 import net.imagej.ops.special.function.UnaryFunctionOp;
 import net.imglib2.RandomAccessibleInterval;
@@ -16,7 +17,7 @@ import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
 
 @Plugin(type = Ops.Image.GaussianGradientMagnitudePxFeature.class, name = Ops.Image.GaussianGradientMagnitudePxFeature.NAME)
-public class GaussianGradientMagnitudePixelFeature<T extends RealType<T>> extends AbstractPixelFeatureOp<T>
+public class GaussianGradientMagnitudePixelFeature<T extends RealType<T>> extends AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
 		implements GaussianGradientMagnitudePxFeature {
 
 	@Parameter
@@ -31,11 +32,10 @@ public class GaussianGradientMagnitudePixelFeature<T extends RealType<T>> extend
 	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> sobelFunction;
 
 
-	@SuppressWarnings({ })
 	@Override
 	public void initialize() {
 		createOp = Functions.unary(ops(), Ops.Create.Img.class, RandomAccessibleInterval.class,
-				RandomAccessibleInterval.class);
+				in());
 		double[] sigmas = new double[in().numDimensions()];
 		Arrays.fill(sigmas, sigma);
 		gaussOp = Computers.unary(ops(), Ops.Filter.Gauss.class, in(), in(), sigmas);
