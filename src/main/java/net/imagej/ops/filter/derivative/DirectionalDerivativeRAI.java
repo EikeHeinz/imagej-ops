@@ -1,8 +1,5 @@
 package net.imagej.ops.filter.derivative;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
@@ -40,7 +37,7 @@ public class DirectionalDerivativeRAI<T extends RealType<T>>
 	@SuppressWarnings("rawtypes")
 	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> yConvolverRotated;
 	@SuppressWarnings("rawtypes")
-	private List<UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval>> xConvolverRotatedList;
+	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> xConvolverRotated;
 
 	@Override
 	public void initialize() {
@@ -53,27 +50,14 @@ public class DirectionalDerivativeRAI<T extends RealType<T>>
 		copyRAI = Computers.unary(ops(), Ops.Copy.RAI.class, RandomAccessibleInterval.class, in());
 		createRAIFromRAI = Functions.unary(ops(), Ops.Create.Img.class, RandomAccessibleInterval.class, in());
 		// this list contains NULL at index dimension
-		xConvolverRotatedList = new ArrayList<>();
-		for (int i = 0; i < in().numDimensions(); i++) {
-			@SuppressWarnings("rawtypes")
-			UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> temp = null;
-			if (i == dimension) {
-				// rotate kernelY
-				IntervalView<T> filter = Views.rotate(kernelY, 0, 1);
-				yConvolverRotated = Computers.unary(ops(), Ops.Filter.Convolve.class, RandomAccessibleInterval.class,
-						in(), filter);
-			} else {
-				// rotate kernelX
-				IntervalView<T> filter = Views.rotate(kernelX, 0, 1);
-				temp = Computers.unary(ops(), Ops.Filter.Convolve.class, RandomAccessibleInterval.class, in(), filter);
-			}
-			xConvolverRotatedList.add(temp);
-		}
-
-		System.out.println("breakpoint");
+		IntervalView<T> filter = Views.rotate(kernelY, 0, 1);
+		yConvolverRotated = Computers.unary(ops(), Ops.Filter.Convolve.class, RandomAccessibleInterval.class,
+				in(), filter);
+		filter = Views.rotate(kernelX, 0, 1);
+		xConvolverRotated = Computers.unary(ops(), Ops.Filter.Convolve.class, RandomAccessibleInterval.class, in(), filter);
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings("unchecked")
 	@Override
 	public void compute1(RandomAccessibleInterval<T> input, RandomAccessibleInterval<T> output) {
 
@@ -86,8 +70,6 @@ public class DirectionalDerivativeRAI<T extends RealType<T>>
 				if (dimension == j) {
 					yConvolverRotated.compute1(Views.interval(Views.extendMirrorDouble(aux), input), derivative);
 				} else {
-					UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> xConvolverRotated = xConvolverRotatedList
-							.get(j);
 					xConvolverRotated.compute1(Views.interval(Views.extendMirrorDouble(aux), input), derivative);
 				}
 			} else {
