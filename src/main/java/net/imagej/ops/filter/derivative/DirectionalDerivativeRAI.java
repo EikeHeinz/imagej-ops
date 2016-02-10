@@ -107,14 +107,16 @@ public class DirectionalDerivativeRAI<T extends RealType<T>>
 		return output;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public RandomAccessibleInterval<T> createOutput(RandomAccessibleInterval<T> input) {
-		return ops().create().img(input);
+		return createRAIFromRAI.compute1(input);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public RandomAccessibleInterval<T> createOutput() {
-		return ops().create().img(in());
+		return createRAIFromRAI.compute0();
 	}
 
 }
