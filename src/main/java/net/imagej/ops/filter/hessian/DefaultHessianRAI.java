@@ -20,7 +20,9 @@ public class DefaultHessianRAI<T extends RealType<T>> extends
 	implements Hessian
 {
 
+	@SuppressWarnings("rawtypes")
 	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> copyRAI;
+	@SuppressWarnings("rawtypes")
 	private List<UnaryComputerOp<RandomAccessibleInterval, RandomAccessibleInterval>> derivativeComputers;
 
 	@Override
@@ -36,6 +38,7 @@ public class DefaultHessianRAI<T extends RealType<T>> extends
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public void compute1(RandomAccessibleInterval<T> input,
 		RandomAccessibleInterval<T>[][] output)
@@ -79,6 +82,7 @@ public class DefaultHessianRAI<T extends RealType<T>> extends
 		return output;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public RandomAccessibleInterval<T>[][] createOutput(
 		RandomAccessibleInterval<T> input)
@@ -87,6 +91,7 @@ public class DefaultHessianRAI<T extends RealType<T>> extends
 			.numDimensions()];
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public RandomAccessibleInterval<T>[][] createOutput() {
 		return new RandomAccessibleInterval[in().numDimensions()][in()
