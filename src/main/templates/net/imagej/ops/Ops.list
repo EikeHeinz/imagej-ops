@@ -169,7 +169,6 @@ namespaces = ```
 		[name: "minPxFeature",                iface: "MinPxFeature"],
 		[name: "maxPxFeature",                iface: "MaxPxFeature"],
 		[name: "meanPxFeature",               iface: "MeanPxFeature"],
-		[name: "stdDevPxFeature",             iface: "StdDevPxFeature"],
 		[name: "medianPxFeature",             iface: "MedianPxFeature"],
 		[name: "gaussPxFeature",              iface: "GaussPxFeature"],
 		[name: "doGPxFeature",                iface: "DoGPxFeature"],

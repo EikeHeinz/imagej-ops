@@ -1,3 +1,4 @@
+
 package net.imagej.ops.image.pixelfeature.neighborhoodbased;
 
 import org.scijava.plugin.Parameter;
@@ -15,10 +16,12 @@ import net.imglib2.algorithm.neighborhood.RectangleShape;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
 
-@Plugin(type = Ops.Image.MeanPxFeature.class, name = Ops.Image.MeanPxFeature.NAME)
-public class MeanPixelFeature<T extends RealType<T>> extends AbstractNeighborhoodPixelFeatureOp<T>
-		implements MeanPxFeature {
-	
+@Plugin(type = Ops.Image.MeanPxFeature.class,
+	name = Ops.Image.MeanPxFeature.NAME)
+public class MeanPixelFeature<T extends RealType<T>> extends
+	AbstractNeighborhoodPixelFeatureOp<T> implements MeanPxFeature
+{
+
 	@Parameter
 	private int span;
 
@@ -30,9 +33,10 @@ public class MeanPixelFeature<T extends RealType<T>> extends AbstractNeighborhoo
 
 	@Override
 	public void initialize() {
-		createRAIFromRAI = Functions.unary(ops(), Ops.Create.Img.class, RandomAccessibleInterval.class, in());
-		mapOp = Computers.unary(ops(), Mean.class, RandomAccessibleInterval.class, in(),
-				new RectangleShape(span, false));
+		createRAIFromRAI = Functions.unary(ops(), Ops.Create.Img.class,
+			RandomAccessibleInterval.class, in());
+		mapOp = Computers.unary(ops(), Mean.class, RandomAccessibleInterval.class,
+			in(), new RectangleShape(span, false));
 	}
 
 	@SuppressWarnings("unchecked")

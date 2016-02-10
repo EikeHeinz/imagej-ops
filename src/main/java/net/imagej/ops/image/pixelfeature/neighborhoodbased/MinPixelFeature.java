@@ -1,3 +1,4 @@
+
 package net.imagej.ops.image.pixelfeature.neighborhoodbased;
 
 import org.scijava.plugin.Parameter;
@@ -16,9 +17,10 @@ import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
 
 @Plugin(type = Ops.Image.MinPxFeature.class, name = Ops.Image.MinPxFeature.NAME)
-public class MinPixelFeature<T extends RealType<T>> extends AbstractNeighborhoodPixelFeatureOp<T>
-		implements MinPxFeature {
-	
+public class MinPixelFeature<T extends RealType<T>> extends
+	AbstractNeighborhoodPixelFeatureOp<T> implements MinPxFeature
+{
+
 	@Parameter
 	private int span;
 
@@ -30,9 +32,10 @@ public class MinPixelFeature<T extends RealType<T>> extends AbstractNeighborhood
 
 	@Override
 	public void initialize() {
-		createRAIFromRAI = Functions.unary(ops(), Ops.Create.Img.class, RandomAccessibleInterval.class, in());
-		mapOp = Computers.unary(ops(), Min.class, RandomAccessibleInterval.class, in(),
-				new RectangleShape(span, false));
+		createRAIFromRAI = Functions.unary(ops(), Ops.Create.Img.class,
+			RandomAccessibleInterval.class, in());
+		mapOp = Computers.unary(ops(), Min.class, RandomAccessibleInterval.class,
+			in(), new RectangleShape(span, false));
 	}
 
 	@SuppressWarnings("unchecked")

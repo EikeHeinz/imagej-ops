@@ -69,40 +69,42 @@ public class ImageNamespace extends AbstractNamespace {
 	@OpMethod(op = net.imagej.ops.image.ascii.DefaultASCII.class)
 	public <T extends RealType<T>> String ascii(final IterableInterval<T> image) {
 		final String result = (String) ops().run(
-				net.imagej.ops.image.ascii.DefaultASCII.class, image);
+			net.imagej.ops.image.ascii.DefaultASCII.class, image);
 		return result;
 	}
 
 	/** Executes the "ascii" operation on the given arguments. */
 	@OpMethod(op = net.imagej.ops.image.ascii.DefaultASCII.class)
-	public <T extends RealType<T>> String ascii(
-			final IterableInterval<T> image, final RealType<T> min) {
+	public <T extends RealType<T>> String ascii(final IterableInterval<T> image,
+		final RealType<T> min)
+	{
 		final String result = (String) ops().run(
-				net.imagej.ops.image.ascii.DefaultASCII.class, image, min);
+			net.imagej.ops.image.ascii.DefaultASCII.class, image, min);
 		return result;
 	}
 
 	/** Executes the "ascii" operation on the given arguments. */
 	@OpMethod(op = net.imagej.ops.image.ascii.DefaultASCII.class)
-	public <T extends RealType<T>> String ascii(
-			final IterableInterval<T> image, final RealType<T> min,
-			final RealType<T> max) {
+	public <T extends RealType<T>> String ascii(final IterableInterval<T> image,
+		final RealType<T> min, final RealType<T> max)
+	{
 		final String result = (String) ops().run(
-				net.imagej.ops.image.ascii.DefaultASCII.class, image, min, max);
+			net.imagej.ops.image.ascii.DefaultASCII.class, image, min, max);
 		return result;
 	}
 
 	// -- cooccurrence matrix --
 
 	@OpMethod(ops = {
-			net.imagej.ops.image.cooccurrencematrix.CooccurrenceMatrix3D.class,
-			net.imagej.ops.image.cooccurrencematrix.CooccurrenceMatrix2D.class })
+		net.imagej.ops.image.cooccurrencematrix.CooccurrenceMatrix3D.class,
+		net.imagej.ops.image.cooccurrencematrix.CooccurrenceMatrix2D.class })
 	public <T extends RealType<T>> double[][] cooccurrencematrix(
-			final IterableInterval<T> in, final int nrGreyLevels,
-			final int distance, final MatrixOrientation orientation) {
+		final IterableInterval<T> in, final int nrGreyLevels, final int distance,
+		final MatrixOrientation orientation)
+	{
 		final double[][] result = (double[][]) ops().run(
-				Ops.Image.CooccurrenceMatrix.class, in, nrGreyLevels, distance,
-				orientation);
+			Ops.Image.CooccurrenceMatrix.class, in, nrGreyLevels, distance,
+			orientation);
 		return result;
 	}
 
@@ -117,43 +119,49 @@ public class ImageNamespace extends AbstractNamespace {
 	/** Executes the "crop" operation on the given arguments. */
 	@OpMethod(op = net.imagej.ops.image.crop.CropImgPlus.class)
 	public <T extends Type<T>> ImgPlus<T> crop(final ImgPlus<T> in,
-			final Interval interval) {
+		final Interval interval)
+	{
 		@SuppressWarnings("unchecked")
 		final ImgPlus<T> result = (ImgPlus<T>) ops().run(
-				net.imagej.ops.image.crop.CropImgPlus.class, in, interval);
+			net.imagej.ops.image.crop.CropImgPlus.class, in, interval);
 		return result;
 	}
 
 	/** Executes the "crop" operation on the given arguments. */
 	@OpMethod(op = net.imagej.ops.image.crop.CropImgPlus.class)
 	public <T extends Type<T>> ImgPlus<T> crop(final ImgPlus<T> in,
-			final Interval interval, final boolean dropSingleDimensions) {
+		final Interval interval, final boolean dropSingleDimensions)
+	{
 		@SuppressWarnings("unchecked")
 		final ImgPlus<T> result = (ImgPlus<T>) ops().run(
-				net.imagej.ops.image.crop.CropImgPlus.class, in, interval,
+			net.imagej.ops.image.crop.CropImgPlus.class, in, interval,
+			dropSingleDimensions);
+		return result;
+	}
+
+	/** Executes the "crop" operation on the given arguments. */
+	@OpMethod(op = net.imagej.ops.image.crop.CropRAI.class)
+	public <T> RandomAccessibleInterval<T> crop(
+		final RandomAccessibleInterval<T> in, final Interval interval)
+	{
+		@SuppressWarnings("unchecked")
+		final RandomAccessibleInterval<T> result =
+			(RandomAccessibleInterval<T>) ops().run(
+				net.imagej.ops.image.crop.CropRAI.class, in, interval);
+		return result;
+	}
+
+	/** Executes the "crop" operation on the given arguments. */
+	@OpMethod(op = net.imagej.ops.image.crop.CropRAI.class)
+	public <T> RandomAccessibleInterval<T> crop(
+		final RandomAccessibleInterval<T> in, final Interval interval,
+		final boolean dropSingleDimensions)
+	{
+		@SuppressWarnings("unchecked")
+		final RandomAccessibleInterval<T> result =
+			(RandomAccessibleInterval<T>) ops().run(
+				net.imagej.ops.image.crop.CropRAI.class, in, interval,
 				dropSingleDimensions);
-		return result;
-	}
-
-	/** Executes the "crop" operation on the given arguments. */
-	@OpMethod(op = net.imagej.ops.image.crop.CropRAI.class)
-	public <T> RandomAccessibleInterval<T> crop(
-			final RandomAccessibleInterval<T> in, final Interval interval) {
-		@SuppressWarnings("unchecked")
-		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
-				.run(net.imagej.ops.image.crop.CropRAI.class, in, interval);
-		return result;
-	}
-
-	/** Executes the "crop" operation on the given arguments. */
-	@OpMethod(op = net.imagej.ops.image.crop.CropRAI.class)
-	public <T> RandomAccessibleInterval<T> crop(
-			final RandomAccessibleInterval<T> in, final Interval interval,
-			final boolean dropSingleDimensions) {
-		@SuppressWarnings("unchecked")
-		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
-				.run(net.imagej.ops.image.crop.CropRAI.class, in, interval,
-						dropSingleDimensions);
 		return result;
 	}
 
@@ -170,17 +178,18 @@ public class ImageNamespace extends AbstractNamespace {
 	public <T extends RealType<T>> IterableInterval<T> equation(final String in) {
 		@SuppressWarnings("unchecked")
 		final IterableInterval<T> result = (IterableInterval<T>) ops().run(
-				net.imagej.ops.image.equation.DefaultEquation.class, in);
+			net.imagej.ops.image.equation.DefaultEquation.class, in);
 		return result;
 	}
 
 	/** Executes the "equation" operation on the given arguments. */
 	@OpMethod(op = net.imagej.ops.image.equation.DefaultEquation.class)
 	public <T extends RealType<T>> IterableInterval<T> equation(
-			final IterableInterval<T> out, final String in) {
+		final IterableInterval<T> out, final String in)
+	{
 		@SuppressWarnings("unchecked")
 		final IterableInterval<T> result = (IterableInterval<T>) ops().run(
-				net.imagej.ops.image.equation.DefaultEquation.class, out, in);
+			net.imagej.ops.image.equation.DefaultEquation.class, out, in);
 		return result;
 	}
 
@@ -194,21 +203,23 @@ public class ImageNamespace extends AbstractNamespace {
 
 	/** Executes the "histogram" operation on the given arguments. */
 	@OpMethod(op = net.imagej.ops.image.histogram.HistogramCreate.class)
-	public <T extends RealType<T>> Histogram1d<T> histogram(final Iterable<T> in) {
+	public <T extends RealType<T>> Histogram1d<T> histogram(
+		final Iterable<T> in)
+	{
 		@SuppressWarnings("unchecked")
 		final Histogram1d<T> result = (Histogram1d<T>) ops().run(
-				net.imagej.ops.image.histogram.HistogramCreate.class, in);
+			net.imagej.ops.image.histogram.HistogramCreate.class, in);
 		return result;
 	}
 
 	/** Executes the "histogram" operation on the given arguments. */
 	@OpMethod(op = net.imagej.ops.image.histogram.HistogramCreate.class)
-	public <T extends RealType<T>> Histogram1d<T> histogram(
-			final Iterable<T> in, final int numBins) {
+	public <T extends RealType<T>> Histogram1d<T> histogram(final Iterable<T> in,
+		final int numBins)
+	{
 		@SuppressWarnings("unchecked")
 		final Histogram1d<T> result = (Histogram1d<T>) ops().run(
-				net.imagej.ops.image.histogram.HistogramCreate.class, in,
-				numBins);
+			net.imagej.ops.image.histogram.HistogramCreate.class, in, numBins);
 		return result;
 	}
 
@@ -222,80 +233,117 @@ public class ImageNamespace extends AbstractNamespace {
 
 	/** Executes the "invert" operation on the given arguments. */
 	@OpMethod(op = net.imagej.ops.image.invert.InvertIterableInterval.class)
-	public <I extends RealType<I>, O extends RealType<O>> IterableInterval<O> invert(
-			final IterableInterval<O> out, final IterableInterval<I> in) {
+	public <I extends RealType<I>, O extends RealType<O>> IterableInterval<O>
+		invert(final IterableInterval<O> out, final IterableInterval<I> in)
+	{
 		@SuppressWarnings("unchecked")
 		final IterableInterval<O> result = (IterableInterval<O>) ops().run(
-				net.imagej.ops.image.invert.InvertIterableInterval.class, out,
-				in);
-		return result;
-	}
-	
-	// -- minpxfeature
-	
-	@OpMethod(op = net.imagej.ops.image.pixelfeature.neighborhoodbased.MinPixelFeature.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> minPxFeature(final RandomAccessibleInterval<T> in, final int delta) {
-		final RandomAccessibleInterval<T> result =
-			(RandomAccessibleInterval<T>) ops().run(net.imagej.ops.image.pixelfeature.neighborhoodbased.MinPixelFeature.class, in, delta);
+			net.imagej.ops.image.invert.InvertIterableInterval.class, out, in);
 		return result;
 	}
 
-	@OpMethod(op = net.imagej.ops.image.pixelfeature.neighborhoodbased.MaxPixelFeature.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> maxPxFeature(final RandomAccessibleInterval<T> in, final int span) {
+	// -- Pixelfeatures
+
+	@OpMethod(
+		op = net.imagej.ops.image.pixelfeature.neighborhoodbased.MinPixelFeature.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> minPxFeature(
+		final RandomAccessibleInterval<T> in, final int delta)
+	{
+		@SuppressWarnings("unchecked")
 		final RandomAccessibleInterval<T> result =
-			(RandomAccessibleInterval<T>) ops().run(net.imagej.ops.image.pixelfeature.neighborhoodbased.MaxPixelFeature.class, in, span);
+			(RandomAccessibleInterval<T>) ops().run(
+				net.imagej.ops.image.pixelfeature.neighborhoodbased.MinPixelFeature.class,
+				in, delta);
 		return result;
 	}
 
-	@OpMethod(op = net.imagej.ops.image.pixelfeature.neighborhoodbased.MeanPixelFeature.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> meanPxFeature(final RandomAccessibleInterval<T> in, final int span) {
+	@OpMethod(
+		op = net.imagej.ops.image.pixelfeature.neighborhoodbased.MaxPixelFeature.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> maxPxFeature(
+		final RandomAccessibleInterval<T> in, final int span)
+	{
+		@SuppressWarnings("unchecked")
 		final RandomAccessibleInterval<T> result =
-			(RandomAccessibleInterval<T>) ops().run(net.imagej.ops.image.pixelfeature.neighborhoodbased.MeanPixelFeature.class, in, span);
+			(RandomAccessibleInterval<T>) ops().run(
+				net.imagej.ops.image.pixelfeature.neighborhoodbased.MaxPixelFeature.class,
+				in, span);
 		return result;
 	}
 
-	@OpMethod(op = net.imagej.ops.image.pixelfeature.neighborhoodbased.StdDevPixelFeature.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> stdDevPxFeature(final RandomAccessibleInterval<T> in, final int span) {
+	@OpMethod(
+		op = net.imagej.ops.image.pixelfeature.neighborhoodbased.MeanPixelFeature.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> meanPxFeature(
+		final RandomAccessibleInterval<T> in, final int span)
+	{
+		@SuppressWarnings("unchecked")
 		final RandomAccessibleInterval<T> result =
-			(RandomAccessibleInterval<T>) ops().run(net.imagej.ops.image.pixelfeature.neighborhoodbased.StdDevPixelFeature.class, in, span);
+			(RandomAccessibleInterval<T>) ops().run(
+				net.imagej.ops.image.pixelfeature.neighborhoodbased.MeanPixelFeature.class,
+				in, span);
 		return result;
 	}
 
 	@OpMethod(op = net.imagej.ops.image.pixelfeature.GaussPixelFeature.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> gaussPxFeature(final RandomAccessibleInterval<T> in, final double minSigma, final double maxSigma) {
+	public <T extends RealType<T>> RandomAccessibleInterval<T> gaussPxFeature(
+		final RandomAccessibleInterval<T> in, final double minSigma,
+		final double maxSigma)
+	{
+		@SuppressWarnings("unchecked")
 		final RandomAccessibleInterval<T> result =
-			(RandomAccessibleInterval<T>) ops().run(net.imagej.ops.image.pixelfeature.GaussPixelFeature.class, in, minSigma, maxSigma);
+			(RandomAccessibleInterval<T>) ops().run(
+				net.imagej.ops.image.pixelfeature.GaussPixelFeature.class, in, minSigma,
+				maxSigma);
 		return result;
 	}
-	
+
 	@OpMethod(op = net.imagej.ops.image.pixelfeature.DoGPixelFeature.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> doGPxFeature(final RandomAccessibleInterval<T> in, final double minSigma, final double maxSigma) {
+	public <T extends RealType<T>> RandomAccessibleInterval<T> doGPxFeature(
+		final RandomAccessibleInterval<T> in, final double minSigma,
+		final double maxSigma)
+	{
+		@SuppressWarnings("unchecked")
 		final RandomAccessibleInterval<T> result =
-			(RandomAccessibleInterval<T>) ops().run(net.imagej.ops.image.pixelfeature.DoGPixelFeature.class, in, minSigma, maxSigma);
+			(RandomAccessibleInterval<T>) ops().run(
+				net.imagej.ops.image.pixelfeature.DoGPixelFeature.class, in, minSigma,
+				maxSigma);
 		return result;
 	}
-	
+
 	@OpMethod(op = net.imagej.ops.image.pixelfeature.LoGPixelFeature.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> loGPxFeature(final RandomAccessibleInterval<T> in, final double sigma) {
+	public <T extends RealType<T>> RandomAccessibleInterval<T> loGPxFeature(
+		final RandomAccessibleInterval<T> in, final double sigma)
+	{
+		@SuppressWarnings("unchecked")
 		final RandomAccessibleInterval<T> result =
-			(RandomAccessibleInterval<T>) ops().run(net.imagej.ops.image.pixelfeature.LoGPixelFeature.class, in, sigma);
+			(RandomAccessibleInterval<T>) ops().run(
+				net.imagej.ops.image.pixelfeature.LoGPixelFeature.class, in, sigma);
 		return result;
 	}
-	
-	@OpMethod(op = net.imagej.ops.image.pixelfeature.GaussianGradientMagnitudePixelFeature.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> gaussianGradientMagnitude(final RandomAccessibleInterval<T> in, final double sigma) {
+
+	@OpMethod(
+		op = net.imagej.ops.image.pixelfeature.GaussianGradientMagnitudePixelFeature.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T>
+		gaussianGradientMagnitude(final RandomAccessibleInterval<T> in,
+			final double sigma)
+	{
+		@SuppressWarnings("unchecked")
 		final RandomAccessibleInterval<T> result =
-			(RandomAccessibleInterval<T>) ops().run(net.imagej.ops.image.pixelfeature.GaussianGradientMagnitudePixelFeature.class, in, sigma);
+			(RandomAccessibleInterval<T>) ops().run(
+				net.imagej.ops.image.pixelfeature.GaussianGradientMagnitudePixelFeature.class,
+				in, sigma);
 		return result;
 	}
-	
+
 	@OpMethod(op = net.imagej.ops.image.pixelfeature.HessianPixelFeatureOp.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> hessianPixelFeature(final RandomAccessibleInterval<T> in) {
+	public <T extends RealType<T>> RandomAccessibleInterval<T>
+		hessianPixelFeature(final RandomAccessibleInterval<T> in)
+	{
+		@SuppressWarnings("unchecked")
 		final RandomAccessibleInterval<T> result =
-			(RandomAccessibleInterval<T>) ops().run(net.imagej.ops.image.pixelfeature.HessianPixelFeatureOp.class, in);
+			(RandomAccessibleInterval<T>) ops().run(
+				net.imagej.ops.image.pixelfeature.HessianPixelFeatureOp.class, in);
 		return result;
 	}
-	
 
 	// -- normalize --
 
@@ -305,160 +353,143 @@ public class ImageNamespace extends AbstractNamespace {
 		return ops().run(Ops.Image.Normalize.NAME, args);
 	}
 
-	@OpMethod(op = net.imagej.ops.image.normalize.NormalizeIterableIntervalComputer.class)
-	public
-		<T extends RealType<T>> IterableInterval<T> normalize(
-			final IterableInterval<T> out, final IterableInterval<T> in)
+	@OpMethod(
+		op = net.imagej.ops.image.normalize.NormalizeIterableIntervalComputer.class)
+	public <T extends RealType<T>> IterableInterval<T> normalize(
+		final IterableInterval<T> out, final IterableInterval<T> in)
 	{
 		@SuppressWarnings("unchecked")
-		final IterableInterval<T> result =
-			(IterableInterval<T>) ops()
-				.run(net.imagej.ops.image.normalize.NormalizeIterableIntervalComputer.class,
-					out, in);
+		final IterableInterval<T> result = (IterableInterval<T>) ops().run(
+			net.imagej.ops.image.normalize.NormalizeIterableIntervalComputer.class,
+			out, in);
 		return result;
 	}
 
-	@OpMethod(op = net.imagej.ops.image.normalize.NormalizeIterableIntervalComputer.class)
-	public
-		<T extends RealType<T>> IterableInterval<T> normalize(
-			final IterableInterval<T> out, final IterableInterval<T> in,
-			final T sourceMin)
+	@OpMethod(
+		op = net.imagej.ops.image.normalize.NormalizeIterableIntervalComputer.class)
+	public <T extends RealType<T>> IterableInterval<T> normalize(
+		final IterableInterval<T> out, final IterableInterval<T> in,
+		final T sourceMin)
 	{
 		@SuppressWarnings("unchecked")
-		final IterableInterval<T> result =
-			(IterableInterval<T>) ops().run(
-				net.imagej.ops.image.normalize.NormalizeIterableIntervalComputer.class, out,
-				in, sourceMin);
+		final IterableInterval<T> result = (IterableInterval<T>) ops().run(
+			net.imagej.ops.image.normalize.NormalizeIterableIntervalComputer.class,
+			out, in, sourceMin);
 		return result;
 	}
 
-	@OpMethod(op = net.imagej.ops.image.normalize.NormalizeIterableIntervalComputer.class)
-	public
-		<T extends RealType<T>> IterableInterval<T> normalize(
-			final IterableInterval<T> out, final IterableInterval<T> in,
-			final T sourceMin, final T sourceMax)
+	@OpMethod(
+		op = net.imagej.ops.image.normalize.NormalizeIterableIntervalComputer.class)
+	public <T extends RealType<T>> IterableInterval<T> normalize(
+		final IterableInterval<T> out, final IterableInterval<T> in,
+		final T sourceMin, final T sourceMax)
 	{
 		@SuppressWarnings("unchecked")
-		final IterableInterval<T> result =
-			(IterableInterval<T>) ops().run(
-				net.imagej.ops.image.normalize.NormalizeIterableIntervalComputer.class, out,
-				in, sourceMin, sourceMax);
+		final IterableInterval<T> result = (IterableInterval<T>) ops().run(
+			net.imagej.ops.image.normalize.NormalizeIterableIntervalComputer.class,
+			out, in, sourceMin, sourceMax);
 		return result;
 	}
 
-	@OpMethod(op = net.imagej.ops.image.normalize.NormalizeIterableIntervalComputer.class)
-	public
-		<T extends RealType<T>> IterableInterval<T> normalize(
-			final IterableInterval<T> out, final IterableInterval<T> in,
-			final T sourceMin, final T sourceMax, final T targetMin)
+	@OpMethod(
+		op = net.imagej.ops.image.normalize.NormalizeIterableIntervalComputer.class)
+	public <T extends RealType<T>> IterableInterval<T> normalize(
+		final IterableInterval<T> out, final IterableInterval<T> in,
+		final T sourceMin, final T sourceMax, final T targetMin)
 	{
 		@SuppressWarnings("unchecked")
-		final IterableInterval<T> result =
-			(IterableInterval<T>) ops().run(
-				net.imagej.ops.image.normalize.NormalizeIterableIntervalComputer.class, out,
-				in, sourceMin, sourceMax, targetMin);
+		final IterableInterval<T> result = (IterableInterval<T>) ops().run(
+			net.imagej.ops.image.normalize.NormalizeIterableIntervalComputer.class,
+			out, in, sourceMin, sourceMax, targetMin);
 		return result;
 	}
 
-	@OpMethod(op = net.imagej.ops.image.normalize.NormalizeIterableIntervalComputer.class)
-	public
-		<T extends RealType<T>>
-		IterableInterval<T>
-		normalize(final IterableInterval<T> out, final IterableInterval<T> in,
-			final T sourceMin, final T sourceMax, final T targetMin, final T targetMax)
+	@OpMethod(
+		op = net.imagej.ops.image.normalize.NormalizeIterableIntervalComputer.class)
+	public <T extends RealType<T>> IterableInterval<T> normalize(
+		final IterableInterval<T> out, final IterableInterval<T> in,
+		final T sourceMin, final T sourceMax, final T targetMin,
+		final T targetMax)
 	{
 		@SuppressWarnings("unchecked")
-		final IterableInterval<T> result =
-			(IterableInterval<T>) ops().run(
-				net.imagej.ops.image.normalize.NormalizeIterableIntervalComputer.class, out,
-				in, sourceMin, sourceMax, targetMin, targetMax);
+		final IterableInterval<T> result = (IterableInterval<T>) ops().run(
+			net.imagej.ops.image.normalize.NormalizeIterableIntervalComputer.class,
+			out, in, sourceMin, sourceMax, targetMin, targetMax);
 		return result;
 	}
 
 	@OpMethod(
 		op = net.imagej.ops.image.normalize.NormalizeIterableIntervalFunction.class)
-	public
-		<T extends RealType<T>> IterableInterval<T> normalize(
-			final IterableInterval<T> in)
+	public <T extends RealType<T>> IterableInterval<T> normalize(
+		final IterableInterval<T> in)
 	{
 		@SuppressWarnings("unchecked")
-		final IterableInterval<T> result =
-			(IterableInterval<T>) ops().run(
-				net.imagej.ops.image.normalize.NormalizeIterableIntervalFunction.class,
-				in);
+		final IterableInterval<T> result = (IterableInterval<T>) ops().run(
+			net.imagej.ops.image.normalize.NormalizeIterableIntervalFunction.class,
+			in);
 		return result;
 	}
 
 	@OpMethod(
 		op = net.imagej.ops.image.normalize.NormalizeIterableIntervalFunction.class)
-	public
-		<T extends RealType<T>> IterableInterval<T> normalize(
-			final IterableInterval<T> in, final T sourceMin)
+	public <T extends RealType<T>> IterableInterval<T> normalize(
+		final IterableInterval<T> in, final T sourceMin)
 	{
 		@SuppressWarnings("unchecked")
-		final IterableInterval<T> result =
-			(IterableInterval<T>) ops().run(
-				net.imagej.ops.image.normalize.NormalizeIterableIntervalFunction.class,
-				in, sourceMin);
+		final IterableInterval<T> result = (IterableInterval<T>) ops().run(
+			net.imagej.ops.image.normalize.NormalizeIterableIntervalFunction.class,
+			in, sourceMin);
 		return result;
 	}
 
 	@OpMethod(
 		op = net.imagej.ops.image.normalize.NormalizeIterableIntervalFunction.class)
-	public
-		<T extends RealType<T>> IterableInterval<T> normalize(
-			final IterableInterval<T> in, final T sourceMin, final T sourceMax)
+	public <T extends RealType<T>> IterableInterval<T> normalize(
+		final IterableInterval<T> in, final T sourceMin, final T sourceMax)
 	{
 		@SuppressWarnings("unchecked")
-		final IterableInterval<T> result =
-			(IterableInterval<T>) ops().run(
-				net.imagej.ops.image.normalize.NormalizeIterableIntervalFunction.class,
-				in, sourceMin, sourceMax);
+		final IterableInterval<T> result = (IterableInterval<T>) ops().run(
+			net.imagej.ops.image.normalize.NormalizeIterableIntervalFunction.class,
+			in, sourceMin, sourceMax);
 		return result;
 	}
 
 	@OpMethod(
 		op = net.imagej.ops.image.normalize.NormalizeIterableIntervalFunction.class)
-	public
-		<T extends RealType<T>> IterableInterval<T> normalize(
-			final IterableInterval<T> in, final T sourceMin, final T sourceMax,
-			final T targetMin)
+	public <T extends RealType<T>> IterableInterval<T> normalize(
+		final IterableInterval<T> in, final T sourceMin, final T sourceMax,
+		final T targetMin)
 	{
 		@SuppressWarnings("unchecked")
-		final IterableInterval<T> result =
-			(IterableInterval<T>) ops().run(
-				net.imagej.ops.image.normalize.NormalizeIterableIntervalFunction.class,
-				in, sourceMin, sourceMax, targetMin);
+		final IterableInterval<T> result = (IterableInterval<T>) ops().run(
+			net.imagej.ops.image.normalize.NormalizeIterableIntervalFunction.class,
+			in, sourceMin, sourceMax, targetMin);
 		return result;
 	}
 
 	@OpMethod(
 		op = net.imagej.ops.image.normalize.NormalizeIterableIntervalFunction.class)
-	public
-		<T extends RealType<T>> IterableInterval<T> normalize(
-			final IterableInterval<T> in, final T sourceMin, final T sourceMax,
-			final T targetMin, final T targetMax)
+	public <T extends RealType<T>> IterableInterval<T> normalize(
+		final IterableInterval<T> in, final T sourceMin, final T sourceMax,
+		final T targetMin, final T targetMax)
 	{
 		@SuppressWarnings("unchecked")
-		final IterableInterval<T> result =
-			(IterableInterval<T>) ops().run(
-				net.imagej.ops.image.normalize.NormalizeIterableIntervalFunction.class,
-				in, sourceMin, sourceMax, targetMin, targetMax);
+		final IterableInterval<T> result = (IterableInterval<T>) ops().run(
+			net.imagej.ops.image.normalize.NormalizeIterableIntervalFunction.class,
+			in, sourceMin, sourceMax, targetMin, targetMax);
 		return result;
 	}
 
 	@OpMethod(
 		op = net.imagej.ops.image.normalize.NormalizeIterableIntervalFunction.class)
-	public
-		<T extends RealType<T>> IterableInterval<T> normalize(
-			final IterableInterval<T> in, final T sourceMin, final T sourceMax,
-			final T targetMin, final T targetMax, final boolean isLazy)
+	public <T extends RealType<T>> IterableInterval<T> normalize(
+		final IterableInterval<T> in, final T sourceMin, final T sourceMax,
+		final T targetMin, final T targetMax, final boolean isLazy)
 	{
 		@SuppressWarnings("unchecked")
-		final IterableInterval<T> result =
-			(IterableInterval<T>) ops().run(
-				net.imagej.ops.image.normalize.NormalizeIterableIntervalFunction.class,
-				in, sourceMin, sourceMax, targetMin, targetMax, isLazy);
+		final IterableInterval<T> result = (IterableInterval<T>) ops().run(
+			net.imagej.ops.image.normalize.NormalizeIterableIntervalFunction.class,
+			in, sourceMin, sourceMax, targetMin, targetMax, isLazy);
 		return result;
 	}
 
@@ -471,15 +502,15 @@ public class ImageNamespace extends AbstractNamespace {
 	}
 
 	/** Executes the "project" operation on the given arguments. */
-	@OpMethod(ops = {
-			net.imagej.ops.image.project.DefaultProjectParallel.class,
-			net.imagej.ops.image.project.ProjectRAIToIterableInterval.class })
+	@OpMethod(ops = { net.imagej.ops.image.project.DefaultProjectParallel.class,
+		net.imagej.ops.image.project.ProjectRAIToIterableInterval.class })
 	public <T, V> IterableInterval<V> project(final IterableInterval<V> out,
-			final RandomAccessibleInterval<T> in,
-			final UnaryComputerOp<Iterable<T>, V> method, final int dim) {
+		final RandomAccessibleInterval<T> in,
+		final UnaryComputerOp<Iterable<T>, V> method, final int dim)
+	{
 		@SuppressWarnings("unchecked")
 		final IterableInterval<V> result = (IterableInterval<V>) ops().run(
-				net.imagej.ops.Ops.Image.Project.class, out, in, method, dim);
+			net.imagej.ops.Ops.Image.Project.class, out, in, method, dim);
 		return result;
 	}
 
@@ -494,12 +525,13 @@ public class ImageNamespace extends AbstractNamespace {
 	/** Executes the "scale" operation on the given arguments. */
 	@OpMethod(op = net.imagej.ops.image.scale.ScaleImg.class)
 	public <T extends RealType<T>> Img<T> scale(final Img<T> in,
-			final double[] scaleFactors,
-			final InterpolatorFactory<T, RandomAccessible<T>> interpolator) {
+		final double[] scaleFactors,
+		final InterpolatorFactory<T, RandomAccessible<T>> interpolator)
+	{
 		@SuppressWarnings("unchecked")
 		final Img<T> result = (Img<T>) ops().run(
-				net.imagej.ops.image.scale.ScaleImg.class, in, scaleFactors,
-				interpolator);
+			net.imagej.ops.image.scale.ScaleImg.class, in, scaleFactors,
+			interpolator);
 		return result;
 	}
 

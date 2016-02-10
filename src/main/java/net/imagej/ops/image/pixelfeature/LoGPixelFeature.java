@@ -1,3 +1,4 @@
+
 package net.imagej.ops.image.pixelfeature;
 
 import org.scijava.plugin.Parameter;
@@ -12,8 +13,9 @@ import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.RealType;
 
 @Plugin(type = Ops.Image.LoGPxFeature.class, name = Ops.Image.LoGPxFeature.NAME)
-public class LoGPixelFeature<T extends RealType<T>>
-		extends AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> {
+public class LoGPixelFeature<T extends RealType<T>> extends
+	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
+{
 
 	@Parameter
 	private double sigma;
@@ -25,12 +27,15 @@ public class LoGPixelFeature<T extends RealType<T>>
 	@Override
 	public void initialize() {
 		output = ops().create().img(in());
-		RandomAccessibleInterval<T> kernel = ops().create().kernelLog(in().numDimensions(), sigma);
+		RandomAccessibleInterval<T> kernel = ops().create().kernelLog(in()
+			.numDimensions(), sigma);
 		loGOp = Computers.unary(ops(), Convolve.class, in(), in(), kernel);
 	}
 
 	@Override
-	public RandomAccessibleInterval<T> compute1(RandomAccessibleInterval<T> input) {
+	public RandomAccessibleInterval<T> compute1(
+		RandomAccessibleInterval<T> input)
+	{
 		loGOp.compute1(input, output);
 
 		return output;

@@ -1,3 +1,4 @@
+
 package net.imagej.ops.image.pixelfeature;
 
 import java.util.ArrayList;
@@ -21,9 +22,11 @@ import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 
-@Plugin(type = Ops.Image.GaussPxFeature.class, name = Ops.Image.GaussPxFeature.NAME)
-public class GaussPixelFeature<T extends RealType<T>>
-		extends AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> {
+@Plugin(type = Ops.Image.GaussPxFeature.class,
+	name = Ops.Image.GaussPxFeature.NAME)
+public class GaussPixelFeature<T extends RealType<T>> extends
+	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
+{
 
 	@Parameter
 	private double minSigma;
@@ -40,8 +43,8 @@ public class GaussPixelFeature<T extends RealType<T>>
 	public void initialize() {
 		double maxSteps = ops().math().floor(Math.log(maxSigma) / Math.log(2));
 
-		createRAIFromDim = Functions.unary(ops(), Ops.Create.Img.class, RandomAccessibleInterval.class,
-				Dimensions.class);
+		createRAIFromDim = Functions.unary(ops(), Ops.Create.Img.class,
+			RandomAccessibleInterval.class, Dimensions.class);
 
 		gaussOps = new ArrayList<>();
 
@@ -53,7 +56,9 @@ public class GaussPixelFeature<T extends RealType<T>>
 	}
 
 	@Override
-	public RandomAccessibleInterval<T> compute1(RandomAccessibleInterval<T> input) {
+	public RandomAccessibleInterval<T> compute1(
+		RandomAccessibleInterval<T> input)
+	{
 		long[] dims = new long[in().numDimensions() + 2];
 		for (int i = 0; i < dims.length - 1; i++) {
 			dims[i] = in().dimension(i);
@@ -64,11 +69,13 @@ public class GaussPixelFeature<T extends RealType<T>>
 		@SuppressWarnings("unchecked")
 		RandomAccessibleInterval<T> output = createRAIFromDim.compute1(dim);
 
-		IntervalView<T> extendedIn = Views.interval(Views.extendMirrorDouble(input), input);
+		IntervalView<T> extendedIn = Views.interval(Views.extendMirrorDouble(input),
+			input);
 
 		int i = 0;
 		for (UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> gaussOp : gaussOps) {
-			IntervalView<T> outSlice = Views.hyperSlice(Views.hyperSlice(output, 3, 0), 2, i);
+			IntervalView<T> outSlice = Views.hyperSlice(Views.hyperSlice(output, 3,
+				0), 2, i);
 
 			gaussOp.compute1(extendedIn, outSlice);
 			i++;

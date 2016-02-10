@@ -1,3 +1,4 @@
+
 package net.imagej.ops.image.pixelfeature.neighborhoodbased;
 
 import org.scijava.plugin.Parameter;
@@ -18,7 +19,9 @@ import net.imglib2.view.Views;
 
 @Plugin(type = Ops.Image.MaxPxFeature.class, name = Ops.Image.MaxPxFeature.NAME)
 public class MaxPixelFeature<T extends RealType<T>> extends
-		AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> implements MaxPxFeature {
+	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
+	implements MaxPxFeature
+{
 
 	@Parameter
 	private int span;
@@ -31,13 +34,17 @@ public class MaxPixelFeature<T extends RealType<T>> extends
 
 	@Override
 	public void initialize() {
-		createRAIFromRAI = Functions.unary(ops(), Ops.Create.Img.class, RandomAccessibleInterval.class, in());
-		mapOp = Computers.unary(ops(), Max.class, RandomAccessibleInterval.class, in(), new RectangleShape(span, false));
+		createRAIFromRAI = Functions.unary(ops(), Ops.Create.Img.class,
+			RandomAccessibleInterval.class, in());
+		mapOp = Computers.unary(ops(), Max.class, RandomAccessibleInterval.class,
+			in(), new RectangleShape(span, false));
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public RandomAccessibleInterval<T> compute1(final RandomAccessibleInterval<T> in) {
+	public RandomAccessibleInterval<T> compute1(
+		final RandomAccessibleInterval<T> in)
+	{
 		RandomAccessibleInterval<T> output = createRAIFromRAI.compute1(in);
 		mapOp.compute1(Views.interval(Views.extendMirrorDouble(in), in), output);
 		return output;
