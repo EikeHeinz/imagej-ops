@@ -1,6 +1,4 @@
-package net.imagej.ops.image.pixelfeatures;
-
-import org.junit.Test;
+package net.imagej.ops.filter.sobel;
 
 import net.imagej.ops.AbstractOpTest;
 import net.imglib2.Cursor;
@@ -9,10 +7,13 @@ import net.imglib2.img.Img;
 import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.numeric.real.FloatType;
 
-public class LoGPxFeatureTest extends AbstractOpTest {
+import org.junit.Test;
+
+public class SobelFilterTest extends AbstractOpTest {
 
 	@Test
 	public void test() {
+				
 		Img<FloatType> img = generateFloatArrayTestImg(false, new long[] {
 				500, 500 });
 
@@ -21,7 +22,7 @@ public class LoGPxFeatureTest extends AbstractOpTest {
 		int counterY = 0;
 		while (cursorImg.hasNext()) {
 			if(counterX > 240 && counterX < 260 || counterY > 120000 && counterY < 130000) {
-				cursorImg.next().set(255);
+				cursorImg.next().set(1);
 			} else {
 			cursorImg.next().setZero();
 			}
@@ -31,9 +32,11 @@ public class LoGPxFeatureTest extends AbstractOpTest {
 				counterX =0;
 			}
 		}
-		RandomAccessibleInterval<FloatType> out = ops.image().loGPxFeature(img, 1.4d);
+		ImageJFunctions.show(img, "input");
+		RandomAccessibleInterval<FloatType> out = ops.filter().sobel(img);
 		ImageJFunctions.show(out);
 		System.out.println("breakpoint");
 	}
+		
 
 }
