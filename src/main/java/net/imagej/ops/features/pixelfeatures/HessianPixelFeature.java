@@ -1,5 +1,5 @@
 
-package net.imagej.ops.image.pixelfeature;
+package net.imagej.ops.features.pixelfeatures;
 
 import net.imagej.ops.Ops;
 import net.imagej.ops.Ops.Math.Sqrt;
@@ -17,11 +17,8 @@ import net.imglib2.util.Util;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 
-import org.scijava.plugin.Plugin;
 
-@Plugin(type = Ops.Image.HessianPxFeature.class,
-	name = Ops.Image.HessianPxFeature.NAME)
-public class HessianPixelFeatureOp<T extends RealType<T>> extends
+public class HessianPixelFeature<T extends RealType<T>> extends
 	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
 {
 

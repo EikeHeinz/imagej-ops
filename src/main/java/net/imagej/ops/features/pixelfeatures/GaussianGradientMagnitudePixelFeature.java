@@ -1,10 +1,7 @@
 
-package net.imagej.ops.image.pixelfeature;
+package net.imagej.ops.features.pixelfeatures;
 
 import java.util.Arrays;
-
-import org.scijava.plugin.Parameter;
-import org.scijava.plugin.Plugin;
 
 import net.imagej.ops.Ops;
 import net.imagej.ops.Ops.Image.GaussianGradientMagnitudePxFeature;
@@ -17,8 +14,9 @@ import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
 
-@Plugin(type = Ops.Image.GaussianGradientMagnitudePxFeature.class,
-	name = Ops.Image.GaussianGradientMagnitudePxFeature.NAME)
+import org.scijava.plugin.Parameter;
+
+
 public class GaussianGradientMagnitudePixelFeature<T extends RealType<T>>
 	extends
 	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>

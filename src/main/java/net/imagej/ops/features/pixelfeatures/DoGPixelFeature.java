@@ -1,11 +1,8 @@
 
-package net.imagej.ops.image.pixelfeature;
+package net.imagej.ops.features.pixelfeatures;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.scijava.plugin.Parameter;
-import org.scijava.plugin.Plugin;
 
 import net.imagej.ops.Ops;
 import net.imagej.ops.special.computer.Computers;
@@ -20,7 +17,9 @@ import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 
-@Plugin(type = Ops.Image.DoGPxFeature.class, name = Ops.Image.DoGPxFeature.NAME)
+import org.scijava.plugin.Parameter;
+
+
 public class DoGPixelFeature<T extends RealType<T>> extends
 	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
 {

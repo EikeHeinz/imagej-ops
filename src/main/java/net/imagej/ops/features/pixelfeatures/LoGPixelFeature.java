@@ -1,10 +1,6 @@
 
-package net.imagej.ops.image.pixelfeature;
+package net.imagej.ops.features.pixelfeatures;
 
-import org.scijava.plugin.Parameter;
-import org.scijava.plugin.Plugin;
-
-import net.imagej.ops.Ops;
 import net.imagej.ops.Ops.Filter.Convolve;
 import net.imagej.ops.special.computer.Computers;
 import net.imagej.ops.special.computer.UnaryComputerOp;
@@ -12,7 +8,8 @@ import net.imagej.ops.special.function.AbstractUnaryFunctionOp;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.RealType;
 
-@Plugin(type = Ops.Image.LoGPxFeature.class, name = Ops.Image.LoGPxFeature.NAME)
+import org.scijava.plugin.Parameter;
+
 public class LoGPixelFeature<T extends RealType<T>> extends
 	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
 {
