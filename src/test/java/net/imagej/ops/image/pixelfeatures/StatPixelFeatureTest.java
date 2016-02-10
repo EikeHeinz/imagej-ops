@@ -11,19 +11,39 @@ import net.imglib2.type.numeric.real.FloatType;
 
 public class StatPixelFeatureTest extends AbstractOpTest {
 
+	/*
+	 * uses existing ops, not tested intensively
+	 */
+	
 	@Test
 	public void test() {
-		Img<FloatType> img1 = generateFloatArrayTestImg(false, new long[]{10,10});
+		Img<FloatType> img1 = generateFloatArrayTestImg(false, new long[]{500,500});
 		
-		Cursor<FloatType> cursor = img1.cursor();
-		boolean isOdd = true;
-		while(cursor.hasNext()) {
-			if(isOdd) {
-				cursor.next().set(200);
-				isOdd = false;
+//		Cursor<FloatType> cursor = img1.cursor();
+//		boolean isOdd = true;
+//		while(cursor.hasNext()) {
+//			if(isOdd) {
+//				cursor.next().setOne();
+//				isOdd = false;
+//			} else {
+//				cursor.next().setZero();
+//				isOdd = true;
+//			}
+//		}
+		
+		Cursor<FloatType> cursorImg = img1.cursor();
+		int counterX = 0;
+		int counterY = 0;
+		while (cursorImg.hasNext()) {
+			if(counterX > 240 && counterX < 260 || counterY > 120000 && counterY < 130000) {
+				cursorImg.next().setOne();
 			} else {
-				cursor.next().setZero();
-				isOdd = true;
+			cursorImg.next().setZero();
+			}
+			counterX++;
+			counterY++;
+			if(counterX == 500) {
+				counterX =0;
 			}
 		}
 		
@@ -36,8 +56,6 @@ public class StatPixelFeatureTest extends AbstractOpTest {
 		ImageJFunctions.show(maxOut, "max");
 		RandomAccessibleInterval<FloatType> meanOut = ops.image().meanPxFeature(img1, span);
 		ImageJFunctions.show(meanOut, "mean");
-//		RandomAccessibleInterval<FloatType> stdDevOut = ops.image().stdDevPxFeature(img1, span);
-//		ImageJFunctions.show(stdDevOut, "stddev");
 		System.out.println("breakpoint");
 	}
 

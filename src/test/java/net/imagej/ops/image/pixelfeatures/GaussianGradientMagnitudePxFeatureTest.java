@@ -11,6 +11,10 @@ import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.FloatType;
 
 public class GaussianGradientMagnitudePxFeatureTest extends AbstractOpTest {
+	
+	/*
+	 * Since this just uses the Sobel op, no further testing was done on this part.
+	 */
 
 	@Test
 	public <T extends RealType<T>> void test() {
@@ -24,7 +28,7 @@ public class GaussianGradientMagnitudePxFeatureTest extends AbstractOpTest {
 		int counterY = 0;
 		while (cursorImg.hasNext()) {
 			if(counterX > 240 && counterX < 260 || counterY > 120000 && counterY < 130000) {
-				cursorImg.next().set(255);
+				cursorImg.next().setOne();
 			} else {
 			cursorImg.next().setZero();
 			}

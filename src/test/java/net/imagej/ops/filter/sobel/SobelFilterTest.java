@@ -1,3 +1,4 @@
+
 package net.imagej.ops.filter.sobel;
 
 import net.imagej.ops.AbstractOpTest;
@@ -11,25 +12,32 @@ import org.junit.Test;
 
 public class SobelFilterTest extends AbstractOpTest {
 
+	/*
+	 * This was tested by loading an image from harddrive, process it and compare it to a reference.
+	 */
+
 	@Test
 	public void test() {
-				
-		Img<FloatType> img = generateFloatArrayTestImg(false, new long[] {
-				500, 500 });
+
+		Img<FloatType> img = generateFloatArrayTestImg(false, new long[] { 500,
+			500 });
 
 		Cursor<FloatType> cursorImg = img.cursor();
 		int counterX = 0;
 		int counterY = 0;
 		while (cursorImg.hasNext()) {
-			if(counterX > 240 && counterX < 260 || counterY > 120000 && counterY < 130000) {
-				cursorImg.next().set(1);
-			} else {
-			cursorImg.next().setZero();
+			if (counterX > 240 && counterX < 260 || counterY > 120000 &&
+				counterY < 130000)
+			{
+				cursorImg.next().setOne();
+			}
+			else {
+				cursorImg.next().setZero();
 			}
 			counterX++;
 			counterY++;
-			if(counterX == 500) {
-				counterX =0;
+			if (counterX == 500) {
+				counterX = 0;
 			}
 		}
 		ImageJFunctions.show(img, "input");
@@ -37,6 +45,5 @@ public class SobelFilterTest extends AbstractOpTest {
 		ImageJFunctions.show(out);
 		System.out.println("breakpoint");
 	}
-		
 
 }
