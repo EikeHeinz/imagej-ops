@@ -1,7 +1,5 @@
 package net.imagej.ops.features.pixelfeatures;
 
-import org.junit.Test;
-
 import net.imagej.ops.AbstractOpTest;
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccessibleInterval;
@@ -9,6 +7,8 @@ import net.imglib2.img.Img;
 import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.FloatType;
+
+import org.junit.Test;
 
 public class GaussianGradientMagnitudePxFeatureTest extends AbstractOpTest {
 	
@@ -39,7 +39,7 @@ public class GaussianGradientMagnitudePxFeatureTest extends AbstractOpTest {
 			}
 		}
 		ImageJFunctions.show(img, "input");
-		RandomAccessibleInterval<FloatType> out = ops.image().gaussianGradientMagnitude(img, 2.0d);
+		RandomAccessibleInterval<FloatType> out = ops.pixelfeature().gaussianGradientMagnitude(img, 2.0d);
 		ImageJFunctions.show(out, "output");
 		System.out.println("breakpoint");
 	}

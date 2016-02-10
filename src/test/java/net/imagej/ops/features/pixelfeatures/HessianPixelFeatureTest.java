@@ -14,8 +14,8 @@ public class HessianPixelFeatureTest extends AbstractOpTest {
 
 	@Test
 	public void test() {
-		Img<FloatType> img = generateFloatArrayTestImg(false, new long[] { 10,
-			10 , 3});
+		Img<FloatType> img = generateFloatArrayTestImg(false, new long[] { 10, 10,
+			3 });
 
 		Cursor<FloatType> cursorImg = img.cursor();
 		int counterX = 0;
@@ -39,11 +39,9 @@ public class HessianPixelFeatureTest extends AbstractOpTest {
 			}
 		}
 
-
 		ImageJFunctions.show(img, "img");
 
-		RandomAccessibleInterval<FloatType> out = ops.image().hessianPixelFeature(
-			img);
+		RandomAccessibleInterval<FloatType> out = ops.pixelfeature().hessian(img);
 		ImageJFunctions.show(out);
 		System.out.println("breakpoint");
 	}

@@ -11,7 +11,7 @@ import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.numeric.real.FloatType;
 
 public class LoGPxFeatureTest extends AbstractOpTest {
-	
+
 	/*
 	 * Originally this was tested with an image that was loaded from harddrive.
 	 * The image was then compared to the image that was already filtered.
@@ -40,8 +40,7 @@ public class LoGPxFeatureTest extends AbstractOpTest {
 				counterX = 0;
 			}
 		}
-		RandomAccessibleInterval<FloatType> out = ops.image().loGPxFeature(img,
-			1.4d);
+		RandomAccessibleInterval<FloatType> out = ops.pixelfeature().loG(img, 1.4d);
 		ImageJFunctions.show(out);
 		System.out.println("breakpoint");
 	}

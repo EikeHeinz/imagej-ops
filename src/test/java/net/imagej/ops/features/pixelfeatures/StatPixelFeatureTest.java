@@ -50,11 +50,11 @@ public class StatPixelFeatureTest extends AbstractOpTest {
 		int span = 2;
 		
 		ImageJFunctions.show(img1, "input");
-		RandomAccessibleInterval<FloatType> minOut = ops.image().minPxFeature(img1, span);
+		RandomAccessibleInterval<FloatType> minOut = ops.pixelfeature().min(img1, span);
 		ImageJFunctions.show(minOut, "min");
-		RandomAccessibleInterval<FloatType> maxOut = ops.image().maxPxFeature(img1, span);
+		RandomAccessibleInterval<FloatType> maxOut = ops.pixelfeature().max(img1, span);
 		ImageJFunctions.show(maxOut, "max");
-		RandomAccessibleInterval<FloatType> meanOut = ops.image().meanPxFeature(img1, span);
+		RandomAccessibleInterval<FloatType> meanOut = ops.pixelfeature().mean(img1, span);
 		ImageJFunctions.show(meanOut, "mean");
 		System.out.println("breakpoint");
 	}

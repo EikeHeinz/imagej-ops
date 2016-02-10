@@ -44,6 +44,7 @@ import net.imagej.ops.create.CreateNamespace;
 import net.imagej.ops.deconvolve.DeconvolveNamespace;
 import net.imagej.ops.features.haralick.HaralickNamespace;
 import net.imagej.ops.features.lbp2d.LBPNamespace;
+import net.imagej.ops.features.pixelfeatures.PixelfeatureNamespace;
 import net.imagej.ops.features.tamura2d.TamuraNamespace;
 import net.imagej.ops.features.zernike.ZernikeNamespace;
 import net.imagej.ops.filter.FilterNamespace;
@@ -794,6 +795,11 @@ public interface OpEnvironment extends Contextual {
 	/** Gateway into ops of the "math" namespace. */
 	default MathNamespace math() {
 		return namespace(MathNamespace.class);
+	}
+	
+	/** Gateway into ops of the "pixelfeature" namespace. */
+	default PixelfeatureNamespace pixelfeature() {
+		return namespace(PixelfeatureNamespace.class);
 	}
 
 	/** Gateway into ops of the "stats" namespace. */

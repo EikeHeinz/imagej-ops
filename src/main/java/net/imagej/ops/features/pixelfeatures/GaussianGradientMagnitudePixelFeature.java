@@ -4,7 +4,6 @@ package net.imagej.ops.features.pixelfeatures;
 import java.util.Arrays;
 
 import net.imagej.ops.Ops;
-import net.imagej.ops.Ops.Image.GaussianGradientMagnitudePxFeature;
 import net.imagej.ops.special.computer.Computers;
 import net.imagej.ops.special.computer.UnaryComputerOp;
 import net.imagej.ops.special.function.AbstractUnaryFunctionOp;
@@ -15,12 +14,14 @@ import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
 
 import org.scijava.plugin.Parameter;
+import org.scijava.plugin.Plugin;
 
-
+@Plugin(type = Ops.Pixelfeatures.GaussianGradientMagnitudePixelFeature.class,
+	name = Ops.Pixelfeatures.GaussianGradientMagnitudePixelFeature.NAME)
 public class GaussianGradientMagnitudePixelFeature<T extends RealType<T>>
 	extends
 	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
-	implements GaussianGradientMagnitudePxFeature
+	implements Ops.Pixelfeatures.GaussianGradientMagnitudePixelFeature
 {
 
 	@Parameter

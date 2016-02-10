@@ -17,9 +17,13 @@ import net.imglib2.util.Util;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 
+import org.scijava.plugin.Plugin;
 
+@Plugin(type = Ops.Pixelfeatures.HessianPixelFeature.class,
+name = Ops.Pixelfeatures.HessianPixelFeature.NAME)
 public class HessianPixelFeature<T extends RealType<T>> extends
 	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
+	implements Ops.Pixelfeatures.HessianPixelFeature
 {
 
 	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> sqrtMap;

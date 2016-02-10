@@ -3,7 +3,6 @@ package net.imagej.ops.features.pixelfeatures;
 
 import net.imagej.ops.Ops;
 import net.imagej.ops.Ops.Filter.Max;
-import net.imagej.ops.Ops.Image.MaxPxFeature;
 import net.imagej.ops.special.computer.Computers;
 import net.imagej.ops.special.computer.UnaryComputerOp;
 import net.imagej.ops.special.function.AbstractUnaryFunctionOp;
@@ -15,11 +14,13 @@ import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
 
 import org.scijava.plugin.Parameter;
+import org.scijava.plugin.Plugin;
 
-
+@Plugin(type = Ops.Pixelfeatures.MaxPixelFeature.class,
+	name = Ops.Pixelfeatures.MaxPixelFeature.NAME)
 public class MaxPixelFeature<T extends RealType<T>> extends
 	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
-	implements MaxPxFeature
+	implements Ops.Pixelfeatures.MaxPixelFeature
 {
 
 	@Parameter

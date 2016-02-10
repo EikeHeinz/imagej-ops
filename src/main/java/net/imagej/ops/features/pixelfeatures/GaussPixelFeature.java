@@ -20,10 +20,13 @@ import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 
 import org.scijava.plugin.Parameter;
+import org.scijava.plugin.Plugin;
 
-
+@Plugin(type = Ops.Pixelfeatures.GaussPixelFeature.class,
+name = Ops.Pixelfeatures.GaussPixelFeature.NAME)
 public class GaussPixelFeature<T extends RealType<T>> extends
 	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
+	implements Ops.Pixelfeatures.GaussPixelFeature
 {
 
 	@Parameter

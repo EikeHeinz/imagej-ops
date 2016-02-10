@@ -18,10 +18,13 @@ import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 
 import org.scijava.plugin.Parameter;
+import org.scijava.plugin.Plugin;
 
-
+@Plugin(type = Ops.Pixelfeatures.DoGPixelFeature.class,
+name = Ops.Pixelfeatures.DoGPixelFeature.NAME)
 public class DoGPixelFeature<T extends RealType<T>> extends
 	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
+	implements Ops.Pixelfeatures.DoGPixelFeature
 {
 
 	@Parameter

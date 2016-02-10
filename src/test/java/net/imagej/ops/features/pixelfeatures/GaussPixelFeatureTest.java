@@ -36,7 +36,7 @@ public class GaussPixelFeatureTest extends AbstractOpTest {
 		}
 
 		ImageJFunctions.show(img1, "input");
-		RandomAccessibleInterval<FloatType> out = ops.image().gaussPxFeature(img1, 1.0d, 16.0d);
+		RandomAccessibleInterval<FloatType> out = ops.pixelfeature().gaussian(img1, 1.0d, 16.0d);
 		ImageJFunctions.show(out, "output");
 		System.out.println("breakpoint");
 	}
@@ -61,7 +61,7 @@ public class GaussPixelFeatureTest extends AbstractOpTest {
 			}
 		}
 		ImageJFunctions.show(img1, "input");
-		RandomAccessibleInterval<FloatType> out = ops.image().doGPxFeature(img1, 1.0d, 16.0d);
+		RandomAccessibleInterval<FloatType> out = ops.pixelfeature().doG(img1, 1.0d, 16.0d);
 		ImageJFunctions.show(out, "output");
 		System.out.println("breakpoint");
 	}
