@@ -1,9 +1,6 @@
 
 package net.imagej.ops.image.pixelfeature;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.imagej.ops.Ops;
 import net.imagej.ops.Ops.Math.Sqrt;
 import net.imagej.ops.special.computer.BinaryComputerOp;
@@ -45,18 +42,17 @@ public class HessianPixelFeatureOp<T extends RealType<T>> extends
 	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> multiplyRAIby4;
 	@SuppressWarnings("rawtypes")
 	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> divideRAIby2;
-	@SuppressWarnings("rawtypes")
-	private List<UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval>> derivativeComputerList;
+	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>[][]> hesseComputer;
+	private RandomAccessibleInterval<T>[][] hesseOutput;
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void initialize() {
 
-		derivativeComputerList = new ArrayList<>();
-		for (int i = 0; i < in().numDimensions(); i++) {
-			derivativeComputerList.add(Functions.unary(ops(),
-				Ops.Filter.DirectionalDerivative.class, RandomAccessibleInterval.class,
-				in(), i));
-		}
+		hesseOutput = new RandomAccessibleInterval[in().numDimensions()][in()
+			.numDimensions()];
+		hesseComputer = Computers.unary(ops(), Ops.Filter.Hessian.class,
+			hesseOutput, in());
 
 		Sqrt sqrtOp = ops().op(Ops.Math.Sqrt.class, RealType.class, RealType.class);
 		sqrtMap = Computers.unary(ops(), Ops.Map.class, in(), in(), sqrtOp);
@@ -64,12 +60,16 @@ public class HessianPixelFeatureOp<T extends RealType<T>> extends
 			RandomAccessibleInterval.class, in(), in());
 		multiplyRAI = Computers.binary(ops(), Ops.Math.Multiply.class,
 			RandomAccessibleInterval.class, in(), in());
-		T type4 = Util.getTypeFromInterval(in());
+
+		T type4 = (T) ops().create().nativeType(Util.getTypeFromInterval(in())
+			.getClass());
 		type4.setReal(4.0d);
 		multiplyRAIby4 = Computers.unary(ops(), Ops.Math.Multiply.class,
 			RandomAccessibleInterval.class, in(), type4);
-		T type2 = Util.getTypeFromInterval(in());
+		T type2 = (T) ops().create().nativeType(Util.getTypeFromInterval(in())
+			.getClass());
 		type2.setReal(2.0d);
+
 		divideRAIby2 = Computers.unary(ops(), Ops.Math.Divide.class,
 			RandomAccessibleInterval.class, in(), type2);
 		subtractRAI = Computers.binary(ops(), Ops.Math.Subtract.class,
@@ -82,27 +82,17 @@ public class HessianPixelFeatureOp<T extends RealType<T>> extends
 			RandomAccessibleInterval.class, in());
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "unchecked" })
 	@Override
 	public RandomAccessibleInterval<T> compute1(
 		RandomAccessibleInterval<T> input)
 	{
 
 		RandomAccessibleInterval<T> output = null;
-		List<RandomAccessibleInterval<T>> hesseSlices = new ArrayList<>();
-		for (UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> derivativeFunction : derivativeComputerList) {
-			RandomAccessibleInterval<T> temp = derivativeFunction.compute1(input);
-			for (UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> derivativeFunction2 : derivativeComputerList) {
-				hesseSlices.add(derivativeFunction2.compute1(temp));
-			}
-		}
 
-		if (derivativeComputerList.size() == 2) {
+		hesseComputer.compute1(input, hesseOutput);
 
-			RandomAccessibleInterval<T> xx = hesseSlices.get(0);
-			RandomAccessibleInterval<T> xy = hesseSlices.get(1);
-			RandomAccessibleInterval<T> yx = hesseSlices.get(2);
-			RandomAccessibleInterval<T> yy = hesseSlices.get(3);
+		if (input.numDimensions() == 2) {
 
 			/*
 			 * output px value in hessian matrix is: [[XX,XY],[YX,YY]] =
@@ -134,15 +124,15 @@ public class HessianPixelFeatureOp<T extends RealType<T>> extends
 
 			// calculate trace
 			RandomAccessibleInterval<T> trace = createRAIFromRAI.compute1(input);
-			addRAI.compute2(xx, yy, trace);
+			addRAI.compute2(hesseOutput[0][0], hesseOutput[1][1], trace);
 			copyRAI.compute1(trace, traceSlice);
 
 			// calculate determinant
 			RandomAccessibleInterval<T> xxyy = createRAIFromRAI.compute1(input);
-			multiplyRAI.compute2(xx, yy, xxyy);
+			multiplyRAI.compute2(hesseOutput[0][0], hesseOutput[1][1], xxyy);
 
 			RandomAccessibleInterval<T> xyyx = createRAIFromRAI.compute1(input);
-			multiplyRAI.compute2(xy, yx, xyyx);
+			multiplyRAI.compute2(hesseOutput[0][1], hesseOutput[1][0], xyyx);
 
 			RandomAccessibleInterval<T> determinant = createRAIFromRAI.compute1(
 				input);
@@ -174,17 +164,17 @@ public class HessianPixelFeatureOp<T extends RealType<T>> extends
 			divideRAIby2.compute1(subtractSqrt, eigenvalue2Slice);
 
 		}
-		else if (derivativeComputerList.size() == 3) {
+		else if (input.numDimensions() == 3) {
 
-			RandomAccessibleInterval<T> xx = hesseSlices.get(0);
-			RandomAccessibleInterval<T> xy = hesseSlices.get(1);
-			RandomAccessibleInterval<T> xz = hesseSlices.get(2);
-			RandomAccessibleInterval<T> yx = hesseSlices.get(3);
-			RandomAccessibleInterval<T> yy = hesseSlices.get(4);
-			RandomAccessibleInterval<T> yz = hesseSlices.get(5);
-			RandomAccessibleInterval<T> zx = hesseSlices.get(6);
-			RandomAccessibleInterval<T> zy = hesseSlices.get(7);
-			RandomAccessibleInterval<T> zz = hesseSlices.get(8);
+			RandomAccessibleInterval<T> xx = hesseOutput[0][0];// hesseSlices.get(0);
+			RandomAccessibleInterval<T> xy = hesseOutput[0][1];// hesseSlices.get(1);
+			RandomAccessibleInterval<T> xz = hesseOutput[0][2];// hesseSlices.get(2);
+			RandomAccessibleInterval<T> yx = hesseOutput[1][0];// hesseSlices.get(3);
+			RandomAccessibleInterval<T> yy = hesseOutput[1][1];// hesseSlices.get(4);
+			RandomAccessibleInterval<T> yz = hesseOutput[1][2];// hesseSlices.get(5);
+			RandomAccessibleInterval<T> zx = hesseOutput[2][0]; // hesseSlices.get(6);
+			RandomAccessibleInterval<T> zy = hesseOutput[2][1];// hesseSlices.get(7);
+			RandomAccessibleInterval<T> zz = hesseOutput[2][2];// hesseSlices.get(8);
 
 			long[] dims = new long[in().numDimensions() + 2];
 			for (int i = 0; i < dims.length - 1; i++) {

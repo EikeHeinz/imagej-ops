@@ -14,15 +14,15 @@ public class HessianPixelFeatureTest extends AbstractOpTest {
 
 	@Test
 	public void test() {
-		Img<FloatType> img = generateFloatArrayTestImg(false, new long[] { 10, 10,
-			3 });
+		Img<FloatType> img = generateFloatArrayTestImg(false, new long[] { 10,
+			10 , 3});
 
 		Cursor<FloatType> cursorImg = img.cursor();
 		int counterX = 0;
 		int counterY = 0;
 		while (cursorImg.hasNext()) {
 			if (counterX > 3 && counterX < 6 || counterY > 3 && counterY < 6) {
-				cursorImg.next().set(255);
+				cursorImg.next().setOne();
 			}
 			else {
 				cursorImg.next().setZero();
@@ -39,7 +39,9 @@ public class HessianPixelFeatureTest extends AbstractOpTest {
 			}
 		}
 
-		ImageJFunctions.show(img);
+
+		ImageJFunctions.show(img, "img");
+
 		RandomAccessibleInterval<FloatType> out = ops.image().hessianPixelFeature(
 			img);
 		ImageJFunctions.show(out);
