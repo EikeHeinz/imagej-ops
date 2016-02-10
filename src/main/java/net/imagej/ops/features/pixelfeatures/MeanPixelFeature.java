@@ -4,9 +4,9 @@ package net.imagej.ops.features.pixelfeatures;
 import net.imagej.ops.Ops;
 import net.imagej.ops.Ops.Filter.Mean;
 import net.imagej.ops.Ops.Image.MeanPxFeature;
-import net.imagej.ops.image.pixelfeature.neighborhoodbased.AbstractNeighborhoodPixelFeatureOp;
 import net.imagej.ops.special.computer.Computers;
 import net.imagej.ops.special.computer.UnaryComputerOp;
+import net.imagej.ops.special.function.AbstractUnaryFunctionOp;
 import net.imagej.ops.special.function.Functions;
 import net.imagej.ops.special.function.UnaryFunctionOp;
 import net.imglib2.RandomAccessibleInterval;
@@ -16,9 +16,9 @@ import net.imglib2.view.Views;
 
 import org.scijava.plugin.Parameter;
 
-
 public class MeanPixelFeature<T extends RealType<T>> extends
-	AbstractNeighborhoodPixelFeatureOp<T> implements MeanPxFeature
+	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
+	implements MeanPxFeature
 {
 
 	@Parameter
