@@ -1,5 +1,5 @@
 
-package net.imagej.ops.image.pixelfeatures;
+package net.imagej.ops.features.pixelfeatures;
 
 import net.imagej.ops.AbstractOpTest;
 import net.imglib2.Cursor;

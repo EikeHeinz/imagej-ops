@@ -1,5 +1,5 @@
 
-package net.imagej.ops.image.pixelfeatures;
+package net.imagej.ops.features.pixelfeatures;
 
 import org.junit.Test;
 
