@@ -1,98 +1,59 @@
 package net.imagej.ops.features.pixelfeatures;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.imagej.ops.Ops;
-import net.imagej.ops.Ops.Math.Sqrt;
 import net.imagej.ops.special.chain.RAIs;
-import net.imagej.ops.special.computer.BinaryComputerOp;
-import net.imagej.ops.special.computer.Computers;
-import net.imagej.ops.special.computer.UnaryComputerOp;
 import net.imagej.ops.special.function.AbstractUnaryFunctionOp;
 import net.imagej.ops.special.function.Functions;
 import net.imagej.ops.special.function.UnaryFunctionOp;
-import net.imglib2.Dimensions;
-import net.imglib2.FinalDimensions;
+import net.imglib2.Cursor;
+import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.RealType;
-import net.imglib2.util.Util;
-import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
+import net.imglib2.view.composite.CompositeIntervalView;
+import net.imglib2.view.composite.RealComposite;
 
+import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
-@Plugin(type = Ops.Pixelfeatures.HessianPixelFeature.class,
-name = Ops.Pixelfeatures.HessianPixelFeature.NAME)
-public class HessianPixelFeature<T extends RealType<T>> extends
-	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
-	implements Ops.Pixelfeatures.HessianPixelFeature
-{
-
-	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> sqrtMap;
-	@SuppressWarnings("rawtypes")
-	private BinaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>, RandomAccessibleInterval> addRAI;
-	@SuppressWarnings("rawtypes")
-	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> createRAIFromRAI;
-	@SuppressWarnings("rawtypes")
-	private BinaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>, RandomAccessibleInterval> multiplyRAI;
-	@SuppressWarnings("rawtypes")
-	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> copyRAI;
-	@SuppressWarnings("rawtypes")
-	private BinaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>, RandomAccessibleInterval> subtractRAI;
-	@SuppressWarnings("rawtypes")
-	private UnaryFunctionOp<Dimensions, RandomAccessibleInterval> createRAIFromDim;
-	@SuppressWarnings("rawtypes")
-	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> multiplyRAIby4;
-	@SuppressWarnings("rawtypes")
-	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> divideRAIby2;
-	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> hesseComputer;
-	private RandomAccessibleInterval<T>[][] hesseOutput;
-
-	// TODO hyperslices of compositeviews??
+@Plugin(type = Ops.Pixelfeatures.HessianPixelFeature.class, name = Ops.Pixelfeatures.HessianPixelFeature.NAME)
+public class HessianPixelFeature<T extends RealType<T>>
+		extends AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, CompositeIntervalView<T, RealComposite<T>>>
+		implements Ops.Pixelfeatures.HessianPixelFeature {
 	
-	@SuppressWarnings("unchecked")
+	@Parameter
+	private double minSigma;
+	
+	@Parameter
+	private double maxSigma;
+	
+
+	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> createRAIFromRAI;
+
+	private UnaryFunctionOp<RandomAccessibleInterval<T>, CompositeIntervalView> hesseComputer;
+
+	private UnaryFunctionOp<RandomAccessibleInterval<T>, CompositeIntervalView> gaussFeatureOp;
+
+	// TODO add gauss call
+
 	@Override
 	public void initialize() {
-
-		hesseOutput = new RandomAccessibleInterval[in().numDimensions()][in()
-			.numDimensions()];
-		// changed
-		hesseComputer = RAIs.function(ops(), Ops.Filter.Hessian.class, in());
-
-		Sqrt sqrtOp = ops().op(Ops.Math.Sqrt.class, RealType.class, RealType.class);
-		sqrtMap = Computers.unary(ops(), Ops.Map.class, in(), in(), sqrtOp);
-		addRAI = Computers.binary(ops(), Ops.Math.Add.class,
-			RandomAccessibleInterval.class, in(), in());
-		multiplyRAI = Computers.binary(ops(), Ops.Math.Multiply.class,
-			RandomAccessibleInterval.class, in(), in());
-
-		T type4 = (T) ops().create().nativeType();
-		type4.setReal(4.0d);
-		multiplyRAIby4 = Computers.unary(ops(), Ops.Math.Multiply.class,
-			RandomAccessibleInterval.class, in(), type4);
-		T type2 = (T) ops().create().nativeType();
-		type2.setReal(2.0d);
-
-		divideRAIby2 = Computers.unary(ops(), Ops.Math.Divide.class,
-			RandomAccessibleInterval.class, in(), type2);
-		subtractRAI = Computers.binary(ops(), Ops.Math.Subtract.class,
-			RandomAccessibleInterval.class, in(), in());
-		// throws exception -> change calculation ops to functions?
-		createRAIFromRAI = Functions.unary(ops(), Ops.Create.Img.class,
-			RandomAccessibleInterval.class, in());
-		createRAIFromDim = Functions.unary(ops(), Ops.Create.Img.class,
-			RandomAccessibleInterval.class, Dimensions.class);
-		copyRAI = Computers.unary(ops(), Ops.Copy.RAI.class,
-			RandomAccessibleInterval.class, in());
+		hesseComputer = Functions.unary(ops(), Ops.Filter.Hessian.class, CompositeIntervalView.class, in());
+		createRAIFromRAI = RAIs.function(ops(), Ops.Create.Img.class, in());
+		gaussFeatureOp = Functions.unary(ops(), Ops.Pixelfeatures.GaussPixelFeature.class, CompositeIntervalView.class, in(), minSigma,maxSigma);
 	}
 
 	@SuppressWarnings({ "unchecked" })
 	@Override
-	public RandomAccessibleInterval<T> compute1(
-		RandomAccessibleInterval<T> input)
-	{
+	public CompositeIntervalView<T, RealComposite<T>> compute1(RandomAccessibleInterval<T> input) {
 
-		RandomAccessibleInterval<T> output = null;
+		CompositeIntervalView<T, RealComposite<T>> hessianMatrix = hesseComputer.compute1(input);
 
-		hesseComputer.compute1(input, hesseOutput);
+		List<RandomAccessibleInterval<T>> results = new ArrayList<>();
+
 
 		if (input.numDimensions() == 2) {
 
@@ -101,142 +62,150 @@ public class HessianPixelFeature<T extends RealType<T>> extends
 			 * 
 			 * [[a,b],[c,d]] Trace T=a+d Determinant D=ad-bc
 			 * 
+			 * module: sqrt(a^2+bc+d^2)
+			 * 
 			 * First eigenvalue: (T/2) + sqrt((4b^2+(a-d)^2)/2) Second
 			 * eigenvalue: (T/2) - sqrt((4b^2+(a-d)^2)/2)
 			 */
 
-			// create output img containing slice for each feature
-			// (trace,determinant, 1st/2nd eigenvalue)
-			long[] dims = new long[in().numDimensions() + 2];
-			for (int i = 0; i < dims.length - 1; i++) {
-				dims[i] = in().dimension(i);
-			}
-			dims[dims.length - 1] = 4;
-			Dimensions dim = FinalDimensions.wrap(dims);
-			output = createRAIFromDim.compute1(dim);
-
-			IntervalView<T> traceSlice = Views.hyperSlice(Views.hyperSlice(output, 3,
-				0), 2, 0);
-			IntervalView<T> determinantSlice = Views.hyperSlice(Views.hyperSlice(
-				output, 3, 0), 2, 1);
-			IntervalView<T> eigenvalue1Slice = Views.hyperSlice(Views.hyperSlice(
-				output, 3, 0), 2, 2);
-			IntervalView<T> eigenvalue2Slice = Views.hyperSlice(Views.hyperSlice(
-				output, 3, 0), 2, 3);
-
-			// calculate trace
+			Cursor<RealComposite<T>> hessianCursor = Views.iterable(hessianMatrix).cursor();
 			RandomAccessibleInterval<T> trace = createRAIFromRAI.compute1(input);
-			addRAI.compute2(hesseOutput[0][0], hesseOutput[1][1], trace);
-			copyRAI.compute1(trace, traceSlice);
+			RandomAccessibleInterval<T> determinant = createRAIFromRAI.compute1(input);
+			RandomAccessibleInterval<T> module = createRAIFromRAI.compute1(input);
+			RandomAccessibleInterval<T> firstEigenvalue = createRAIFromRAI.compute1(input);
+			RandomAccessibleInterval<T> secondEigenvalue = createRAIFromRAI.compute1(input);
+			RandomAccess<T> traceRA = trace.randomAccess();
+			RandomAccess<T> determinantRA = determinant.randomAccess();
+			RandomAccess<T> moduleRA = module.randomAccess();
+			RandomAccess<T> firstEigenvalueRA = firstEigenvalue.randomAccess();
+			RandomAccess<T> secondEigenvalueRA = secondEigenvalue.randomAccess();
+			while (hessianCursor.hasNext()) {
+				RealComposite<T> composite = hessianCursor.next();
+				long[] position = new long[2];
+				hessianCursor.localize(position);
+				traceRA.setPosition(position);
+				double traceResult = composite.get(0).getRealDouble() + composite.get(3).getRealDouble();
+				traceRA.get().setReal(traceResult);
 
-			// calculate determinant
-			RandomAccessibleInterval<T> xxyy = createRAIFromRAI.compute1(input);
-			multiplyRAI.compute2(hesseOutput[0][0], hesseOutput[1][1], xxyy);
+				// determinant
+				double ad = composite.get(0).getRealDouble() * composite.get(3).getRealDouble();
+				double bc = composite.get(1).getRealDouble() * composite.get(2).getRealDouble();
+				determinantRA.setPosition(position);
+				determinantRA.get().setReal(ad - bc);
 
-			RandomAccessibleInterval<T> xyyx = createRAIFromRAI.compute1(input);
-			multiplyRAI.compute2(hesseOutput[0][1], hesseOutput[1][0], xyyx);
+				// module
+				double asquared = composite.get(0).getRealDouble() * composite.get(0).getRealDouble();
+				double dsquared = composite.get(3).getRealDouble() * composite.get(3).getRealDouble();
+				double moduleResult = Math.sqrt(asquared + bc + dsquared);
+				moduleRA.get().setReal(moduleResult);
 
-			RandomAccessibleInterval<T> determinant = createRAIFromRAI.compute1(
-				input);
-			subtractRAI.compute2(xxyy, xyyx, determinant);
+				// first + second eigenvalues
+				double traceDiv2 = traceResult / 2;
+				double bSquared4 = 4 * composite.get(1).getRealDouble() * composite.get(1).getRealDouble();
+				double aMinusdSquared = Math.pow(composite.get(0).getRealDouble() -  composite.get(3).getRealDouble(), 2);
+				double sqrt = Math.sqrt((bSquared4 + aMinusdSquared)/2);
 
-			copyRAI.compute1(determinant, determinantSlice);
+				firstEigenvalueRA.setPosition(position);
+				double firstEigenvalueResult = traceDiv2 + sqrt;
+				firstEigenvalueRA.get().setReal(firstEigenvalueResult);
 
-			// eigenvalues using trace and determinant:
-			// (1/2) * (trace +/- sqrt(trace*trace - 4*determinant))
-			RandomAccessibleInterval<T> traceSquare = createRAIFromRAI.compute1(
-				input);
-			multiplyRAI.compute2(trace, trace, traceSquare);
+				secondEigenvalueRA.setPosition(position);
+				double secondEigenvalueResult = traceDiv2 - sqrt;
+				secondEigenvalueRA.get().setReal(secondEigenvalueResult);
 
-			RandomAccessibleInterval<T> tempDeterminant = createRAIFromRAI.compute1(
-				input);
-			multiplyRAIby4.compute1(determinant, tempDeterminant);
-
-			RandomAccessibleInterval<T> sqrt = createRAIFromRAI.compute1(input);
-			subtractRAI.compute2(traceSquare, tempDeterminant, sqrt);
-
-			sqrtMap.compute1(sqrt, sqrt);
-			RandomAccessibleInterval<T> addSqrt = createRAIFromRAI.compute1(input);
-			addRAI.compute2(sqrt, trace, addSqrt);
-			RandomAccessibleInterval<T> subtractSqrt = createRAIFromRAI.compute1(
-				input);
-			subtractRAI.compute2(sqrt, trace, subtractSqrt);
-
-			divideRAIby2.compute1(addSqrt, eigenvalue1Slice);
-			divideRAIby2.compute1(subtractSqrt, eigenvalue2Slice);
-
-		}
-		else if (input.numDimensions() == 3) {
-
-			RandomAccessibleInterval<T> xx = hesseOutput[0][0];// hesseSlices.get(0);
-			RandomAccessibleInterval<T> xy = hesseOutput[0][1];// hesseSlices.get(1);
-			RandomAccessibleInterval<T> xz = hesseOutput[0][2];// hesseSlices.get(2);
-			RandomAccessibleInterval<T> yx = hesseOutput[1][0];// hesseSlices.get(3);
-			RandomAccessibleInterval<T> yy = hesseOutput[1][1];// hesseSlices.get(4);
-			RandomAccessibleInterval<T> yz = hesseOutput[1][2];// hesseSlices.get(5);
-			RandomAccessibleInterval<T> zx = hesseOutput[2][0]; // hesseSlices.get(6);
-			RandomAccessibleInterval<T> zy = hesseOutput[2][1];// hesseSlices.get(7);
-			RandomAccessibleInterval<T> zz = hesseOutput[2][2];// hesseSlices.get(8);
-
-			long[] dims = new long[in().numDimensions() + 2];
-			for (int i = 0; i < dims.length - 1; i++) {
-				dims[i] = in().dimension(i);
 			}
-			// for now only trace and determinant are supported
-			dims[dims.length - 1] = 2;
-			Dimensions dim = FinalDimensions.wrap(dims);
-			output = createRAIFromDim.compute1(dim);
-
-			IntervalView<T> traceSlice = Views.hyperSlice(Views.hyperSlice(output, 3,
-				0), 3, 0);
-			IntervalView<T> determinantSlice = Views.hyperSlice(Views.hyperSlice(
-				output, 3, 0), 3, 1);
-
-			// calculate trace
-			RandomAccessibleInterval<T> trace = createRAIFromRAI.compute1(xx);
-			addRAI.compute2(xx, yy, trace);
-			addRAI.compute2(trace, zz, traceSlice);
-
-			// calculate determinant
-			// det = xx(yyzz - yzzy) - xy(yxzz - yzzx) + xz(yxzy - yyzx)
-			RandomAccessibleInterval<T> determinant = createRAIFromRAI.compute1(xx);
-
-			RandomAccessibleInterval<T> yyzz = createRAIFromRAI.compute1(xx);
-			multiplyRAI.compute2(yy, zz, yyzz);
-			RandomAccessibleInterval<T> yzzy = createRAIFromRAI.compute1(xx);
-			multiplyRAI.compute2(yz, zy, yzzy);
-			RandomAccessibleInterval<T> yyzzyzzy = createRAIFromRAI.compute1(xx);
-			subtractRAI.compute2(yyzz, yzzy, yyzzyzzy);
-			RandomAccessibleInterval<T> intermediateResult1 = createRAIFromRAI
-				.compute1(xx);
-			multiplyRAI.compute2(xx, yyzzyzzy, intermediateResult1);
-
-			RandomAccessibleInterval<T> yxzz = createRAIFromRAI.compute1(xx);
-			multiplyRAI.compute2(yx, zz, yxzz);
-			RandomAccessibleInterval<T> yzzx = createRAIFromRAI.compute1(xx);
-			multiplyRAI.compute2(yz, zx, yzzx);
-			RandomAccessibleInterval<T> yxzzyzzx = createRAIFromRAI.compute1(xx);
-			subtractRAI.compute2(yxzz, yzzx, yxzzyzzx);
-			RandomAccessibleInterval<T> intermediateResult2 = createRAIFromRAI
-				.compute1(xx);
-			multiplyRAI.compute2(xy, yxzzyzzx, intermediateResult2);
-
-			RandomAccessibleInterval<T> yxzy = createRAIFromRAI.compute1(xx);
-			multiplyRAI.compute2(yx, zy, yxzy);
-			RandomAccessibleInterval<T> yyzx = createRAIFromRAI.compute1(xx);
-			multiplyRAI.compute2(yy, zx, yyzx);
-			RandomAccessibleInterval<T> yxzyyyzx = createRAIFromRAI.compute1(xx);
-			subtractRAI.compute2(yxzy, yyzx, yxzyyyzx);
-			RandomAccessibleInterval<T> intermediateResult3 = createRAIFromRAI
-				.compute1(xx);
-			multiplyRAI.compute2(xz, yxzyyyzx, intermediateResult3);
-
-			subtractRAI.compute2(intermediateResult1, intermediateResult2,
-				determinant);
-
-			addRAI.compute2(determinant, intermediateResult3, determinantSlice);
-
+			results.add(module);
+			results.add(trace);
+			results.add(determinant);
+			results.add(firstEigenvalue);
+			results.add(secondEigenvalue);
 		}
-		return output;
+
+		// TODO implement 3d case
+		
+		// } else if (input.numDimensions() == 3) {
+		//
+		// RandomAccessibleInterval<T> xx = hesseOutput[0][0];//
+		// hesseSlices.get(0);
+		// RandomAccessibleInterval<T> xy = hesseOutput[0][1];//
+		// hesseSlices.get(1);
+		// RandomAccessibleInterval<T> xz = hesseOutput[0][2];//
+		// hesseSlices.get(2);
+		// RandomAccessibleInterval<T> yx = hesseOutput[1][0];//
+		// hesseSlices.get(3);
+		// RandomAccessibleInterval<T> yy = hesseOutput[1][1];//
+		// hesseSlices.get(4);
+		// RandomAccessibleInterval<T> yz = hesseOutput[1][2];//
+		// hesseSlices.get(5);
+		// RandomAccessibleInterval<T> zx = hesseOutput[2][0]; //
+		// hesseSlices.get(6);
+		// RandomAccessibleInterval<T> zy = hesseOutput[2][1];//
+		// hesseSlices.get(7);
+		// RandomAccessibleInterval<T> zz = hesseOutput[2][2];//
+		// hesseSlices.get(8);
+		//
+		// long[] dims = new long[in().numDimensions() + 2];
+		// for (int i = 0; i < dims.length - 1; i++) {
+		// dims[i] = in().dimension(i);
+		// }
+		// // for now only trace and determinant are supported
+		// dims[dims.length - 1] = 2;
+		// Dimensions dim = FinalDimensions.wrap(dims);
+		// output = createRAIFromDim.compute1(dim);
+		//
+		// IntervalView<T> traceSlice =
+		// Views.hyperSlice(Views.hyperSlice(output, 3, 0), 3, 0);
+		// IntervalView<T> determinantSlice =
+		// Views.hyperSlice(Views.hyperSlice(output, 3, 0), 3, 1);
+		//
+		// // calculate trace
+		// RandomAccessibleInterval<T> trace = createRAIFromRAI.compute1(xx);
+		// addRAI.compute2(xx, yy, trace);
+		// addRAI.compute2(trace, zz, traceSlice);
+		//
+		// // calculate determinant
+		// // det = xx(yyzz - yzzy) - xy(yxzz - yzzx) + xz(yxzy - yyzx)
+		// RandomAccessibleInterval<T> determinant =
+		// createRAIFromRAI.compute1(xx);
+		//
+		// RandomAccessibleInterval<T> yyzz = createRAIFromRAI.compute1(xx);
+		// multiplyRAI.compute2(yy, zz, yyzz);
+		// RandomAccessibleInterval<T> yzzy = createRAIFromRAI.compute1(xx);
+		// multiplyRAI.compute2(yz, zy, yzzy);
+		// RandomAccessibleInterval<T> yyzzyzzy = createRAIFromRAI.compute1(xx);
+		// subtractRAI.compute2(yyzz, yzzy, yyzzyzzy);
+		// RandomAccessibleInterval<T> intermediateResult1 =
+		// createRAIFromRAI.compute1(xx);
+		// multiplyRAI.compute2(xx, yyzzyzzy, intermediateResult1);
+		//
+		// RandomAccessibleInterval<T> yxzz = createRAIFromRAI.compute1(xx);
+		// multiplyRAI.compute2(yx, zz, yxzz);
+		// RandomAccessibleInterval<T> yzzx = createRAIFromRAI.compute1(xx);
+		// multiplyRAI.compute2(yz, zx, yzzx);
+		// RandomAccessibleInterval<T> yxzzyzzx = createRAIFromRAI.compute1(xx);
+		// subtractRAI.compute2(yxzz, yzzx, yxzzyzzx);
+		// RandomAccessibleInterval<T> intermediateResult2 =
+		// createRAIFromRAI.compute1(xx);
+		// multiplyRAI.compute2(xy, yxzzyzzx, intermediateResult2);
+		//
+		// RandomAccessibleInterval<T> yxzy = createRAIFromRAI.compute1(xx);
+		// multiplyRAI.compute2(yx, zy, yxzy);
+		// RandomAccessibleInterval<T> yyzx = createRAIFromRAI.compute1(xx);
+		// multiplyRAI.compute2(yy, zx, yyzx);
+		// RandomAccessibleInterval<T> yxzyyyzx = createRAIFromRAI.compute1(xx);
+		// subtractRAI.compute2(yxzy, yyzx, yxzyyyzx);
+		// RandomAccessibleInterval<T> intermediateResult3 =
+		// createRAIFromRAI.compute1(xx);
+		// multiplyRAI.compute2(xz, yxzyyyzx, intermediateResult3);
+		//
+		// subtractRAI.compute2(intermediateResult1, intermediateResult2,
+		// determinant);
+		//
+		// addRAI.compute2(determinant, intermediateResult3, determinantSlice);
+		//
+		// }
+
+		RandomAccessibleInterval<T> stacked = Views.stack(results);
+		return Views.collapseReal(stacked);
 	}
 }

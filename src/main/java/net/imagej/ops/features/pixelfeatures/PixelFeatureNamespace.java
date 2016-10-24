@@ -68,12 +68,12 @@ public class PixelFeatureNamespace extends AbstractNamespace {
 		
 		@OpMethod(
 			op = net.imagej.ops.features.pixelfeatures.HessianPixelFeature.class)
-		public <T extends RealType<T>> RandomAccessibleInterval<T> hessian(
+		public <T extends RealType<T>> CompositeIntervalView<T, RealComposite<T>> hessian(
 			final RandomAccessibleInterval<T> in)
 		{
 			@SuppressWarnings("unchecked")
-			final RandomAccessibleInterval<T> result =
-				(RandomAccessibleInterval<T>) ops().run(
+			final CompositeIntervalView<T, RealComposite<T>> result =
+				(CompositeIntervalView<T, RealComposite<T>>) ops().run(
 					net.imagej.ops.features.pixelfeatures.HessianPixelFeature.class, in);
 			return result;
 		}
