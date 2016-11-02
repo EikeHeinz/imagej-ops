@@ -142,38 +142,44 @@ public class HessianPixelFeature<T extends RealType<T>>
 				results.add(Views.stack(intermediateResults));
 				intermediateResults.clear();
 
-
 			} else if (input.numDimensions() == 3) {
-		
+
 				while (hessianCursor.hasNext()) {
 					RealComposite<T> composite = hessianCursor.next();
 					long[] position = new long[3];
 					hessianCursor.localize(position);
-					
+
 					// trace
 					traceRA.setPosition(position);
-					double traceResult = composite.get(0).getRealDouble() + composite.get(4).getRealDouble() + composite.get(8).getRealDouble();
+					double traceResult = composite.get(0).getRealDouble() + composite.get(4).getRealDouble()
+							+ composite.get(8).getRealDouble();
 					traceRA.get().setReal(traceResult);
-					
+
 					// determinant
 					// det = a*e*i + b*f*g + c*d*h - g*e*c - h*f*a - i*d*b
 					determinantRA.setPosition(position);
-					double aei = composite.get(0).getRealDouble() * composite.get(4).getRealDouble() * composite.get(8).getRealDouble();
-					double bfg = composite.get(1).getRealDouble() * composite.get(5).getRealDouble() * composite.get(6).getRealDouble();
-					double cdh = composite.get(2).getRealDouble() * composite.get(3).getRealDouble() * composite.get(7).getRealDouble();
-					double gec = composite.get(6).getRealDouble() * composite.get(4).getRealDouble() * composite.get(2).getRealDouble();
-					double hfa = composite.get(7).getRealDouble() * composite.get(5).getRealDouble() * composite.get(0).getRealDouble();
-					double idb = composite.get(8).getRealDouble() * composite.get(3).getRealDouble() * composite.get(1).getRealDouble();
-					double determinantResult = aei+bfg +cdh-gec-hfa-idb;
+					double aei = composite.get(0).getRealDouble() * composite.get(4).getRealDouble()
+							* composite.get(8).getRealDouble();
+					double bfg = composite.get(1).getRealDouble() * composite.get(5).getRealDouble()
+							* composite.get(6).getRealDouble();
+					double cdh = composite.get(2).getRealDouble() * composite.get(3).getRealDouble()
+							* composite.get(7).getRealDouble();
+					double gec = composite.get(6).getRealDouble() * composite.get(4).getRealDouble()
+							* composite.get(2).getRealDouble();
+					double hfa = composite.get(7).getRealDouble() * composite.get(5).getRealDouble()
+							* composite.get(0).getRealDouble();
+					double idb = composite.get(8).getRealDouble() * composite.get(3).getRealDouble()
+							* composite.get(1).getRealDouble();
+					double determinantResult = aei + bfg + cdh - gec - hfa - idb;
 					determinantRA.get().setReal(determinantResult);
-					
+
 				}
-				
+
 				intermediateResults.add(trace);
 				intermediateResults.add(determinant);
 				results.add(Views.stack(intermediateResults));
 				intermediateResults.clear();
-				
+
 			}
 		}
 
