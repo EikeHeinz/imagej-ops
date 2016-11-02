@@ -1,9 +1,11 @@
 package net.imagej.ops.features.pixelfeatures;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import net.imagej.ops.Ops;
+import net.imagej.ops.Ops.Filter.Gauss;
 import net.imagej.ops.special.chain.RAIs;
 import net.imagej.ops.special.function.AbstractUnaryFunctionOp;
 import net.imagej.ops.special.function.Functions;
@@ -23,187 +25,157 @@ import org.scijava.plugin.Plugin;
 public class HessianPixelFeature<T extends RealType<T>>
 		extends AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, CompositeIntervalView<T, RealComposite<T>>>
 		implements Ops.Pixelfeatures.HessianPixelFeature {
-	
+
 	@Parameter
 	private double minSigma;
-	
+
 	@Parameter
 	private double maxSigma;
-	
 
 	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> createRAIFromRAI;
 
+	@SuppressWarnings("rawtypes")
 	private UnaryFunctionOp<RandomAccessibleInterval<T>, CompositeIntervalView> hesseComputer;
 
-	private UnaryFunctionOp<RandomAccessibleInterval<T>, CompositeIntervalView> gaussFeatureOp;
+	private List<UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>> gaussOps;
 
-	// TODO add gauss call
+	// TODO check module
 
 	@Override
 	public void initialize() {
 		hesseComputer = Functions.unary(ops(), Ops.Filter.Hessian.class, CompositeIntervalView.class, in());
 		createRAIFromRAI = RAIs.function(ops(), Ops.Create.Img.class, in());
-		gaussFeatureOp = Functions.unary(ops(), Ops.Pixelfeatures.GaussPixelFeature.class, CompositeIntervalView.class, in(), minSigma,maxSigma);
+
+		double maxSteps = ops().math().floor(Math.log(maxSigma) / Math.log(2));
+
+		gaussOps = new ArrayList<>();
+		for (int i = 0; i <= maxSteps; i++) {
+			double[] sigmas = new double[(int) maxSteps];
+			Arrays.fill(sigmas, Math.pow(2, i) * minSigma);
+			gaussOps.add(RAIs.function(ops(), Gauss.class, in(), sigmas));
+		}
 	}
 
 	@SuppressWarnings({ "unchecked" })
 	@Override
 	public CompositeIntervalView<T, RealComposite<T>> compute1(RandomAccessibleInterval<T> input) {
+		List<CompositeIntervalView<T, RealComposite<T>>> blurredHessianMatrices = new ArrayList<>();
 
-		CompositeIntervalView<T, RealComposite<T>> hessianMatrix = hesseComputer.compute1(input);
+		for (UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> gaussOp : gaussOps) {
+			blurredHessianMatrices.add(hesseComputer.compute1(gaussOp.compute1(input)));
+		}
 
 		List<RandomAccessibleInterval<T>> results = new ArrayList<>();
 
+		/*
+		 * output px value in hessian matrix is: [[XX,XY],[YX,YY]] =
+		 * 
+		 * [[a,b],[c,d]] Trace T=a+d Determinant D=ad-bc
+		 * 
+		 * module: sqrt(a^2+bc+d^2)
+		 * 
+		 * First eigenvalue: (T/2) + sqrt((4b^2+(a-d)^2)/2) Second eigenvalue:
+		 * (T/2) - sqrt((4b^2+(a-d)^2)/2)
+		 */
 
-		if (input.numDimensions() == 2) {
-
-			/*
-			 * output px value in hessian matrix is: [[XX,XY],[YX,YY]] =
-			 * 
-			 * [[a,b],[c,d]] Trace T=a+d Determinant D=ad-bc
-			 * 
-			 * module: sqrt(a^2+bc+d^2)
-			 * 
-			 * First eigenvalue: (T/2) + sqrt((4b^2+(a-d)^2)/2) Second
-			 * eigenvalue: (T/2) - sqrt((4b^2+(a-d)^2)/2)
-			 */
-
+		List<RandomAccessibleInterval<T>> intermediateResults = new ArrayList<>();
+		for (CompositeIntervalView<T, RealComposite<T>> hessianMatrix : blurredHessianMatrices) {
 			Cursor<RealComposite<T>> hessianCursor = Views.iterable(hessianMatrix).cursor();
 			RandomAccessibleInterval<T> trace = createRAIFromRAI.compute1(input);
 			RandomAccessibleInterval<T> determinant = createRAIFromRAI.compute1(input);
-			RandomAccessibleInterval<T> module = createRAIFromRAI.compute1(input);
-			RandomAccessibleInterval<T> firstEigenvalue = createRAIFromRAI.compute1(input);
-			RandomAccessibleInterval<T> secondEigenvalue = createRAIFromRAI.compute1(input);
 			RandomAccess<T> traceRA = trace.randomAccess();
 			RandomAccess<T> determinantRA = determinant.randomAccess();
-			RandomAccess<T> moduleRA = module.randomAccess();
-			RandomAccess<T> firstEigenvalueRA = firstEigenvalue.randomAccess();
-			RandomAccess<T> secondEigenvalueRA = secondEigenvalue.randomAccess();
-			while (hessianCursor.hasNext()) {
-				RealComposite<T> composite = hessianCursor.next();
-				long[] position = new long[2];
-				hessianCursor.localize(position);
-				traceRA.setPosition(position);
-				double traceResult = composite.get(0).getRealDouble() + composite.get(3).getRealDouble();
-				traceRA.get().setReal(traceResult);
+			if (input.numDimensions() == 2) {
+				// RandomAccessibleInterval<T> module =
+				// createRAIFromRAI.compute1(input);
+				RandomAccessibleInterval<T> firstEigenvalue = createRAIFromRAI.compute1(input);
+				RandomAccessibleInterval<T> secondEigenvalue = createRAIFromRAI.compute1(input);
+				// RandomAccess<T> moduleRA = module.randomAccess();
+				RandomAccess<T> firstEigenvalueRA = firstEigenvalue.randomAccess();
+				RandomAccess<T> secondEigenvalueRA = secondEigenvalue.randomAccess();
+				while (hessianCursor.hasNext()) {
+					RealComposite<T> composite = hessianCursor.next();
+					long[] position = new long[2];
+					hessianCursor.localize(position);
 
-				// determinant
-				double ad = composite.get(0).getRealDouble() * composite.get(3).getRealDouble();
-				double bc = composite.get(1).getRealDouble() * composite.get(2).getRealDouble();
-				determinantRA.setPosition(position);
-				determinantRA.get().setReal(ad - bc);
+					// trace
+					traceRA.setPosition(position);
+					double traceResult = composite.get(0).getRealDouble() + composite.get(3).getRealDouble();
+					traceRA.get().setReal(traceResult);
 
-				// module
-				double asquared = composite.get(0).getRealDouble() * composite.get(0).getRealDouble();
-				double dsquared = composite.get(3).getRealDouble() * composite.get(3).getRealDouble();
-				double moduleResult = Math.sqrt(asquared + bc + dsquared);
-				moduleRA.get().setReal(moduleResult);
+					// determinant
+					double ad = composite.get(0).getRealDouble() * composite.get(3).getRealDouble();
+					double bc = composite.get(1).getRealDouble() * composite.get(2).getRealDouble();
+					determinantRA.setPosition(position);
+					determinantRA.get().setReal(ad - bc);
 
-				// first + second eigenvalues
-				double traceDiv2 = traceResult / 2;
-				double bSquared4 = 4 * composite.get(1).getRealDouble() * composite.get(1).getRealDouble();
-				double aMinusdSquared = Math.pow(composite.get(0).getRealDouble() -  composite.get(3).getRealDouble(), 2);
-				double sqrt = Math.sqrt((bSquared4 + aMinusdSquared)/2);
+					// module
+					// double asquared = composite.get(0).getRealDouble() *
+					// composite.get(0).getRealDouble();
+					// double dsquared = composite.get(3).getRealDouble() *
+					// composite.get(3).getRealDouble();
+					// double moduleResult = Math.sqrt(asquared + bc +
+					// dsquared);
+					// moduleRA.get().setReal(moduleResult);
 
-				firstEigenvalueRA.setPosition(position);
-				double firstEigenvalueResult = traceDiv2 + sqrt;
-				firstEigenvalueRA.get().setReal(firstEigenvalueResult);
+					// first + second eigenvalues
+					double traceDiv2 = traceResult / 2;
+					double bSquared4 = 4 * composite.get(1).getRealDouble() * composite.get(1).getRealDouble();
+					double aMinusdSquared = Math
+							.pow(composite.get(0).getRealDouble() - composite.get(3).getRealDouble(), 2);
+					double sqrt = Math.sqrt((bSquared4 + aMinusdSquared) / 2);
 
-				secondEigenvalueRA.setPosition(position);
-				double secondEigenvalueResult = traceDiv2 - sqrt;
-				secondEigenvalueRA.get().setReal(secondEigenvalueResult);
+					firstEigenvalueRA.setPosition(position);
+					double firstEigenvalueResult = traceDiv2 + sqrt;
+					firstEigenvalueRA.get().setReal(firstEigenvalueResult);
 
-			}
-			results.add(module);
-			results.add(trace);
-			results.add(determinant);
-			results.add(firstEigenvalue);
-			results.add(secondEigenvalue);
-		}
+					secondEigenvalueRA.setPosition(position);
+					double secondEigenvalueResult = traceDiv2 - sqrt;
+					secondEigenvalueRA.get().setReal(secondEigenvalueResult);
 
-		// TODO implement 3d case
+				}
+				intermediateResults.add(trace);
+				// intermediateResults.add(module);
+				intermediateResults.add(determinant);
+				intermediateResults.add(firstEigenvalue);
+				intermediateResults.add(secondEigenvalue);
+				results.add(Views.stack(intermediateResults));
+				intermediateResults.clear();
+
+
+			} else if (input.numDimensions() == 3) {
 		
-		// } else if (input.numDimensions() == 3) {
-		//
-		// RandomAccessibleInterval<T> xx = hesseOutput[0][0];//
-		// hesseSlices.get(0);
-		// RandomAccessibleInterval<T> xy = hesseOutput[0][1];//
-		// hesseSlices.get(1);
-		// RandomAccessibleInterval<T> xz = hesseOutput[0][2];//
-		// hesseSlices.get(2);
-		// RandomAccessibleInterval<T> yx = hesseOutput[1][0];//
-		// hesseSlices.get(3);
-		// RandomAccessibleInterval<T> yy = hesseOutput[1][1];//
-		// hesseSlices.get(4);
-		// RandomAccessibleInterval<T> yz = hesseOutput[1][2];//
-		// hesseSlices.get(5);
-		// RandomAccessibleInterval<T> zx = hesseOutput[2][0]; //
-		// hesseSlices.get(6);
-		// RandomAccessibleInterval<T> zy = hesseOutput[2][1];//
-		// hesseSlices.get(7);
-		// RandomAccessibleInterval<T> zz = hesseOutput[2][2];//
-		// hesseSlices.get(8);
-		//
-		// long[] dims = new long[in().numDimensions() + 2];
-		// for (int i = 0; i < dims.length - 1; i++) {
-		// dims[i] = in().dimension(i);
-		// }
-		// // for now only trace and determinant are supported
-		// dims[dims.length - 1] = 2;
-		// Dimensions dim = FinalDimensions.wrap(dims);
-		// output = createRAIFromDim.compute1(dim);
-		//
-		// IntervalView<T> traceSlice =
-		// Views.hyperSlice(Views.hyperSlice(output, 3, 0), 3, 0);
-		// IntervalView<T> determinantSlice =
-		// Views.hyperSlice(Views.hyperSlice(output, 3, 0), 3, 1);
-		//
-		// // calculate trace
-		// RandomAccessibleInterval<T> trace = createRAIFromRAI.compute1(xx);
-		// addRAI.compute2(xx, yy, trace);
-		// addRAI.compute2(trace, zz, traceSlice);
-		//
-		// // calculate determinant
-		// // det = xx(yyzz - yzzy) - xy(yxzz - yzzx) + xz(yxzy - yyzx)
-		// RandomAccessibleInterval<T> determinant =
-		// createRAIFromRAI.compute1(xx);
-		//
-		// RandomAccessibleInterval<T> yyzz = createRAIFromRAI.compute1(xx);
-		// multiplyRAI.compute2(yy, zz, yyzz);
-		// RandomAccessibleInterval<T> yzzy = createRAIFromRAI.compute1(xx);
-		// multiplyRAI.compute2(yz, zy, yzzy);
-		// RandomAccessibleInterval<T> yyzzyzzy = createRAIFromRAI.compute1(xx);
-		// subtractRAI.compute2(yyzz, yzzy, yyzzyzzy);
-		// RandomAccessibleInterval<T> intermediateResult1 =
-		// createRAIFromRAI.compute1(xx);
-		// multiplyRAI.compute2(xx, yyzzyzzy, intermediateResult1);
-		//
-		// RandomAccessibleInterval<T> yxzz = createRAIFromRAI.compute1(xx);
-		// multiplyRAI.compute2(yx, zz, yxzz);
-		// RandomAccessibleInterval<T> yzzx = createRAIFromRAI.compute1(xx);
-		// multiplyRAI.compute2(yz, zx, yzzx);
-		// RandomAccessibleInterval<T> yxzzyzzx = createRAIFromRAI.compute1(xx);
-		// subtractRAI.compute2(yxzz, yzzx, yxzzyzzx);
-		// RandomAccessibleInterval<T> intermediateResult2 =
-		// createRAIFromRAI.compute1(xx);
-		// multiplyRAI.compute2(xy, yxzzyzzx, intermediateResult2);
-		//
-		// RandomAccessibleInterval<T> yxzy = createRAIFromRAI.compute1(xx);
-		// multiplyRAI.compute2(yx, zy, yxzy);
-		// RandomAccessibleInterval<T> yyzx = createRAIFromRAI.compute1(xx);
-		// multiplyRAI.compute2(yy, zx, yyzx);
-		// RandomAccessibleInterval<T> yxzyyyzx = createRAIFromRAI.compute1(xx);
-		// subtractRAI.compute2(yxzy, yyzx, yxzyyyzx);
-		// RandomAccessibleInterval<T> intermediateResult3 =
-		// createRAIFromRAI.compute1(xx);
-		// multiplyRAI.compute2(xz, yxzyyyzx, intermediateResult3);
-		//
-		// subtractRAI.compute2(intermediateResult1, intermediateResult2,
-		// determinant);
-		//
-		// addRAI.compute2(determinant, intermediateResult3, determinantSlice);
-		//
-		// }
+				while (hessianCursor.hasNext()) {
+					RealComposite<T> composite = hessianCursor.next();
+					long[] position = new long[3];
+					hessianCursor.localize(position);
+					
+					// trace
+					traceRA.setPosition(position);
+					double traceResult = composite.get(0).getRealDouble() + composite.get(4).getRealDouble() + composite.get(8).getRealDouble();
+					traceRA.get().setReal(traceResult);
+					
+					// determinant
+					// det = a*e*i + b*f*g + c*d*h - g*e*c - h*f*a - i*d*b
+					determinantRA.setPosition(position);
+					double aei = composite.get(0).getRealDouble() * composite.get(4).getRealDouble() * composite.get(8).getRealDouble();
+					double bfg = composite.get(1).getRealDouble() * composite.get(5).getRealDouble() * composite.get(6).getRealDouble();
+					double cdh = composite.get(2).getRealDouble() * composite.get(3).getRealDouble() * composite.get(7).getRealDouble();
+					double gec = composite.get(6).getRealDouble() * composite.get(4).getRealDouble() * composite.get(2).getRealDouble();
+					double hfa = composite.get(7).getRealDouble() * composite.get(5).getRealDouble() * composite.get(0).getRealDouble();
+					double idb = composite.get(8).getRealDouble() * composite.get(3).getRealDouble() * composite.get(1).getRealDouble();
+					double determinantResult = aei+bfg +cdh-gec-hfa-idb;
+					determinantRA.get().setReal(determinantResult);
+					
+				}
+				
+				intermediateResults.add(trace);
+				intermediateResults.add(determinant);
+				results.add(Views.stack(intermediateResults));
+				intermediateResults.clear();
+				
+			}
+		}
 
 		RandomAccessibleInterval<T> stacked = Views.stack(results);
 		return Views.collapseReal(stacked);
