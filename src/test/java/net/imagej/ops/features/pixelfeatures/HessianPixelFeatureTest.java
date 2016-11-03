@@ -39,7 +39,7 @@ public class HessianPixelFeatureTest extends AbstractOpTest {
 			}
 		}
 
-		CompositeIntervalView<FloatType, RealComposite<FloatType>> out = ops.pixelfeature().hessian(img, 1.0d, 16.0d);
+		CompositeIntervalView<FloatType, RealComposite<FloatType>> out = ops.pixelfeature().hessian(img, 1.0d, 8.0d);
 		CompositeView<FloatType, RealComposite<FloatType>>.CompositeRandomAccess outRA = out.randomAccess();
 
 		float[] valuesTrace = new float[] { 1.7194724f, 8.870056f, 14.474865f, 1.1520919f, -14.936752f, -15.013784f,
