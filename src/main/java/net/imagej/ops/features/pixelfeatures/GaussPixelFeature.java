@@ -39,7 +39,7 @@ public class GaussPixelFeature<T extends RealType<T>>
 		gaussOps = new ArrayList<>();
 
 		for (int i = 0; i <= maxSteps; i++) {
-			double[] sigmas = new double[(int) maxSteps];
+			double[] sigmas = new double[in().numDimensions()];
 			Arrays.fill(sigmas, Math.pow(2, i) * minSigma);
 			gaussOps.add(RAIs.function(ops(), Gauss.class, in(), sigmas));
 		}
