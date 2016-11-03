@@ -46,13 +46,13 @@ public class GaussPixelFeature<T extends RealType<T>>
 	}
 
 	@Override
-	public CompositeIntervalView<T, RealComposite<T>> compute1(RandomAccessibleInterval<T> input) {
+	public CompositeIntervalView<T, RealComposite<T>> calculate(RandomAccessibleInterval<T> input) {
 
 		IntervalView<T> extendedIn = Views.interval(Views.extendMirrorDouble(input), input);
 
 		List<RandomAccessibleInterval<T>> blurredImgs = new ArrayList<>();
 		for (UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> gaussOp : gaussOps) {
-			blurredImgs.add(gaussOp.compute1(extendedIn));
+			blurredImgs.add(gaussOp.calculate(extendedIn));
 		}
 
 		return Views.collapseReal(Views.stack(blurredImgs));

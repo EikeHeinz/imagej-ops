@@ -49,21 +49,19 @@ public class GaussianGradientMagnitudePixelFeature<T extends RealType<T>>
 	}
 
 	@Override
-	public CompositeIntervalView<T, RealComposite<T>> compute1(RandomAccessibleInterval<T> input) {
-
+	public CompositeIntervalView<T, RealComposite<T>> calculate(RandomAccessibleInterval<T> input) {
 		RandomAccessibleInterval<T> extended = Views.interval(Views.extendMirrorSingle(input), input);
 		List<RandomAccessibleInterval<T>> blurredImgs = new ArrayList<>();
 
 		for (UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> gaussOp : gaussOps) {
-			blurredImgs.add(gaussOp.compute1(extended));
+			blurredImgs.add(gaussOp.calculate(extended));
 		}
 
 		List<RandomAccessibleInterval<T>> results = new ArrayList<>();
 		for (RandomAccessibleInterval<T> blurredImg : blurredImgs) {
-			results.add(sobelOp.compute1(blurredImg));
+			results.add(sobelOp.calculate(blurredImg));
 		}
 
 		return Views.collapseReal(Views.stack(results));
 	}
-
 }

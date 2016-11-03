@@ -16,39 +16,38 @@ import net.imglib2.view.Views;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
-@Plugin(type = Ops.Pixelfeatures.MaxPixelFeature.class,
-	name = Ops.Pixelfeatures.MaxPixelFeature.NAME)
-public class MaxPixelFeature<T extends RealType<T>> extends
-	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
-	implements Ops.Pixelfeatures.MaxPixelFeature
-{
+@Plugin(type = Ops.Pixelfeatures.MaxPixelFeature.class, name = Ops.Pixelfeatures.MaxPixelFeature.NAME)
+public class MaxPixelFeature<T extends RealType<T>>
+		extends AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
+		implements Ops.Pixelfeatures.MaxPixelFeature {
 
+	// TODO span = sigma
 	@Parameter
 	private int span;
 
 	@SuppressWarnings("rawtypes")
-	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> mapOp;
+	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> mapOp;
 
 	@SuppressWarnings("rawtypes")
 	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> createRAIFromRAI;
 
 	@Override
 	public void initialize() {
-		createRAIFromRAI = Functions.unary(ops(), Ops.Create.Img.class,
-			RandomAccessibleInterval.class, in());
-//		mapOp = Computers.unary(ops(), Max.class, RandomAccessibleInterval.class,
-//			in(), new RectangleShape(span, false));
-		mapOp = RAIs.function(ops(), Ops.Filter.Max.class, in(), new RectangleShape(span, false));
+		createRAIFromRAI = Functions.unary(ops(), Ops.Create.Img.class, RandomAccessibleInterval.class, in());
+		mapOp = Computers.unary(ops(), Max.class, RandomAccessibleInterval.class, in(),
+				new RectangleShape(span, false));
+		// mapOp = RAIs.function(ops(), Ops.Filter.Max.class, in(), new
+		// RectangleShape(span, false));
 
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public RandomAccessibleInterval<T> compute1(
-		final RandomAccessibleInterval<T> in)
-	{
-//		RandomAccessibleInterval<T> output = createRAIFromRAI.compute1(in);
-		RandomAccessibleInterval<T> output = mapOp.compute1(Views.interval(Views.extendMirrorDouble(in), in));
+	public RandomAccessibleInterval<T> calculate(final RandomAccessibleInterval<T> in) {
+		RandomAccessibleInterval<T> output = createRAIFromRAI.calculate(in);
+		// RandomAccessibleInterval<T> output =
+		// mapOp.calculate(Views.interval(Views.extendMirrorDouble(in), in));
+		mapOp.compute(Views.interval(Views.extendMirrorDouble(in), in), output);
 		return output;
 	}
 

@@ -35,7 +35,7 @@ public class HessianPixelFeature<T extends RealType<T>>
 	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> createRAIFromRAI;
 
 	@SuppressWarnings("rawtypes")
-	private UnaryFunctionOp<RandomAccessibleInterval<T>, CompositeIntervalView> hesseComputer;
+	private UnaryFunctionOp<RandomAccessibleInterval<T>, CompositeIntervalView> hessianOp;
 
 	private List<UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>> gaussOps;
 
@@ -43,7 +43,7 @@ public class HessianPixelFeature<T extends RealType<T>>
 
 	@Override
 	public void initialize() {
-		hesseComputer = Functions.unary(ops(), Ops.Filter.Hessian.class, CompositeIntervalView.class, in());
+		hessianOp = Functions.unary(ops(), Ops.Filter.Hessian.class, CompositeIntervalView.class, in());
 		createRAIFromRAI = RAIs.function(ops(), Ops.Create.Img.class, in());
 
 		double maxSteps = ops().math().floor(Math.log(maxSigma) / Math.log(2));
@@ -58,11 +58,11 @@ public class HessianPixelFeature<T extends RealType<T>>
 
 	@SuppressWarnings({ "unchecked" })
 	@Override
-	public CompositeIntervalView<T, RealComposite<T>> compute1(RandomAccessibleInterval<T> input) {
+	public CompositeIntervalView<T, RealComposite<T>> calculate(RandomAccessibleInterval<T> input) {
 		List<CompositeIntervalView<T, RealComposite<T>>> blurredHessianMatrices = new ArrayList<>();
 
 		for (UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> gaussOp : gaussOps) {
-			blurredHessianMatrices.add(hesseComputer.compute1(gaussOp.compute1(input)));
+			blurredHessianMatrices.add(hessianOp.calculate(gaussOp.calculate(input)));
 		}
 
 		List<RandomAccessibleInterval<T>> results = new ArrayList<>();
@@ -81,15 +81,15 @@ public class HessianPixelFeature<T extends RealType<T>>
 		List<RandomAccessibleInterval<T>> intermediateResults = new ArrayList<>();
 		for (CompositeIntervalView<T, RealComposite<T>> hessianMatrix : blurredHessianMatrices) {
 			Cursor<RealComposite<T>> hessianCursor = Views.iterable(hessianMatrix).cursor();
-			RandomAccessibleInterval<T> trace = createRAIFromRAI.compute1(input);
-			RandomAccessibleInterval<T> determinant = createRAIFromRAI.compute1(input);
+			RandomAccessibleInterval<T> trace = createRAIFromRAI.calculate(input);
+			RandomAccessibleInterval<T> determinant = createRAIFromRAI.calculate(input);
 			RandomAccess<T> traceRA = trace.randomAccess();
 			RandomAccess<T> determinantRA = determinant.randomAccess();
 			if (input.numDimensions() == 2) {
 				// RandomAccessibleInterval<T> module =
 				// createRAIFromRAI.compute1(input);
-				RandomAccessibleInterval<T> firstEigenvalue = createRAIFromRAI.compute1(input);
-				RandomAccessibleInterval<T> secondEigenvalue = createRAIFromRAI.compute1(input);
+				RandomAccessibleInterval<T> firstEigenvalue = createRAIFromRAI.calculate(input);
+				RandomAccessibleInterval<T> secondEigenvalue = createRAIFromRAI.calculate(input);
 				// RandomAccess<T> moduleRA = module.randomAccess();
 				RandomAccess<T> firstEigenvalueRA = firstEigenvalue.randomAccess();
 				RandomAccess<T> secondEigenvalueRA = secondEigenvalue.randomAccess();

@@ -15,12 +15,10 @@ import net.imglib2.view.Views;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
-@Plugin(type = Ops.Pixelfeatures.MeanPixelFeature.class,
-	name = Ops.Pixelfeatures.MeanPixelFeature.NAME)
-public class MeanPixelFeature<T extends RealType<T>> extends
-	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
-	implements Ops.Pixelfeatures.MeanPixelFeature
-{
+@Plugin(type = Ops.Pixelfeatures.MeanPixelFeature.class, name = Ops.Pixelfeatures.MeanPixelFeature.NAME)
+public class MeanPixelFeature<T extends RealType<T>>
+		extends AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
+		implements Ops.Pixelfeatures.MeanPixelFeature {
 
 	@Parameter
 	private int span;
@@ -33,17 +31,16 @@ public class MeanPixelFeature<T extends RealType<T>> extends
 
 	@Override
 	public void initialize() {
-		createRAIFromRAI = Functions.unary(ops(), Ops.Create.Img.class,
-			RandomAccessibleInterval.class, in());
-		mapOp = Computers.unary(ops(), Mean.class, RandomAccessibleInterval.class,
-			in(), new RectangleShape(span, false));
+		createRAIFromRAI = Functions.unary(ops(), Ops.Create.Img.class, RandomAccessibleInterval.class, in());
+		mapOp = Computers.unary(ops(), Mean.class, RandomAccessibleInterval.class, in(),
+				new RectangleShape(span, false));
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public RandomAccessibleInterval<T> compute1(RandomAccessibleInterval<T> in) {
-		final RandomAccessibleInterval<T> out = createRAIFromRAI.compute1(in);
-		mapOp.compute1(Views.interval(Views.extendMirrorDouble(in), in), out);
+	public RandomAccessibleInterval<T> calculate(RandomAccessibleInterval<T> in) {
+		final RandomAccessibleInterval<T> out = createRAIFromRAI.calculate(in);
+		mapOp.compute(Views.interval(Views.extendMirrorDouble(in), in), out);
 		return out;
 	}
 

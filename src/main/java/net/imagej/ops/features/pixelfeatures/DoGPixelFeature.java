@@ -17,12 +17,10 @@ import net.imglib2.view.Views;
 import net.imglib2.view.composite.CompositeIntervalView;
 import net.imglib2.view.composite.RealComposite;
 
-@Plugin(type = Ops.Pixelfeatures.DoGPixelFeature.class,
-name = Ops.Pixelfeatures.DoGPixelFeature.NAME)
-public class DoGPixelFeature<T extends RealType<T>> extends
-	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, CompositeIntervalView<T, RealComposite<T>>>
-	implements Ops.Pixelfeatures.DoGPixelFeature
-{
+@Plugin(type = Ops.Pixelfeatures.DoGPixelFeature.class, name = Ops.Pixelfeatures.DoGPixelFeature.NAME)
+public class DoGPixelFeature<T extends RealType<T>>
+		extends AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, CompositeIntervalView<T, RealComposite<T>>>
+		implements Ops.Pixelfeatures.DoGPixelFeature {
 
 	@Parameter
 	private double minSigma;
@@ -45,9 +43,8 @@ public class DoGPixelFeature<T extends RealType<T>> extends
 				Double sigma1 = new Double(Math.pow(2, i) * minSigma);
 				Double sigma2 = new Double(Math.pow(2, j) * minSigma);
 
-				UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> tempOp =
-					RAIs.function(ops(), Ops.Filter.DoG.class,
-						 in(), sigma1, sigma2);
+				UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> tempOp = RAIs.function(ops(),
+						Ops.Filter.DoG.class, in(), sigma1, sigma2);
 
 				doGFunctions.add(tempOp);
 
@@ -56,14 +53,11 @@ public class DoGPixelFeature<T extends RealType<T>> extends
 	}
 
 	@Override
-	public CompositeIntervalView<T, RealComposite<T>> compute1(
-		RandomAccessibleInterval<T> input)
-	{
-		IntervalView<T> extendedIn = Views.interval(Views.extendMirrorDouble(input),
-			input);
+	public CompositeIntervalView<T, RealComposite<T>> calculate(RandomAccessibleInterval<T> input) {
+		IntervalView<T> extendedIn = Views.interval(Views.extendMirrorDouble(input), input);
 		List<RandomAccessibleInterval<T>> dogImages = new ArrayList<>();
 		for (UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> doGFunction : doGFunctions) {
-			dogImages.add(doGFunction.compute1(extendedIn));
+			dogImages.add(doGFunction.calculate(extendedIn));
 		}
 
 		return Views.collapseReal(Views.stack(dogImages));
