@@ -75,14 +75,14 @@ public class HessianRAI<T extends RealType<T>>
 	}
 
 	@Override
-	public CompositeIntervalView<T, RealComposite<T>> compute1(RandomAccessibleInterval<T> input) {
+	public CompositeIntervalView<T, RealComposite<T>> calculate(RandomAccessibleInterval<T> input) {
 		List<RandomAccessibleInterval<T>> derivatives = new ArrayList<>();
 		for (int i = 0; i < derivativeComputers.length; i++) {
-			RandomAccessibleInterval<T> derivative = createRAIFromRAI.compute1(input);
-			derivativeComputers[i].compute1(input, derivative);
+			RandomAccessibleInterval<T> derivative = createRAIFromRAI.calculate(input);
+			derivativeComputers[i].compute(input, derivative);
 			for (int j = 0; j < derivativeComputers.length; j++) {
-				RandomAccessibleInterval<T> out = createRAIFromRAI.compute1(input);
-				derivativeComputers[j].compute1(derivative, out);
+				RandomAccessibleInterval<T> out = createRAIFromRAI.calculate(input);
+				derivativeComputers[j].compute(derivative, out);
 				derivatives.add(out);
 			}
 		}

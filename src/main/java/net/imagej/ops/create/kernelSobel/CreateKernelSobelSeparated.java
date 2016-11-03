@@ -71,7 +71,7 @@ public class CreateKernelSobelSeparated<T extends ComplexType<T>>
 	}
 
 	@Override
-	public RandomAccessibleInterval<T> compute0() {
+	public RandomAccessibleInterval<T> calculate() {
 		long[] dim = new long[4];
 
 		dim[0] = 3;
@@ -83,7 +83,7 @@ public class CreateKernelSobelSeparated<T extends ComplexType<T>>
 
 		dim[dim.length - 1] = 2;
 
-		RandomAccessibleInterval<T> output = createOp.compute1(new FinalInterval(dim));
+		RandomAccessibleInterval<T> output = createOp.calculate(new FinalInterval(dim));
 		final Cursor<T> cursor = Views.iterable(output).cursor();
 		int i = 0;
 		while (cursor.hasNext()) {

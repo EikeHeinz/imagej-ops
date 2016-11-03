@@ -158,22 +158,22 @@ public class PartialDerivativeRAI<T extends RealType<T>> extends
 	}
 
 	@Override
-	public void compute1(RandomAccessibleInterval<T> input, RandomAccessibleInterval<T> output) {
+	public void compute(RandomAccessibleInterval<T> input, RandomAccessibleInterval<T> output) {
 		RandomAccessibleInterval<T> in = input;
 		for (int i = input.numDimensions() - 1; i >= 0; i--) {
-			RandomAccessibleInterval<T> derivative = createRAI.compute1(input);
+			RandomAccessibleInterval<T> derivative = createRAI.calculate(input);
 			if (dimension == i) {
-				kernelBConvolveOp.compute1(Views.interval(Views.extendMirrorDouble(in), input), derivative);
+				kernelBConvolveOp.compute(Views.interval(Views.extendMirrorDouble(in), input), derivative);
 			} else {
-				kernelAConvolveOps[i].compute1(Views.interval(Views.extendMirrorDouble(in), input), derivative);
+				kernelAConvolveOps[i].compute(Views.interval(Views.extendMirrorDouble(in), input), derivative);
 			}
 			in = derivative;
 		}
-		addOp.compute2(output, in, output);
+		addOp.compute(output, in, output);
 	}
 
 	@Override
 	public RandomAccessibleInterval<T> createOutput(RandomAccessibleInterval<T> input) {
-		return createRAI.compute1(input);
+		return createRAI.calculate(input);
 	}
 }

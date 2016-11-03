@@ -84,19 +84,19 @@ public class SobelRAI<T extends RealType<T>>
 	}
 
 	@Override
-	public void compute1(RandomAccessibleInterval<T> input, RandomAccessibleInterval<T> output) {
+	public void compute(RandomAccessibleInterval<T> input, RandomAccessibleInterval<T> output) {
 
 		for (int i = 0; i < derivativeComputers.length; i++) {
-			RandomAccessibleInterval<T> derivative = createRAIFromRAI.compute1(input);
-			derivativeComputers[i].compute1(input, derivative);
-			squareMapOp.compute1(derivative, derivative);
-			addOp.compute2(output, derivative, output);
+			RandomAccessibleInterval<T> derivative = createRAIFromRAI.calculate(input);
+			derivativeComputers[i].compute(input, derivative);
+			squareMapOp.compute(derivative, derivative);
+			addOp.compute(output, derivative, output);
 		}
-		sqrtMapOp.compute1(output, output);
+		sqrtMapOp.compute(output, output);
 	}
 
 	@Override
 	public RandomAccessibleInterval<T> createOutput(RandomAccessibleInterval<T> input) {
-		return createRAIFromRAI.compute1(input);
+		return createRAIFromRAI.calculate(input);
 	}
 }

@@ -71,10 +71,10 @@ public class PartialDerivativesRAI<T extends RealType<T>>
 	}
 
 	@Override
-	public CompositeIntervalView<T, RealComposite<T>> compute1(RandomAccessibleInterval<T> input) {
+	public CompositeIntervalView<T, RealComposite<T>> calculate(RandomAccessibleInterval<T> input) {
 		List<RandomAccessibleInterval<T>> derivatives = new ArrayList<>();
 		for (int i = 0; i < derivativeComputers.length; i++) {
-			RandomAccessibleInterval<T> derivative = derivativeComputers[i].compute1(input);
+			RandomAccessibleInterval<T> derivative = derivativeComputers[i].calculate(input);
 			derivatives.add(derivative);
 		}
 
