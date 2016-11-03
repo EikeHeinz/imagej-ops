@@ -1,68 +1,69 @@
 package net.imagej.ops.features.pixelfeatures;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import net.imagej.ops.Ops;
-import net.imagej.ops.special.computer.Computers;
-import net.imagej.ops.special.computer.UnaryComputerOp;
+import net.imagej.ops.Ops.Filter.Gauss;
+import net.imagej.ops.special.chain.RAIs;
 import net.imagej.ops.special.function.AbstractUnaryFunctionOp;
-import net.imagej.ops.special.function.Functions;
 import net.imagej.ops.special.function.UnaryFunctionOp;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
+import net.imglib2.view.composite.CompositeIntervalView;
+import net.imglib2.view.composite.RealComposite;
 
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
-@Plugin(type = Ops.Pixelfeatures.GaussianGradientMagnitudePixelFeature.class,
-	name = Ops.Pixelfeatures.GaussianGradientMagnitudePixelFeature.NAME)
+@Plugin(type = Ops.Pixelfeatures.GaussianGradientMagnitudePixelFeature.class, name = Ops.Pixelfeatures.GaussianGradientMagnitudePixelFeature.NAME)
 public class GaussianGradientMagnitudePixelFeature<T extends RealType<T>>
-	extends
-	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
-	implements Ops.Pixelfeatures.GaussianGradientMagnitudePixelFeature
-{
+		extends AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, CompositeIntervalView<T, RealComposite<T>>>
+		implements Ops.Pixelfeatures.GaussianGradientMagnitudePixelFeature {
 
 	@Parameter
-	private double sigma;
+	private double minSigma;
 
-	@SuppressWarnings("rawtypes")
-	private UnaryFunctionOp<RandomAccessibleInterval, RandomAccessibleInterval> createOp;
+	@Parameter
+	private double maxSigma;
 
-	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> gaussOp;
+	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> sobelOp;
 
-	@SuppressWarnings("rawtypes")
-	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> sobelFunction;
+	private List<UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>> gaussOps;
 
-	// TODO take varying sigmas like gauss feature?
-	
 	@Override
 	public void initialize() {
-		createOp = Functions.unary(ops(), Ops.Create.Img.class,
-			RandomAccessibleInterval.class, in());
-		double[] sigmas = new double[in().numDimensions()];
-		Arrays.fill(sigmas, sigma);
-		gaussOp = Computers.unary(ops(), Ops.Filter.Gauss.class, in(), in(),
-			sigmas);
-		sobelFunction = Functions.unary(ops(), Ops.Filter.Sobel.class,
-			RandomAccessibleInterval.class, in());
+		double maxSteps = ops().math().floor(Math.log(maxSigma) / Math.log(2));
+
+		gaussOps = new ArrayList<>();
+
+		for (int i = 0; i <= maxSteps; i++) {
+			double[] sigmas = new double[in().numDimensions()];
+			Arrays.fill(sigmas, Math.pow(2, i) * minSigma);
+			gaussOps.add(RAIs.function(ops(), Gauss.class, in(), sigmas));
+		}
+
+		sobelOp = RAIs.function(ops(), Ops.Filter.Sobel.class, in());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public RandomAccessibleInterval<T> compute1(
-		RandomAccessibleInterval<T> input)
-	{
+	public CompositeIntervalView<T, RealComposite<T>> compute1(RandomAccessibleInterval<T> input) {
 
-		RandomAccessibleInterval<T> extended = Views.interval(Views
-			.extendMirrorSingle(input), input);
-		// smoothing image
-		RandomAccessibleInterval<T> blurred = createOp.compute1(input);
-		gaussOp.compute1(extended, blurred);
+		RandomAccessibleInterval<T> extended = Views.interval(Views.extendMirrorSingle(input), input);
+		List<RandomAccessibleInterval<T>> blurredImgs = new ArrayList<>();
 
-		RandomAccessibleInterval<T> output = sobelFunction.compute1(blurred);
+		for (UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> gaussOp : gaussOps) {
+			blurredImgs.add(gaussOp.compute1(extended));
+		}
 
-		return output;
+		List<RandomAccessibleInterval<T>> results = new ArrayList<>();
+		for (RandomAccessibleInterval<T> blurredImg : blurredImgs) {
+			results.add(sobelOp.compute1(blurredImg));
+		}
+
+		return Views.collapseReal(Views.stack(results));
 	}
 
 }

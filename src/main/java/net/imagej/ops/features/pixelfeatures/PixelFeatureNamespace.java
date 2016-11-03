@@ -52,15 +52,15 @@ public class PixelFeatureNamespace extends AbstractNamespace {
 		
 		@OpMethod(
 			op = net.imagej.ops.features.pixelfeatures.GaussianGradientMagnitudePixelFeature.class)
-		public <T extends RealType<T>> RandomAccessibleInterval<T>
+		public <T extends RealType<T>> CompositeIntervalView<T, RealComposite<T>>
 			gaussianGradientMagnitude(final RandomAccessibleInterval<T> in,
-				final double sigma)
+				final double minSigma, final double maxSigma)
 		{
 			@SuppressWarnings("unchecked")
-			final RandomAccessibleInterval<T> result =
-				(RandomAccessibleInterval<T>) ops().run(
+			final CompositeIntervalView<T, RealComposite<T>> result =
+				(CompositeIntervalView<T, RealComposite<T>>) ops().run(
 					net.imagej.ops.features.pixelfeatures.GaussianGradientMagnitudePixelFeature.class,
-					in, sigma);
+					in, minSigma, maxSigma);
 			return result;
 		}
 
