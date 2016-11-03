@@ -44,13 +44,14 @@ public class HessianPixelFeatureTest extends AbstractOpTest {
 
 		float[] valuesTrace = new float[] { 1.7194724f, 8.870056f, 14.474865f, 1.1520919f, -14.936752f, -15.013784f,
 				0.6746214f, 13.593287f, 8.069767f, 1.4733065f };
-		float[] valuesDeterminant = new float[] { 0.739126f, 19.640404f, 50.13367f, -10.211318f, 55.02176f, 55.50328f,
-				-9.375129f, 45.569683f, 16.045927f, 0.52251345f };
-		float[] valuesFirstEigenvalue = new float[] { -0.005068092f, -0.008664926f, 0.0031967359f, 0.0106991460f,
-				0.0015873763f, 0.0013106499f, 0.010504934f, 0.004638812f, -0.006571743f, -0.0044017467f };
+		float[] valuesDeterminant = new float[] { 1.5465988f, 5.1687274f, 0.6105761f, 1.5592347f, 7.891646f, 7.83646f,
+				1.4087182f, 0.7815286f, 5.209663f, 1.4877121f };
+		float[] valuesFirstEigenvalue = new float[] { 0.07909532f, 0.12703504f, 0.032215446f, -0.07684502f,
+				-0.14143874f, -0.13607089f, -0.06250863f, 0.052130155f, 0.14481187f, 0.086188324f };
 		float[] valuesSecondEigenvalue = new float[] { -0.00525427f, -0.009793053f, 6.610853E-4f, 0.009056217f,
 				9.237971E-4f, 9.734597E-4f, 0.010357526f, 0.0024873405f, -0.009231832f, -0.005206969f };
 
+		// testing trace values with sigma of 1.0d
 		for (int i = 0; i < valuesTrace.length; i++) {
 			int[] pos = new int[3];
 			pos[0] = i;
@@ -60,6 +61,8 @@ public class HessianPixelFeatureTest extends AbstractOpTest {
 			outRA.setPosition(pos);
 			assertEquals(valuesTrace[i], outRA.get().get(0).getRealFloat(), 0.0000f);
 		}
+		
+		// testing determinant values with sigma of 2.0d
 		for (int i = 0; i < valuesDeterminant.length; i++) {
 			int[] pos = new int[3];
 			pos[0] = i;
@@ -67,8 +70,10 @@ public class HessianPixelFeatureTest extends AbstractOpTest {
 			pos[2] = 1;
 
 			outRA.setPosition(pos);
-			assertEquals(valuesDeterminant[i], outRA.get().get(0).getRealFloat(), 0.0000f);
+			assertEquals(valuesDeterminant[i], outRA.get().get(1).getRealFloat(), 0.0000f);
 		}
+		
+		// testing first eigenvalue values with sigma of 4.0d
 		for (int i = 0; i < valuesFirstEigenvalue.length; i++) {
 			int[] pos = new int[3];
 			pos[0] = i;
@@ -76,8 +81,10 @@ public class HessianPixelFeatureTest extends AbstractOpTest {
 			pos[2] = 2;
 
 			outRA.setPosition(pos);
-			assertEquals(valuesFirstEigenvalue[i], outRA.get().get(3).getRealFloat(), 0.0000f);
+			assertEquals(valuesFirstEigenvalue[i], outRA.get().get(2).getRealFloat(), 0.0000f);
 		}
+		
+		// testing second eigenvalue values with sigma of 8.0d
 		for (int i = 0; i < valuesSecondEigenvalue.length; i++) {
 			int[] pos = new int[3];
 			pos[0] = i;
@@ -87,7 +94,5 @@ public class HessianPixelFeatureTest extends AbstractOpTest {
 			outRA.setPosition(pos);
 			assertEquals(valuesSecondEigenvalue[i], outRA.get().get(3).getRealFloat(), 0.0000f);
 		}
-
 	}
-
 }
