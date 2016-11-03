@@ -38,12 +38,9 @@ public class GaussPixelFeature<T extends RealType<T>>
 
 		gaussOps = new ArrayList<>();
 
-		for (int i = 0; i < maxSteps; i++) {
+		for (int i = 0; i <= maxSteps; i++) {
 			double[] sigmas = new double[(int) maxSteps];
 			Arrays.fill(sigmas, Math.pow(2, i) * minSigma);
-			for (int j = 0; j < sigmas.length; j++) {
-				System.out.println(sigmas[j]);
-			}
 			gaussOps.add(RAIs.function(ops(), Gauss.class, in(), sigmas));
 		}
 	}
@@ -51,14 +48,13 @@ public class GaussPixelFeature<T extends RealType<T>>
 	@Override
 	public CompositeIntervalView<T, RealComposite<T>> compute1(RandomAccessibleInterval<T> input) {
 
-		IntervalView<T> extendedIn = Views.interval(Views.extendMirrorDouble(input), input);	
+		IntervalView<T> extendedIn = Views.interval(Views.extendMirrorDouble(input), input);
 
 		List<RandomAccessibleInterval<T>> blurredImgs = new ArrayList<>();
 		for (UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> gaussOp : gaussOps) {
 			blurredImgs.add(gaussOp.compute1(extendedIn));
 		}
 
-		
 		return Views.collapseReal(Views.stack(blurredImgs));
 	}
 
