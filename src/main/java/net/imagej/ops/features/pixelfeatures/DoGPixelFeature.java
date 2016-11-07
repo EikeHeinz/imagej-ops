@@ -38,7 +38,7 @@ public class DoGPixelFeature<T extends RealType<T>>
 
 		doGFunctions = new ArrayList<>();
 
-		for (int i = 0; i < maxSteps - 1; i++) {
+		for (int i = 0; i <= maxSteps; i++) {
 			for (int j = i + 1; j <= maxSteps; j++) {
 				Double sigma1 = new Double(Math.pow(2, i) * minSigma);
 				Double sigma2 = new Double(Math.pow(2, j) * minSigma);
