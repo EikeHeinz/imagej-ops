@@ -39,8 +39,6 @@ public class HessianPixelFeature<T extends RealType<T>>
 
 	private List<UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>> gaussOps;
 
-	// TODO check module
-
 	@Override
 	public void initialize() {
 		hessianOp = Functions.unary(ops(), Ops.Filter.Hessian.class, CompositeIntervalView.class, in());
@@ -68,14 +66,9 @@ public class HessianPixelFeature<T extends RealType<T>>
 		List<RandomAccessibleInterval<T>> results = new ArrayList<>();
 
 		/*
-		 * output px value in hessian matrix is: [[XX,XY],[YX,YY]] =
-		 * 
-		 * [[a,b],[c,d]] Trace T=a+d Determinant D=ad-bc
-		 * 
-		 * module: sqrt(a^2+bc+d^2)
-		 * 
-		 * First eigenvalue: (T/2) + sqrt((4b^2+(a-d)^2)/2) Second eigenvalue:
-		 * (T/2) - sqrt((4b^2+(a-d)^2)/2)
+		 * for reference
+		 * http://imagej.net/Trainable_Weka_Segmentation#Training_features_.282D
+		 * .29 (2016-12-06)
 		 */
 
 		List<RandomAccessibleInterval<T>> intermediateResults = new ArrayList<>();
@@ -86,13 +79,18 @@ public class HessianPixelFeature<T extends RealType<T>>
 			RandomAccess<T> traceRA = trace.randomAccess();
 			RandomAccess<T> determinantRA = determinant.randomAccess();
 			if (input.numDimensions() == 2) {
-				// RandomAccessibleInterval<T> module =
-				// createRAIFromRAI.compute1(input);
+				RandomAccessibleInterval<T> module = createRAIFromRAI.calculate(input);
 				RandomAccessibleInterval<T> firstEigenvalue = createRAIFromRAI.calculate(input);
 				RandomAccessibleInterval<T> secondEigenvalue = createRAIFromRAI.calculate(input);
-				// RandomAccess<T> moduleRA = module.randomAccess();
+				RandomAccessibleInterval<T> orientation = createRAIFromRAI.calculate(input);
+				RandomAccessibleInterval<T> gnsed = createRAIFromRAI.calculate(input);
+				RandomAccessibleInterval<T> sgned = createRAIFromRAI.calculate(input);
+				RandomAccess<T> moduleRA = module.randomAccess();
 				RandomAccess<T> firstEigenvalueRA = firstEigenvalue.randomAccess();
 				RandomAccess<T> secondEigenvalueRA = secondEigenvalue.randomAccess();
+				RandomAccess<T> orientationRA = orientation.randomAccess();
+				RandomAccess<T> gnsedRA = gnsed.randomAccess();
+				RandomAccess<T> sgnedRA = sgned.randomAccess();
 				while (hessianCursor.hasNext()) {
 					RealComposite<T> composite = hessianCursor.next();
 					long[] position = new long[2];
@@ -110,17 +108,15 @@ public class HessianPixelFeature<T extends RealType<T>>
 					determinantRA.get().setReal(ad - bc);
 
 					// module
-					// double asquared = composite.get(0).getRealDouble() *
-					// composite.get(0).getRealDouble();
-					// double dsquared = composite.get(3).getRealDouble() *
-					// composite.get(3).getRealDouble();
-					// double moduleResult = Math.sqrt(asquared + bc +
-					// dsquared);
-					// moduleRA.get().setReal(moduleResult);
+					double asquared = composite.get(0).getRealDouble() * composite.get(0).getRealDouble();
+					double dsquared = composite.get(3).getRealDouble() * composite.get(3).getRealDouble();
+					double moduleResult = Math.sqrt(asquared + bc + dsquared);
+					moduleRA.setPosition(position);
+					moduleRA.get().setReal(moduleResult);
 
 					// first + second eigenvalues
 					double traceDiv2 = traceResult / 2;
-					double bSquared4 = 4 * composite.get(1).getRealDouble() * composite.get(1).getRealDouble();
+					double bSquared4 = 4 * Math.pow(composite.get(1).getRealDouble(), 2);
 					double aMinusdSquared = Math
 							.pow(composite.get(0).getRealDouble() - composite.get(3).getRealDouble(), 2);
 					double sqrt = Math.sqrt((bSquared4 + aMinusdSquared) / 2);
@@ -133,12 +129,31 @@ public class HessianPixelFeature<T extends RealType<T>>
 					double secondEigenvalueResult = traceDiv2 - sqrt;
 					secondEigenvalueRA.get().setReal(secondEigenvalueResult);
 
+					// orientation
+					double orientationResult = 0.5 * Math.acos(bSquared4 + aMinusdSquared);
+					orientationRA.setPosition(position);
+					orientationRA.get().setReal(orientationResult);
+
+					double t = Math.pow(1, 0.75d);
+
+					// gamma-normalized square eigenvalue difference
+					double gnsedResult = Math.pow(t, 4) * aMinusdSquared * (aMinusdSquared + bSquared4);
+					gnsedRA.setPosition(position);
+					gnsedRA.get().setReal(gnsedResult);
+
+					// square of gamma-normalized eigenvalue difference
+					double sgnedResult = Math.pow(t, 2) * (aMinusdSquared + bSquared4);
+					sgnedRA.setPosition(position);
+					sgnedRA.get().setReal(sgnedResult);
 				}
+				intermediateResults.add(module);
 				intermediateResults.add(trace);
-				// intermediateResults.add(module);
 				intermediateResults.add(determinant);
 				intermediateResults.add(firstEigenvalue);
 				intermediateResults.add(secondEigenvalue);
+				intermediateResults.add(orientation);
+				intermediateResults.add(gnsed);
+				intermediateResults.add(sgned);
 				results.add(Views.stack(intermediateResults));
 				intermediateResults.clear();
 
