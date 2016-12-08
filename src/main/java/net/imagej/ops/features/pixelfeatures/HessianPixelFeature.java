@@ -32,7 +32,7 @@ public class HessianPixelFeature<T extends RealType<T>>
 	@Parameter
 	private double maxSigma;
 
-	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> createRAIFromRAI;
+	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> createRAI;
 
 	@SuppressWarnings("rawtypes")
 	private UnaryFunctionOp<RandomAccessibleInterval<T>, CompositeIntervalView> hessianOp;
@@ -42,7 +42,7 @@ public class HessianPixelFeature<T extends RealType<T>>
 	@Override
 	public void initialize() {
 		hessianOp = Functions.unary(ops(), Ops.Filter.Hessian.class, CompositeIntervalView.class, in());
-		createRAIFromRAI = RAIs.function(ops(), Ops.Create.Img.class, in());
+		createRAI = RAIs.function(ops(), Ops.Create.Img.class, in());
 
 		double maxSteps = ops().math().floor(Math.log(maxSigma) / Math.log(2));
 
@@ -74,17 +74,17 @@ public class HessianPixelFeature<T extends RealType<T>>
 		List<RandomAccessibleInterval<T>> intermediateResults = new ArrayList<>();
 		for (CompositeIntervalView<T, RealComposite<T>> hessianMatrix : blurredHessianMatrices) {
 			Cursor<RealComposite<T>> hessianCursor = Views.iterable(hessianMatrix).cursor();
-			RandomAccessibleInterval<T> trace = createRAIFromRAI.calculate(input);
-			RandomAccessibleInterval<T> determinant = createRAIFromRAI.calculate(input);
+			RandomAccessibleInterval<T> trace = createRAI.calculate(input);
+			RandomAccessibleInterval<T> determinant = createRAI.calculate(input);
 			RandomAccess<T> traceRA = trace.randomAccess();
 			RandomAccess<T> determinantRA = determinant.randomAccess();
 			if (input.numDimensions() == 2) {
-				RandomAccessibleInterval<T> module = createRAIFromRAI.calculate(input);
-				RandomAccessibleInterval<T> firstEigenvalue = createRAIFromRAI.calculate(input);
-				RandomAccessibleInterval<T> secondEigenvalue = createRAIFromRAI.calculate(input);
-				RandomAccessibleInterval<T> orientation = createRAIFromRAI.calculate(input);
-				RandomAccessibleInterval<T> gnsed = createRAIFromRAI.calculate(input);
-				RandomAccessibleInterval<T> sgned = createRAIFromRAI.calculate(input);
+				RandomAccessibleInterval<T> module = createRAI.calculate(input);
+				RandomAccessibleInterval<T> firstEigenvalue = createRAI.calculate(input);
+				RandomAccessibleInterval<T> secondEigenvalue = createRAI.calculate(input);
+				RandomAccessibleInterval<T> orientation = createRAI.calculate(input);
+				RandomAccessibleInterval<T> gnsed = createRAI.calculate(input);
+				RandomAccessibleInterval<T> sgned = createRAI.calculate(input);
 				RandomAccess<T> moduleRA = module.randomAccess();
 				RandomAccess<T> firstEigenvalueRA = firstEigenvalue.randomAccess();
 				RandomAccess<T> secondEigenvalueRA = secondEigenvalue.randomAccess();
@@ -93,59 +93,57 @@ public class HessianPixelFeature<T extends RealType<T>>
 				RandomAccess<T> sgnedRA = sgned.randomAccess();
 				while (hessianCursor.hasNext()) {
 					RealComposite<T> composite = hessianCursor.next();
+					double a = composite.get(0).getRealDouble();
+					double b = composite.get(1).getRealDouble();
+					double c = composite.get(2).getRealDouble();
+					double d = composite.get(3).getRealDouble();
 					long[] position = new long[2];
 					hessianCursor.localize(position);
 
 					// trace
 					traceRA.setPosition(position);
-					double traceResult = composite.get(0).getRealDouble() + composite.get(3).getRealDouble();
+					double traceResult = a + d;
 					traceRA.get().setReal(traceResult);
 
 					// determinant
-					double ad = composite.get(0).getRealDouble() * composite.get(3).getRealDouble();
-					double bc = composite.get(1).getRealDouble() * composite.get(2).getRealDouble();
 					determinantRA.setPosition(position);
-					determinantRA.get().setReal(ad - bc);
+					determinantRA.get().setReal(a * d - b * c);
 
 					// module
-					double asquared = composite.get(0).getRealDouble() * composite.get(0).getRealDouble();
-					double dsquared = composite.get(3).getRealDouble() * composite.get(3).getRealDouble();
-					double moduleResult = Math.sqrt(asquared + bc + dsquared);
+					double moduleResult = Math.sqrt(Math.pow(a, 2) + b * c + Math.pow(d, 2));
 					moduleRA.setPosition(position);
 					moduleRA.get().setReal(moduleResult);
 
 					// first + second eigenvalues
-					double traceDiv2 = traceResult / 2;
-					double bSquared4 = 4 * Math.pow(composite.get(1).getRealDouble(), 2);
-					double aMinusdSquared = Math
-							.pow(composite.get(0).getRealDouble() - composite.get(3).getRealDouble(), 2);
-					double sqrt = Math.sqrt((bSquared4 + aMinusdSquared) / 2);
-
+					double firstEigenvalueResult = ((a + d) / 2)
+							+ (Math.sqrt(((Math.pow((a + d), 2) / 4) - ((a * d) - (b * c)))));
 					firstEigenvalueRA.setPosition(position);
-					double firstEigenvalueResult = traceDiv2 + sqrt;
 					firstEigenvalueRA.get().setReal(firstEigenvalueResult);
 
+					double secondEigenvalueResult = ((a + d) / 2)
+							- (Math.sqrt(((Math.pow((a + d), 2) / 4) - ((a * d) - (b * c)))));
 					secondEigenvalueRA.setPosition(position);
-					double secondEigenvalueResult = traceDiv2 - sqrt;
 					secondEigenvalueRA.get().setReal(secondEigenvalueResult);
 
 					// orientation
-					double orientationResult = 0.5 * Math.acos(bSquared4 + aMinusdSquared);
+					double orientationResult = 0.5 * Math.acos(4 * Math.pow(b, 2) + Math.pow(a - d, 2));
 					orientationRA.setPosition(position);
 					orientationRA.get().setReal(orientationResult);
 
 					double t = Math.pow(1, 0.75d);
 
 					// gamma-normalized square eigenvalue difference
-					double gnsedResult = Math.pow(t, 4) * aMinusdSquared * (aMinusdSquared + bSquared4);
+					double gnsedResult = Math.pow(t, 4) * Math.pow(a - d, 2)
+							* (Math.pow(a - d, 2) + 4 * Math.pow(b, 2));
 					gnsedRA.setPosition(position);
 					gnsedRA.get().setReal(gnsedResult);
 
 					// square of gamma-normalized eigenvalue difference
-					double sgnedResult = Math.pow(t, 2) * (aMinusdSquared + bSquared4);
+					double sgnedResult = Math.pow(t, 2) * (Math.pow(a - d, 2) + 4 * Math.pow(b, 2));
 					sgnedRA.setPosition(position);
 					sgnedRA.get().setReal(sgnedResult);
 				}
+
 				intermediateResults.add(module);
 				intermediateResults.add(trace);
 				intermediateResults.add(determinant);
@@ -161,31 +159,26 @@ public class HessianPixelFeature<T extends RealType<T>>
 
 				while (hessianCursor.hasNext()) {
 					RealComposite<T> composite = hessianCursor.next();
+					double a = composite.get(0).getRealDouble();
+					double b = composite.get(1).getRealDouble();
+					double c = composite.get(2).getRealDouble();
+					double d = composite.get(3).getRealDouble();
+					double e = composite.get(4).getRealDouble();
+					double f = composite.get(5).getRealDouble();
+					double g = composite.get(6).getRealDouble();
+					double h = composite.get(7).getRealDouble();
+					double i = composite.get(8).getRealDouble();
 					long[] position = new long[3];
 					hessianCursor.localize(position);
 
 					// trace
 					traceRA.setPosition(position);
-					double traceResult = composite.get(0).getRealDouble() + composite.get(4).getRealDouble()
-							+ composite.get(8).getRealDouble();
+					double traceResult = a + e + i;
 					traceRA.get().setReal(traceResult);
 
 					// determinant
-					// det = a*e*i + b*f*g + c*d*h - g*e*c - h*f*a - i*d*b
 					determinantRA.setPosition(position);
-					double aei = composite.get(0).getRealDouble() * composite.get(4).getRealDouble()
-							* composite.get(8).getRealDouble();
-					double bfg = composite.get(1).getRealDouble() * composite.get(5).getRealDouble()
-							* composite.get(6).getRealDouble();
-					double cdh = composite.get(2).getRealDouble() * composite.get(3).getRealDouble()
-							* composite.get(7).getRealDouble();
-					double gec = composite.get(6).getRealDouble() * composite.get(4).getRealDouble()
-							* composite.get(2).getRealDouble();
-					double hfa = composite.get(7).getRealDouble() * composite.get(5).getRealDouble()
-							* composite.get(0).getRealDouble();
-					double idb = composite.get(8).getRealDouble() * composite.get(3).getRealDouble()
-							* composite.get(1).getRealDouble();
-					double determinantResult = aei + bfg + cdh - gec - hfa - idb;
+					double determinantResult = a * e * i + b * f * g + c * d * h - g * e * c - h * f * a - i * d * b;
 					determinantRA.get().setReal(determinantResult);
 
 				}
