@@ -75,34 +75,41 @@ public class PixelFeatureNamespace extends AbstractNamespace {
 
 	// -- max --
 
-	@OpMethod(op = net.imagej.ops.features.pixelfeatures.MaxPixelFeature.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> max(final RandomAccessibleInterval<T> in,
-			final int span) {
-		@SuppressWarnings("unchecked")
-		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
-				.run(net.imagej.ops.features.pixelfeatures.MaxPixelFeature.class, in, span);
-		return result;
-	}
+//	@OpMethod(op = net.imagej.ops.features.pixelfeatures.MaxPixelFeature.class)
+//	public <T extends RealType<T>> RandomAccessibleInterval<T> max(final RandomAccessibleInterval<T> in,
+//			final int span) {
+//		@SuppressWarnings("unchecked")
+//		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
+//				.run(net.imagej.ops.features.pixelfeatures.MaxPixelFeature.class, in, span);
+//		return result;
+//	}
 
 	// -- mean --
 
-	@OpMethod(op = net.imagej.ops.features.pixelfeatures.MeanPixelFeature.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> mean(final RandomAccessibleInterval<T> in,
-			final int span) {
-		@SuppressWarnings("unchecked")
-		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
-				.run(net.imagej.ops.features.pixelfeatures.MeanPixelFeature.class, in, span);
-		return result;
-	}
+//	@OpMethod(op = net.imagej.ops.features.pixelfeatures.MeanPixelFeature.class)
+//	public <T extends RealType<T>> RandomAccessibleInterval<T> mean(final RandomAccessibleInterval<T> in,
+//			final int span) {
+//		@SuppressWarnings("unchecked")
+//		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
+//				.run(net.imagej.ops.features.pixelfeatures.MeanPixelFeature.class, in, span);
+//		return result;
+//	}
 
 	// -- min --
 
-	@OpMethod(op = net.imagej.ops.features.pixelfeatures.MinPixelFeature.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> min(final RandomAccessibleInterval<T> in,
-			final int span) {
-		@SuppressWarnings("unchecked")
-		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
-				.run(net.imagej.ops.features.pixelfeatures.MinPixelFeature.class, in, span);
+//	@OpMethod(op = net.imagej.ops.features.pixelfeatures.MinPixelFeature.class)
+//	public <T extends RealType<T>> RandomAccessibleInterval<T> min(final RandomAccessibleInterval<T> in,
+//			final int span) {
+//		@SuppressWarnings("unchecked")
+//		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
+//				.run(net.imagej.ops.features.pixelfeatures.MinPixelFeature.class, in, span);
+//		return result;
+//	}
+	
+	@OpMethod(op = net.imagej.ops.features.pixelfeatures.StructureTensorEigenvaluesPixelFeature.class)
+	public <T extends RealType<T>> CompositeIntervalView<T, RealComposite<T>> structureTensor(final RandomAccessibleInterval<T> in, final double sigma) {
+		final CompositeIntervalView<T, RealComposite<T>> result =
+			(CompositeIntervalView<T, RealComposite<T>>) ops().run(net.imagej.ops.features.pixelfeatures.StructureTensorEigenvaluesPixelFeature.class, in, sigma);
 		return result;
 	}
 
