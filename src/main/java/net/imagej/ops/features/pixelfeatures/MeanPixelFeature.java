@@ -1,19 +1,17 @@
 package net.imagej.ops.features.pixelfeatures;
 
+import org.scijava.plugin.Parameter;
+import org.scijava.plugin.Plugin;
+
 import net.imagej.ops.Ops;
-import net.imagej.ops.Ops.Filter.Mean;
-import net.imagej.ops.special.computer.Computers;
-import net.imagej.ops.special.computer.UnaryComputerOp;
 import net.imagej.ops.special.function.AbstractUnaryFunctionOp;
 import net.imagej.ops.special.function.Functions;
 import net.imagej.ops.special.function.UnaryFunctionOp;
+import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.algorithm.neighborhood.RectangleShape;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
-
-import org.scijava.plugin.Parameter;
-import org.scijava.plugin.Plugin;
 
 @Plugin(type = Ops.Pixelfeatures.MeanPixelFeature.class, name = Ops.Pixelfeatures.MeanPixelFeature.NAME)
 public class MeanPixelFeature<T extends RealType<T>>
@@ -24,24 +22,21 @@ public class MeanPixelFeature<T extends RealType<T>>
 	private int span;
 
 	@SuppressWarnings("rawtypes")
-	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> mapOp;
-
-	@SuppressWarnings("rawtypes")
-	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval> createRAIFromRAI;
+	private UnaryFunctionOp<RandomAccessibleInterval<T>, IterableInterval> createInterval;
 
 	@Override
 	public void initialize() {
-		createRAIFromRAI = Functions.unary(ops(), Ops.Create.Img.class, RandomAccessibleInterval.class, in());
-		mapOp = Computers.unary(ops(), Mean.class, RandomAccessibleInterval.class, in(),
-				new RectangleShape(span, false));
+		createInterval = Functions.unary(ops(), Ops.Create.Img.class, IterableInterval.class, in());
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public RandomAccessibleInterval<T> calculate(RandomAccessibleInterval<T> in) {
-		final RandomAccessibleInterval<T> out = createRAIFromRAI.calculate(in);
-		mapOp.compute(Views.interval(Views.extendMirrorDouble(in), in), out);
-		return out;
+		IterableInterval<T> output = createInterval.calculate(in);
+
+		// TODO use init method -- HACK
+		ops().filter().mean(output, Views.interval(Views.extendMirrorDouble(in), in), new RectangleShape(span, true));
+		return (RandomAccessibleInterval<T>) output;
 	}
 
 }
