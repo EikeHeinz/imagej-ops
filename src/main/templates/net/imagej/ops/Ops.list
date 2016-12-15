@@ -326,6 +326,7 @@ namespaces = ```
 		[name: "mean",                           iface: "MeanPixelFeature"],
 	    [name: "min",                            iface: "MinPixelFeature"],
 	    [name: "structureTensor",                iface: "StructureTensor"],
+	    [name: "kuwaharaFilter",                 iface: "Kuwahara"],
     ]],
 	[name: "stats", iface: "Stats", ops: [
 		[name: "geometricMean",                  iface: "GeometricMean"],
