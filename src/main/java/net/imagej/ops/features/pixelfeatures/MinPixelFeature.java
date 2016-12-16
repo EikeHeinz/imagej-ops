@@ -4,10 +4,11 @@ import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
 import net.imagej.ops.Ops;
+import net.imagej.ops.special.chain.RAIs;
+import net.imagej.ops.special.computer.Computers;
+import net.imagej.ops.special.computer.UnaryComputerOp;
 import net.imagej.ops.special.function.AbstractUnaryFunctionOp;
-import net.imagej.ops.special.function.Functions;
 import net.imagej.ops.special.function.UnaryFunctionOp;
-import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.algorithm.neighborhood.RectangleShape;
 import net.imglib2.type.numeric.RealType;
@@ -21,22 +22,21 @@ public class MinPixelFeature<T extends RealType<T>>
 	@Parameter
 	private int span;
 
-	@SuppressWarnings("rawtypes")
-	private UnaryFunctionOp<RandomAccessibleInterval<T>, IterableInterval> createInterval;
+	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> createRAI;
+
+	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> filterOp;
 
 	@Override
 	public void initialize() {
-		createInterval = Functions.unary(ops(), Ops.Create.Img.class, IterableInterval.class, in());
+		createRAI = RAIs.function(ops(), Ops.Create.Img.class, in());
+		filterOp = Computers.unary(ops(), Ops.Filter.Min.class, in(), in(), new RectangleShape(span,false));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public RandomAccessibleInterval<T> calculate(final RandomAccessibleInterval<T> in) {
-		IterableInterval<T> output = createInterval.calculate(in);
-
-		// TODO use init method -- HACK
-		ops().filter().min(output, Views.interval(Views.extendMirrorDouble(in), in), new RectangleShape(span, true));
-		return (RandomAccessibleInterval<T>) output;
+		RandomAccessibleInterval<T> out = createRAI.calculate(in);
+		filterOp.compute(Views.interval(Views.extendMirrorDouble(in),in), out);
+		return out;
 	}
 
 }

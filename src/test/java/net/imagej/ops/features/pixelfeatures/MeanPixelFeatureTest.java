@@ -40,7 +40,7 @@ public class MeanPixelFeatureTest extends AbstractOpTest{
 		
 		RandomAccessibleInterval<FloatType> out = ops.pixelfeature().mean(img, 3);
 		RandomAccess<FloatType> outRA = out.randomAccess();
-		float[] values = new float[] {0.0f,0.0f,0.27083334f,0.27083334f,0.27083334f,0.25f,0.27083334f,0.27083334f,0.27083334f,0.0f};
+		float[] values = new float[] {0.0f,0.0f,0.26530612f,0.26530612f,0.26530612f,0.26530612f,0.26530612f,0.26530612f,0.26530612f,0.0f};
 		for (int i = 0; i < values.length; i++) {
 			int[] pos = new int[2];
 			pos[0] = i;
