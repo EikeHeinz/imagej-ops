@@ -29,13 +29,13 @@ public class MeanPixelFeature<T extends RealType<T>>
 	@Override
 	public void initialize() {
 		createRAI = RAIs.function(ops(), Ops.Create.Img.class, in());
-		filterOp = Computers.unary(ops(), Ops.Filter.Mean.class, in(), in(), new RectangleShape(span,false));
+		filterOp = Computers.unary(ops(), Ops.Filter.Mean.class, in(), in(), new RectangleShape(span, false));
 	}
 
 	@Override
 	public RandomAccessibleInterval<T> calculate(RandomAccessibleInterval<T> in) {
 		RandomAccessibleInterval<T> out = createRAI.calculate(in);
-		filterOp.compute(Views.interval(Views.extendMirrorDouble(in),in), out);
+		filterOp.compute(Views.interval(Views.extendMirrorDouble(in), in), out);
 		return (RandomAccessibleInterval<T>) out;
 	}
 
