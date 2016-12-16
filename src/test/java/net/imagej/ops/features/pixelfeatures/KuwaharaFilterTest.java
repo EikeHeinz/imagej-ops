@@ -1,25 +1,22 @@
 
 package net.imagej.ops.features.pixelfeatures;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
+import static org.junit.Assert.fail;
 
 import net.imagej.ops.AbstractOpTest;
 import net.imglib2.Cursor;
-import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
-import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.view.Views;
+
+import org.junit.Test;
 
 public class KuwaharaFilterTest extends AbstractOpTest {
 
 	@Test
 	public void test() {
-		Img<FloatType> img = generateFloatArrayTestImg(false, new long[] { 20,
-			20 });
+		Img<FloatType> img = generateFloatArrayTestImg(false, new long[] { 20, 20 });
 
 		Cursor<FloatType> cursorImg = img.cursor();
 		int counterX = 0;
@@ -27,10 +24,10 @@ public class KuwaharaFilterTest extends AbstractOpTest {
 		while (cursorImg.hasNext()) {
 			if (counterX > 7 && counterX < 13 || counterY > 7 && counterY < 13) {
 				cursorImg.next().setOne();
-			}
-			else {
+			} else {
 				cursorImg.next().setZero();
 			}
+
 			counterX++;
 			if (counterX % 20 == 9) {
 				counterY++;
@@ -43,10 +40,7 @@ public class KuwaharaFilterTest extends AbstractOpTest {
 			}
 		}
 
-		RandomAccessibleInterval<FloatType> output = ops.pixelfeature()
-			.kuwaharaFilter(img, 5, 30);
-		System.out.println(output.numDimensions() + "|" + output.dimension(0) +
-			"|" + output.dimension(1));
+		RandomAccessibleInterval<FloatType> output = ops.pixelfeature().kuwaharaFilter(img, 5, 30);
 		Cursor<FloatType> outCursor = Views.iterable(output).cursor();
 		while (outCursor.hasNext()) {
 			System.out.println(outCursor.next().get());
