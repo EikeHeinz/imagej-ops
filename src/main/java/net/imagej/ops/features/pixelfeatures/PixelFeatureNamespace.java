@@ -128,5 +128,12 @@ public class PixelFeatureNamespace extends AbstractNamespace {
 			(CompositeIntervalView<T, RealComposite<T>>) ops().run(net.imagej.ops.features.pixelfeatures.LipschitzPixelFeature.class, in);
 		return result;
 	}
+	
+	@OpMethod(op = net.imagej.ops.features.pixelfeatures.MembraneProjection.class)
+	public <T extends RealType<T>> CompositeIntervalView<T, RealComposite<T>> membraneProjections(final RandomAccessibleInterval<T> in) {
+		final CompositeIntervalView<T, RealComposite<T>> result =
+			(CompositeIntervalView<T, RealComposite<T>>) ops().run(net.imagej.ops.features.pixelfeatures.MembraneProjection.class, in);
+		return result;
+	}
 
 }
