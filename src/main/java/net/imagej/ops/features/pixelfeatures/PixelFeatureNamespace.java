@@ -83,34 +83,34 @@ public class PixelFeatureNamespace extends AbstractNamespace {
 
 	// -- max --
 
-	@OpMethod(op = net.imagej.ops.features.pixelfeatures.MaxPixelFeature.class)
+	@OpMethod(op = net.imagej.ops.features.pixelfeatures.RectangleMaxPixelFeature.class)
 	public <T extends RealType<T>> RandomAccessibleInterval<T> max(final RandomAccessibleInterval<T> in,
 			final int span) {
 		@SuppressWarnings("unchecked")
 		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
-				.run(net.imagej.ops.features.pixelfeatures.MaxPixelFeature.class, in, span);
+				.run(net.imagej.ops.features.pixelfeatures.RectangleMaxPixelFeature.class, in, span);
 		return result;
 	}
 
 	// -- mean --
 
-	@OpMethod(op = net.imagej.ops.features.pixelfeatures.MeanPixelFeature.class)
+	@OpMethod(op = net.imagej.ops.features.pixelfeatures.RectangleMeanPixelFeature.class)
 	public <T extends RealType<T>> RandomAccessibleInterval<T> mean(final RandomAccessibleInterval<T> in,
 			final int span) {
 		@SuppressWarnings("unchecked")
 		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
-				.run(net.imagej.ops.features.pixelfeatures.MeanPixelFeature.class, in, span);
+				.run(net.imagej.ops.features.pixelfeatures.RectangleMeanPixelFeature.class, in, span);
 		return result;
 	}
 
 	// -- min --
 
-	@OpMethod(op = net.imagej.ops.features.pixelfeatures.MinPixelFeature.class)
+	@OpMethod(op = net.imagej.ops.features.pixelfeatures.RectangleMinPixelFeature.class)
 	public <T extends RealType<T>> RandomAccessibleInterval<T> min(final RandomAccessibleInterval<T> in,
 			final int span) {
 		@SuppressWarnings("unchecked")
 		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
-				.run(net.imagej.ops.features.pixelfeatures.MinPixelFeature.class, in, span);
+				.run(net.imagej.ops.features.pixelfeatures.RectangleMinPixelFeature.class, in, span);
 		return result;
 	}
 	
