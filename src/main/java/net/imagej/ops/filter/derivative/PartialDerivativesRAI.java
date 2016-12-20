@@ -49,15 +49,14 @@ import org.scijava.plugin.Plugin;
  * using a separated sobel kernel and returns a {@link CompositeIntervalView}.
  * 
  * @author Eike Heinz, University of Konstanz
- *
- * @param <T>
- *            type of input
+ * @param <T> type of input
  */
 
 @Plugin(type = Ops.Filter.AllPartialDerivatives.class)
-public class PartialDerivativesRAI<T extends RealType<T>>
-		extends AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, CompositeIntervalView<T, RealComposite<T>>>
-		implements Ops.Filter.AllPartialDerivatives {
+public class PartialDerivativesRAI<T extends RealType<T>> extends
+	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, CompositeIntervalView<T, RealComposite<T>>>
+	implements Ops.Filter.AllPartialDerivatives
+{
 
 	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>[] derivativeComputers;
 
@@ -66,15 +65,19 @@ public class PartialDerivativesRAI<T extends RealType<T>>
 	public void initialize() {
 		derivativeComputers = new UnaryFunctionOp[in().numDimensions()];
 		for (int i = 0; i < in().numDimensions(); i++) {
-			derivativeComputers[i] = RAIs.function(ops(), Ops.Filter.PartialDerivative.class, in(), i);
+			derivativeComputers[i] = RAIs.function(ops(),
+				Ops.Filter.PartialDerivative.class, in(), i);
 		}
 	}
 
 	@Override
-	public CompositeIntervalView<T, RealComposite<T>> calculate(RandomAccessibleInterval<T> input) {
+	public CompositeIntervalView<T, RealComposite<T>> calculate(
+		RandomAccessibleInterval<T> input)
+	{
 		List<RandomAccessibleInterval<T>> derivatives = new ArrayList<>();
 		for (int i = 0; i < derivativeComputers.length; i++) {
-			RandomAccessibleInterval<T> derivative = derivativeComputers[i].calculate(input);
+			RandomAccessibleInterval<T> derivative = derivativeComputers[i].calculate(
+				input);
 			derivatives.add(derivative);
 		}
 

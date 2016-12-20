@@ -46,14 +46,14 @@ import org.scijava.plugin.Plugin;
  * Sobel filter implementation using separated sobel kernel.
  * 
  * @author Eike Heinz, University of Konstanz
- *
- * @param <T>
- *            type of input
+ * @param <T> type of input
  */
 
 @Plugin(type = Ops.Filter.Sobel.class)
-public class SobelRAI<T extends RealType<T>>
-		extends AbstractUnaryHybridCF<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> implements Ops.Filter.Sobel {
+public class SobelRAI<T extends RealType<T>> extends
+	AbstractUnaryHybridCF<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
+	implements Ops.Filter.Sobel
+{
 
 	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> createRAIFromRAI;
 
@@ -78,16 +78,20 @@ public class SobelRAI<T extends RealType<T>>
 
 		derivativeComputers = new UnaryComputerOp[in().numDimensions()];
 		for (int i = 0; i < in().numDimensions(); i++) {
-			derivativeComputers[i] = RAIs.computer(ops(), Ops.Filter.PartialDerivative.class, in(), i);
+			derivativeComputers[i] = RAIs.computer(ops(),
+				Ops.Filter.PartialDerivative.class, in(), i);
 		}
 
 	}
 
 	@Override
-	public void compute(RandomAccessibleInterval<T> input, RandomAccessibleInterval<T> output) {
+	public void compute(RandomAccessibleInterval<T> input,
+		RandomAccessibleInterval<T> output)
+	{
 
 		for (int i = 0; i < derivativeComputers.length; i++) {
-			RandomAccessibleInterval<T> derivative = createRAIFromRAI.calculate(input);
+			RandomAccessibleInterval<T> derivative = createRAIFromRAI.calculate(
+				input);
 			derivativeComputers[i].compute(input, derivative);
 			squareMapOp.compute(derivative, derivative);
 			addOp.compute(output, derivative, output);
@@ -96,7 +100,9 @@ public class SobelRAI<T extends RealType<T>>
 	}
 
 	@Override
-	public RandomAccessibleInterval<T> createOutput(RandomAccessibleInterval<T> input) {
+	public RandomAccessibleInterval<T> createOutput(
+		RandomAccessibleInterval<T> input)
+	{
 		return createRAIFromRAI.calculate(input);
 	}
 }

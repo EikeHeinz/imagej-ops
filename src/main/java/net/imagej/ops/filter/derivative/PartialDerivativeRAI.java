@@ -53,13 +53,13 @@ import org.scijava.plugin.Plugin;
  * dimension.
  * 
  * @author Eike Heinz, University of Konstanz
- *
- * @param <T>
- *            type of input
+ * @param <T> type of input
  */
 @Plugin(type = Ops.Filter.PartialDerivative.class)
 public class PartialDerivativeRAI<T extends RealType<T>> extends
-		AbstractUnaryHybridCF<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> implements Ops.Filter.PartialDerivative {
+	AbstractUnaryHybridCF<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
+	implements Ops.Filter.PartialDerivative
+{
 
 	@Parameter
 	private int dimension;
@@ -75,11 +75,14 @@ public class PartialDerivativeRAI<T extends RealType<T>> extends
 	@SuppressWarnings("unchecked")
 	@Override
 	public void initialize() {
-		RandomAccessibleInterval<T> kernel = ops().create().kernelSobelSeparated(Util.getTypeFromInterval(in()));
+		RandomAccessibleInterval<T> kernel = ops().create().kernelSobelSeparated(
+			Util.getTypeFromInterval(in()));
 
-		RandomAccessibleInterval<T> kernelA = Views.hyperSlice(Views.hyperSlice(kernel, 3, 0), 2, 0);
+		RandomAccessibleInterval<T> kernelA = Views.hyperSlice(Views.hyperSlice(
+			kernel, 3, 0), 2, 0);
 
-		RandomAccessibleInterval<T> kernelB = Views.hyperSlice(Views.hyperSlice(kernel, 3, 0), 2, 1);
+		RandomAccessibleInterval<T> kernelB = Views.hyperSlice(Views.hyperSlice(
+			kernel, 3, 0), 2, 1);
 
 		// add dimensions to kernel to rotate properly
 		if (in().numDimensions() > 2) {
@@ -102,13 +105,16 @@ public class PartialDerivativeRAI<T extends RealType<T>> extends
 		long[] dims = new long[in().numDimensions()];
 		if (dimension == 0) {
 			// FIXME hack
-			kernelBConvolveOp = RAIs.computer(ops(), Ops.Filter.Convolve.class, in(), new Object[] { kernelB });
-		} else {
+			kernelBConvolveOp = RAIs.computer(ops(), Ops.Filter.Convolve.class, in(),
+				new Object[] { kernelB });
+		}
+		else {
 			// rotate kernel B to dimension
 			for (int j = 0; j < in().numDimensions(); j++) {
 				if (j == dimension) {
 					dims[j] = 3;
-				} else {
+				}
+				else {
 					dims[j] = 1;
 				}
 			}
@@ -121,7 +127,8 @@ public class PartialDerivativeRAI<T extends RealType<T>> extends
 			}
 
 			rotatedKernelB = Views.interval(rotatedKernelB, kernelInterval);
-			kernelBConvolveOp = RAIs.computer(ops(), Ops.Filter.Convolve.class, in(), new Object[] { rotatedKernelB });
+			kernelBConvolveOp = RAIs.computer(ops(), Ops.Filter.Convolve.class, in(),
+				new Object[] { rotatedKernelB });
 		}
 
 		dims = null;
@@ -129,7 +136,8 @@ public class PartialDerivativeRAI<T extends RealType<T>> extends
 		// rotate kernel A to all other dimensions
 		kernelAConvolveOps = new UnaryComputerOp[in().numDimensions()];
 		if (dimension != 0) {
-			kernelAConvolveOps[0] = RAIs.computer(ops(), Ops.Filter.Convolve.class, in(), new Object[] { kernelA });
+			kernelAConvolveOps[0] = RAIs.computer(ops(), Ops.Filter.Convolve.class,
+				in(), new Object[] { kernelA });
 		}
 		RandomAccessibleInterval<T> rotatedKernelA = kernelA;
 		for (int i = 1; i < in().numDimensions(); i++) {
@@ -138,7 +146,8 @@ public class PartialDerivativeRAI<T extends RealType<T>> extends
 				for (int j = 0; j < in().numDimensions(); j++) {
 					if (i == j) {
 						dims[j] = 3;
-					} else {
+					}
+					else {
 						dims[j] = 1;
 					}
 				}
@@ -147,8 +156,9 @@ public class PartialDerivativeRAI<T extends RealType<T>> extends
 					rotatedKernelA = Views.rotate(rotatedKernelA, j, j + 1);
 				}
 
-				kernelAConvolveOps[i] = RAIs.computer(ops(), Ops.Filter.Convolve.class, in(),
-						new Object[] { Views.interval(rotatedKernelA, kernelInterval) });
+				kernelAConvolveOps[i] = RAIs.computer(ops(), Ops.Filter.Convolve.class,
+					in(), new Object[] { Views.interval(rotatedKernelA,
+						kernelInterval) });
 				rotatedKernelA = kernelA;
 			}
 		}
@@ -158,14 +168,19 @@ public class PartialDerivativeRAI<T extends RealType<T>> extends
 	}
 
 	@Override
-	public void compute(RandomAccessibleInterval<T> input, RandomAccessibleInterval<T> output) {
+	public void compute(RandomAccessibleInterval<T> input,
+		RandomAccessibleInterval<T> output)
+	{
 		RandomAccessibleInterval<T> in = input;
 		for (int i = input.numDimensions() - 1; i >= 0; i--) {
 			RandomAccessibleInterval<T> derivative = createRAI.calculate(input);
 			if (dimension == i) {
-				kernelBConvolveOp.compute(Views.interval(Views.extendMirrorDouble(in), input), derivative);
-			} else {
-				kernelAConvolveOps[i].compute(Views.interval(Views.extendMirrorDouble(in), input), derivative);
+				kernelBConvolveOp.compute(Views.interval(Views.extendMirrorDouble(in),
+					input), derivative);
+			}
+			else {
+				kernelAConvolveOps[i].compute(Views.interval(Views.extendMirrorDouble(
+					in), input), derivative);
 			}
 			in = derivative;
 		}
@@ -173,7 +188,9 @@ public class PartialDerivativeRAI<T extends RealType<T>> extends
 	}
 
 	@Override
-	public RandomAccessibleInterval<T> createOutput(RandomAccessibleInterval<T> input) {
+	public RandomAccessibleInterval<T> createOutput(
+		RandomAccessibleInterval<T> input)
+	{
 		return createRAI.calculate(input);
 	}
 }

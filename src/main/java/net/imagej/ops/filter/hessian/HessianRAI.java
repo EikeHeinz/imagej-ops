@@ -49,15 +49,14 @@ import org.scijava.plugin.Plugin;
  * Hessian filter using the sobel filter with separated kernel.
  * 
  * @author Eike Heinz, University of Konstanz
- *
- * @param <T>
- *            type of input
+ * @param <T> type of input
  */
 
 @Plugin(type = Ops.Filter.Hessian.class)
-public class HessianRAI<T extends RealType<T>>
-		extends AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, CompositeIntervalView<T, RealComposite<T>>>
-		implements Ops.Filter.Hessian {
+public class HessianRAI<T extends RealType<T>> extends
+	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, CompositeIntervalView<T, RealComposite<T>>>
+	implements Ops.Filter.Hessian
+{
 
 	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>[] derivativeComputers;
 
@@ -70,15 +69,19 @@ public class HessianRAI<T extends RealType<T>>
 
 		derivativeComputers = new UnaryComputerOp[in().numDimensions()];
 		for (int i = 0; i < in().numDimensions(); i++) {
-			derivativeComputers[i] = RAIs.computer(ops(), Ops.Filter.PartialDerivative.class, in(), i);
+			derivativeComputers[i] = RAIs.computer(ops(),
+				Ops.Filter.PartialDerivative.class, in(), i);
 		}
 	}
 
 	@Override
-	public CompositeIntervalView<T, RealComposite<T>> calculate(RandomAccessibleInterval<T> input) {
+	public CompositeIntervalView<T, RealComposite<T>> calculate(
+		RandomAccessibleInterval<T> input)
+	{
 		List<RandomAccessibleInterval<T>> derivatives = new ArrayList<>();
 		for (int i = 0; i < derivativeComputers.length; i++) {
-			RandomAccessibleInterval<T> derivative = createRAIFromRAI.calculate(input);
+			RandomAccessibleInterval<T> derivative = createRAIFromRAI.calculate(
+				input);
 			derivativeComputers[i].compute(input, derivative);
 			for (int j = 0; j < derivativeComputers.length; j++) {
 				RandomAccessibleInterval<T> out = createRAIFromRAI.calculate(input);
