@@ -14,7 +14,9 @@ import net.imglib2.realtransform.AffineRandomAccessible;
 import net.imglib2.realtransform.AffineTransform;
 import net.imglib2.realtransform.RealViews;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.ExtendedRandomAccessibleInterval;
 import net.imglib2.view.IntervalView;
+import net.imglib2.view.MixedTransformView;
 import net.imglib2.view.Views;
 import net.imglib2.view.composite.CompositeIntervalView;
 import net.imglib2.view.composite.RealComposite;
@@ -50,6 +52,9 @@ public class MembraneProjection<T extends RealType<T>> extends AbstractUnaryFunc
 		}
 		List<RandomAccessibleInterval<T>> kernels = new ArrayList<>();
 		kernels.add(kernel);
+		IntervalView<T> translatedkernel = Views.translate(kernel, -9,-9);
+		ExtendedRandomAccessibleInterval<T, RandomAccessibleInterval<T>> extendedKernel =
+			Views.extendZero(translatedkernel);
 		
 		for (int i = 1; i <= 30; i++) {
 			double currentAngle = i * 6;
@@ -64,9 +69,11 @@ public class MembraneProjection<T extends RealType<T>> extends AbstractUnaryFunc
 			AffineTransform rotationTransform = new AffineTransform(rotationMatrix);
 
 			AffineRandomAccessible<T, AffineGet> rotated = RealViews
-					.affine(Views.interpolate(kernel, new NLinearInterpolatorFactory<>()), rotationTransform);
+					.affine(Views.interpolate(extendedKernel, new NLinearInterpolatorFactory<>()), rotationTransform);
+			
+			MixedTransformView<T> backtranslated = Views.translate(rotated, 9,9);
+			IntervalView<T> rotatedKernel = Views.interval(backtranslated, kernel);
 
-			IntervalView<T> rotatedKernel = Views.interval(Views.extendZero(Views.interval(rotated, kernel)), kernel);
 			System.out.println("Begin-Kernel--------------" + i);
 			Cursor<T> rotatedCursor = Views.iterable(rotatedKernel).cursor();
 			values = "";
