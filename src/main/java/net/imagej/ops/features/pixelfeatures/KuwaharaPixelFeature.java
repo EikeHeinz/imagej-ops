@@ -21,7 +21,9 @@ import net.imglib2.realtransform.AffineRandomAccessible;
 import net.imglib2.realtransform.AffineTransform;
 import net.imglib2.realtransform.RealViews;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.ExtendedRandomAccessibleInterval;
 import net.imglib2.view.IntervalView;
+import net.imglib2.view.MixedTransformView;
 import net.imglib2.view.Views;
 
 @Plugin(type = Ops.Pixelfeatures.Kuwahara.class)
@@ -106,6 +108,10 @@ public class KuwaharaPixelFeature<T extends RealType<T>>
 
 		// this is the place where the data is really stored
 		short[][] rotLineStack = new short[nAngles][size * size];
+		
+		IntervalView<T> translatedkernel = Views.translate(kernel, -9,-9);
+		ExtendedRandomAccessibleInterval<T, RandomAccessibleInterval<T>> extendedKernel =
+			Views.extendZero(translatedkernel);
 
 		for (int iAngle = 0; iAngle < nAngles; iAngle++) {
 			double currentAngle = iAngle * rotationAngle;
@@ -120,9 +126,11 @@ public class KuwaharaPixelFeature<T extends RealType<T>>
 			AffineTransform rotationTransform = new AffineTransform(rotationMatrix);
 
 			AffineRandomAccessible<T, AffineGet> rotated = RealViews
-					.affine(Views.interpolate(kernel, new NLinearInterpolatorFactory<>()), rotationTransform);
+					.affine(Views.interpolate(extendedKernel, new NLinearInterpolatorFactory<>()), rotationTransform);
 
-			IntervalView<T> rotatedKernel = Views.interval(Views.extendZero(Views.interval(rotated, kernel)), kernel);
+//			IntervalView<T> rotatedKernel = Views.interval(Views.extendZero(Views.interval(rotated, kernel)), kernel);
+			MixedTransformView<T> backtranslated = Views.translate(rotated, 9,9);
+			IntervalView<T> rotatedKernel = Views.interval(backtranslated, kernel);
 			Cursor<T> rotatedCursor = Views.iterable(rotatedKernel).cursor();
 			System.out.println("Begin-Kernel--------------" + iAngle);
 			// FIXME kernel size isn't correct, too many iterations
