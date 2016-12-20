@@ -15,25 +15,25 @@ public class MembraneProjectionsTest extends AbstractOpTest {
 	@Test
 	public <T extends RealType<T>> void test() {
 
-		Img<FloatType> img = generateFloatArrayTestImg(false, new long[] { 10, 10 });
+		Img<FloatType> img = generateFloatArrayTestImg(false, new long[] { 50, 50 });
 
 		Cursor<FloatType> cursorImg = img.cursor();
 		int counterX = 0;
 		int counterY = 0;
 		while (cursorImg.hasNext()) {
-			if (counterX > 3 && counterX < 6 || counterY > 3 && counterY < 6) {
+			if (counterX > 27 && counterX < 33 || counterY > 27 && counterY < 33) {
 				cursorImg.next().setOne();
 			} else {
 				cursorImg.next().setZero();
 			}
 			counterX++;
-			if (counterX % 10 == 9) {
+			if (counterX % 50 == 9) {
 				counterY++;
 			}
-			if (counterX == 10) {
+			if (counterX == 50) {
 				counterX = 0;
 			}
-			if (counterY == 10) {
+			if (counterY == 50) {
 				counterY = 0;
 			}
 		}
