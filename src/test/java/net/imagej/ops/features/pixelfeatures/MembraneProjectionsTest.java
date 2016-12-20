@@ -7,6 +7,9 @@ import net.imglib2.Cursor;
 import net.imglib2.img.Img;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.FloatType;
+import net.imglib2.view.Views;
+import net.imglib2.view.composite.CompositeIntervalView;
+import net.imglib2.view.composite.RealComposite;
 
 import org.junit.Test;
 
@@ -38,7 +41,16 @@ public class MembraneProjectionsTest extends AbstractOpTest {
 			}
 		}
 		
-		ops.pixelfeature().membraneProjections(img);
+		CompositeIntervalView<FloatType, RealComposite<FloatType>> out = ops.pixelfeature().membraneProjections(img);
+		Cursor<RealComposite<FloatType>> outCursor = Views.iterable(out).cursor();
+		while(outCursor.hasNext()) {
+			RealComposite<FloatType> composite = outCursor.next();
+			String values = "";
+			for(FloatType value: composite) {
+				values += value +"|";
+			}
+//			System.out.println(values);
+		}
 				
 		fail("Not yet implemented");
 	}
