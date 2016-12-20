@@ -27,8 +27,10 @@ import net.imglib2.view.MixedTransformView;
 import net.imglib2.view.Views;
 
 @Plugin(type = Ops.Pixelfeatures.Kuwahara.class)
-public class KuwaharaPixelFeature<T extends RealType<T>>
-		extends AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> implements Kuwahara {
+public class KuwaharaPixelFeature<T extends RealType<T>> extends
+	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
+	implements Kuwahara
+{
 
 	@Parameter
 	private int size;
@@ -47,11 +49,13 @@ public class KuwaharaPixelFeature<T extends RealType<T>>
 	private CriterionMethod criterionMethod = CriterionMethod.VARIANCE;
 
 	public enum CriterionMethod {
-		VARIANCE, VARIANCE_DIV_MEAN, VARIANCE_DIV_MEAN_SQR
+			VARIANCE, VARIANCE_DIV_MEAN, VARIANCE_DIV_MEAN_SQR
 	}
 
 	@Override
-	public RandomAccessibleInterval<T> calculate(RandomAccessibleInterval<T> input) {
+	public RandomAccessibleInterval<T> calculate(
+		RandomAccessibleInterval<T> input)
+	{
 		// int size = (sizeROI + 1) / 2;
 		// int offset = (sizeROI - 1) / 2;
 		//
@@ -69,12 +73,15 @@ public class KuwaharaPixelFeature<T extends RealType<T>>
 		kernelWidth = size;
 		kernelHeight = size;
 
-		List<RandomAccessibleInterval<T>> imsKernels = createKernel(size, numberOfAngles);
+		List<RandomAccessibleInterval<T>> imsKernels = createKernel(size,
+			numberOfAngles);
 		return filter(input, imsKernels);
 
 	}
 
-	private List<RandomAccessibleInterval<T>> createKernel(int size, int nAngles) {
+	private List<RandomAccessibleInterval<T>> createKernel(int size,
+		int nAngles)
+	{
 
 		// int x1, y1;
 
@@ -82,7 +89,8 @@ public class KuwaharaPixelFeature<T extends RealType<T>>
 		int sizeTemp = size + 2 * nB; // ...
 
 		// create an image with a line
-		Img<T> kernel = (Img<T>) ops().create().img(new int[] { sizeTemp, sizeTemp });
+		Img<T> kernel = (Img<T>) ops().create().img(new int[] { sizeTemp,
+			sizeTemp });
 		// ImagePlus impLine =
 		// NewImage.createShortImage("imLine",sizeTemp,sizeTemp,1,NewImage.FILL_BLACK);
 		// ImageProcessor ipLine = impLine.getProcessor();
@@ -102,14 +110,20 @@ public class KuwaharaPixelFeature<T extends RealType<T>>
 		// NewImage.createShortImage("imLineRot",sizeTemp, sizeTemp
 		// ,1,NewImage.FILL_BLACK);
 		// ImageProcessor ipLineRotated = impLineRotated.getProcessor();
-		Img<T> kernelRotated = (Img<T>) ops().create().img(new int[] { sizeTemp, sizeTemp });
+		Img<T> kernelRotated = (Img<T>) ops().create().img(new int[] { sizeTemp,
+			sizeTemp });
 		// create an empty imStack that will contain pointers to rotLineStack
 		List<RandomAccessibleInterval<T>> kernels = new ArrayList<>();
 
 		// this is the place where the data is really stored
 		short[][] rotLineStack = new short[nAngles][size * size];
-		
-		IntervalView<T> translatedkernel = Views.translate(kernel, -9,-9);
+//		double tempSizeTemp = sizeTemp;
+		// floor instead of ceil because counting starts at 0
+		long offset = sizeTemp / 2;
+		System.out.println("OFFSET:" + offset + "|sizeTemp:" + sizeTemp);
+
+		IntervalView<T> translatedkernel = Views.translate(kernel, -offset,
+			-offset);
 		ExtendedRandomAccessibleInterval<T, RandomAccessibleInterval<T>> extendedKernel =
 			Views.extendZero(translatedkernel);
 
@@ -125,17 +139,29 @@ public class KuwaharaPixelFeature<T extends RealType<T>>
 			Matrix rotationMatrix = new Matrix(rotationArray);
 			AffineTransform rotationTransform = new AffineTransform(rotationMatrix);
 
-			AffineRandomAccessible<T, AffineGet> rotated = RealViews
-					.affine(Views.interpolate(extendedKernel, new NLinearInterpolatorFactory<>()), rotationTransform);
+			AffineRandomAccessible<T, AffineGet> rotated = RealViews.affine(Views
+				.interpolate(extendedKernel, new NLinearInterpolatorFactory<>()),
+				rotationTransform);
 
 //			IntervalView<T> rotatedKernel = Views.interval(Views.extendZero(Views.interval(rotated, kernel)), kernel);
-			MixedTransformView<T> backtranslated = Views.translate(rotated, 9,9);
+			MixedTransformView<T> backtranslated = Views.translate(rotated, offset,
+				offset);
 			IntervalView<T> rotatedKernel = Views.interval(backtranslated, kernel);
 			Cursor<T> rotatedCursor = Views.iterable(rotatedKernel).cursor();
 			System.out.println("Begin-Kernel--------------" + iAngle);
 			// FIXME kernel size isn't correct, too many iterations
+			String values = "";
+			int counter = 0;
 			while (rotatedCursor.hasNext()) {
-				System.out.println(rotatedCursor.next().getRealDouble());
+				T value = rotatedCursor.next();
+				values += value + "|";
+				counter++;
+				if (counter == sizeTemp) {
+					counter = 0;
+					System.out.println(values);
+					values = "";
+				}
+
 			}
 			System.out.println("End-Kernel--------------");
 
@@ -165,7 +191,8 @@ public class KuwaharaPixelFeature<T extends RealType<T>>
 	}
 
 	private RandomAccessibleInterval<T> filter(RandomAccessibleInterval<T> input,
-			List<RandomAccessibleInterval<T>> kernels) {
+		List<RandomAccessibleInterval<T>> kernels)
+	{
 
 		// double[][] im = new double[imageWidth][imageHeight];
 		// double[][] imSquare = new double[imageWidth][imageHeight];
@@ -227,34 +254,40 @@ public class KuwaharaPixelFeature<T extends RealType<T>>
 			// convolve2(im, imSquare, imSum, imSumOfSquares, pixelsKernel);
 			// convolved1 = imSum, convolved2 = imSumOfSquares
 
-			RandomAccessibleInterval<T> convolved1 = ops().filter()
-					.convolve(Views.interval(Views.extendMirrorDouble(image), image), kernel);
-			RandomAccessibleInterval<T> convolved2 = ops().filter()
-					.convolve(Views.interval(Views.extendMirrorDouble(imageSqr), imageSqr), kernel);
+			RandomAccessibleInterval<T> convolved1 = ops().filter().convolve(Views
+				.interval(Views.extendMirrorDouble(image), image), kernel);
+			RandomAccessibleInterval<T> convolved2 = ops().filter().convolve(Views
+				.interval(Views.extendMirrorDouble(imageSqr), imageSqr), kernel);
 			System.out.println("kernel " + i);
 			kernelSum = kernelSum(kernel);
+			System.out.println("Sum:" + kernelSum);
+
 			i++;
 			// TODO: change parameters for criterion calculation to randomAccess
 			switch (criterionMethod) {
-			case VARIANCE:
-				calculateCriterionVariance(convolved1, convolved2, kernelSum, value, criterion);
-				break;
-			case VARIANCE_DIV_MEAN:
-				calculateCriterionVarianceDivMean(convolved1, convolved2, kernelSum, value, criterion);
-				break;
-			case VARIANCE_DIV_MEAN_SQR:
-				calculateCriterionVarianceDivMean2(convolved1, convolved2, kernelSum, value, criterion);
-				break;
+				case VARIANCE:
+					calculateCriterionVariance(convolved1, convolved2, kernelSum, value,
+						criterion);
+					break;
+				case VARIANCE_DIV_MEAN:
+					calculateCriterionVarianceDivMean(convolved1, convolved2, kernelSum,
+						value, criterion);
+					break;
+				case VARIANCE_DIV_MEAN_SQR:
+					calculateCriterionVarianceDivMean2(convolved1, convolved2, kernelSum,
+						value, criterion);
+					break;
 			}
 			KuwaharaGM(value, criterion, kernel, resultTemp, resultCriterionTemp);
-			setResultAndCriterion(result, resultTemp, resultCriterion, resultCriterionTemp);
+			setResultAndCriterion(result, resultTemp, resultCriterion,
+				resultCriterionTemp);
 		}
 
 		// put the result into the image
 		Img<T> output = (Img<T>) ops().create().img(input);
 		putFloat2Image(output, result, imageMin); // add also the minimum back
-													// to
-													// the
+		// to
+		// the
 		// image to avoid that the offset
 		// shifts between images of a stack
 		return output;
@@ -309,7 +342,7 @@ public class KuwaharaPixelFeature<T extends RealType<T>>
 		int i = 0;
 		// while (kernelCursor.hasNext()) {
 		for (i = 0; i < kernelWidth * kernelHeight; i++) {
-			System.out.println(i);
+//			System.out.println(i);
 			T value = kernelCursor.next();
 			kernelSum += value.getRealDouble();
 			// System.out.println(i);
@@ -318,9 +351,11 @@ public class KuwaharaPixelFeature<T extends RealType<T>>
 		return (kernelSum);
 	}
 
-	private void KuwaharaGM(RandomAccessibleInterval<T> value, RandomAccessibleInterval<T> criterion,
-			RandomAccessibleInterval<T> kernel, RandomAccessibleInterval<T> result,
-			RandomAccessibleInterval<T> resultCriterion) {
+	private void KuwaharaGM(RandomAccessibleInterval<T> value,
+		RandomAccessibleInterval<T> criterion, RandomAccessibleInterval<T> kernel,
+		RandomAccessibleInterval<T> result,
+		RandomAccessibleInterval<T> resultCriterion)
+	{
 		int x1min, x1max, y1min, y1max;
 		int x2min, x2max, y2min, y2max;
 
@@ -381,8 +416,11 @@ public class KuwaharaPixelFeature<T extends RealType<T>>
 		} // x1
 	}
 
-	void setResultAndCriterion(RandomAccessibleInterval<T> result, RandomAccessibleInterval<T> resultTemp,
-			RandomAccessibleInterval<T> resultCriterion, RandomAccessibleInterval<T> resultCriterionTemp) {
+	void setResultAndCriterion(RandomAccessibleInterval<T> result,
+		RandomAccessibleInterval<T> resultTemp,
+		RandomAccessibleInterval<T> resultCriterion,
+		RandomAccessibleInterval<T> resultCriterionTemp)
+	{
 		RandomAccess<T> resultRA = result.randomAccess();
 		RandomAccess<T> resultTempRA = resultTemp.randomAccess();
 		RandomAccess<T> resultCriterionRA = resultCriterion.randomAccess();
@@ -393,9 +431,12 @@ public class KuwaharaPixelFeature<T extends RealType<T>>
 				resultCriterionTempRA.setPosition(position);
 				resultCriterionRA.setPosition(position);
 				// if (resultCriterionTemp[x1][y1] < resultCriterion[x1][y1]) {
-				if (resultCriterionTempRA.get().getRealDouble() < resultCriterionRA.get().getRealDouble()) {
+				if (resultCriterionTempRA.get().getRealDouble() < resultCriterionRA
+					.get().getRealDouble())
+				{
 					// resultCriterion[x1][y1] = resultCriterionTemp[x1][y1];
-					resultCriterionRA.get().setReal(resultCriterionTempRA.get().getRealDouble());
+					resultCriterionRA.get().setReal(resultCriterionTempRA.get()
+						.getRealDouble());
 					// result[x1][y1]=100/resultCriterionTemp[x1][y1]; // show
 					// how the
 					// criterion looks like
@@ -417,9 +458,11 @@ public class KuwaharaPixelFeature<T extends RealType<T>>
 	}
 
 	// TODO inline kernelSum, combine all three methods based on criterion
-	private final void calculateCriterionVariance(RandomAccessibleInterval<T> imSum,
-			RandomAccessibleInterval<T> imSumOfSquares, double kernelSum, RandomAccessibleInterval<T> value,
-			RandomAccessibleInterval<T> criterion) {
+	private final void calculateCriterionVariance(
+		RandomAccessibleInterval<T> imSum,
+		RandomAccessibleInterval<T> imSumOfSquares, double kernelSum,
+		RandomAccessibleInterval<T> value, RandomAccessibleInterval<T> criterion)
+	{
 		Cursor<T> imSumCursor = Views.iterable(imSum).cursor();
 		RandomAccess<T> imSumOfSquaresRA = imSumOfSquares.randomAccess();
 		RandomAccess<T> valueRA = value.randomAccess();
@@ -446,9 +489,11 @@ public class KuwaharaPixelFeature<T extends RealType<T>>
 		// }
 	}
 
-	private final void calculateCriterionVarianceDivMean(RandomAccessibleInterval<T> imSum,
-			RandomAccessibleInterval<T> imSumOfSquares, double kernelSum, RandomAccessibleInterval<T> value,
-			RandomAccessibleInterval<T> criterion) {
+	private final void calculateCriterionVarianceDivMean(
+		RandomAccessibleInterval<T> imSum,
+		RandomAccessibleInterval<T> imSumOfSquares, double kernelSum,
+		RandomAccessibleInterval<T> value, RandomAccessibleInterval<T> criterion)
+	{
 		Cursor<T> imSumCursor = Views.iterable(imSum).cursor();
 		RandomAccess<T> imSumOfSquaresRA = imSumOfSquares.randomAccess();
 		RandomAccess<T> valueRA = value.randomAccess();
@@ -462,8 +507,8 @@ public class KuwaharaPixelFeature<T extends RealType<T>>
 			criterionRA.setPosition(pos);
 			double temp = imSumCursor.get().getRealDouble() / kernelSum;
 			valueRA.get().setReal(temp);
-			double temp2 = (imSumOfSquaresRA.get().getRealDouble() / kernelSum)
-					- (Math.pow(temp, 2)) / (temp + Float.MIN_VALUE);
+			double temp2 = (imSumOfSquaresRA.get().getRealDouble() / kernelSum) -
+				(Math.pow(temp, 2)) / (temp + Float.MIN_VALUE);
 			criterionRA.get().setReal(temp2);
 
 			// for (int x1 = 0; x1 < imageWidth; x1++) {
@@ -476,9 +521,11 @@ public class KuwaharaPixelFeature<T extends RealType<T>>
 		}
 	}
 
-	private final void calculateCriterionVarianceDivMean2(RandomAccessibleInterval<T> imSum,
-			RandomAccessibleInterval<T> imSumOfSquares, double kernelSum, RandomAccessibleInterval<T> value,
-			RandomAccessibleInterval<T> criterion) {
+	private final void calculateCriterionVarianceDivMean2(
+		RandomAccessibleInterval<T> imSum,
+		RandomAccessibleInterval<T> imSumOfSquares, double kernelSum,
+		RandomAccessibleInterval<T> value, RandomAccessibleInterval<T> criterion)
+	{
 		Cursor<T> imSumCursor = Views.iterable(imSum).cursor();
 		RandomAccess<T> imSumOfSquaresRA = imSumOfSquares.randomAccess();
 		RandomAccess<T> valueRA = value.randomAccess();
@@ -492,8 +539,8 @@ public class KuwaharaPixelFeature<T extends RealType<T>>
 			criterionRA.setPosition(pos);
 			double temp = imSumCursor.get().getRealDouble() / kernelSum;
 			valueRA.get().setReal(temp);
-			double temp2 = (imSumOfSquaresRA.get().getRealDouble() / kernelSum)
-					- (Math.pow(temp, 2)) / (Math.pow(temp, 2) + Float.MIN_VALUE);
+			double temp2 = (imSumOfSquaresRA.get().getRealDouble() / kernelSum) -
+				(Math.pow(temp, 2)) / (Math.pow(temp, 2) + Float.MIN_VALUE);
 			criterionRA.get().setReal(temp2);
 
 			// for (int x1 = 0; x1 < imageWidth; x1++) {
@@ -506,7 +553,9 @@ public class KuwaharaPixelFeature<T extends RealType<T>>
 		}
 	}
 
-	private void putFloat2Image(RandomAccessibleInterval<T> input, RandomAccessibleInterval<T> imFloat, long imMin) {
+	private void putFloat2Image(RandomAccessibleInterval<T> input,
+		RandomAccessibleInterval<T> imFloat, long imMin)
+	{
 		int x2, y2;
 		RandomAccess<T> inputRA = input.randomAccess();
 		RandomAccess<T> imFloatRA = imFloat.randomAccess();
@@ -518,7 +567,7 @@ public class KuwaharaPixelFeature<T extends RealType<T>>
 			for (int y1 = 0; y1 < imageHeight; y1++) {
 				x2 = x1;
 				y2 = y1; // duplicate the last meaningful pixels to the
-							// boundaries
+				// boundaries
 				if (x1 < kernelWidth) {
 					x2 = kernelWidth;
 				}

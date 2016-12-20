@@ -1,3 +1,4 @@
+
 package net.imagej.ops.features.pixelfeatures;
 
 import java.util.ArrayList;
@@ -18,10 +19,12 @@ import net.imglib2.view.composite.RealComposite;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
-@Plugin(type = Ops.Pixelfeatures.LoGPixelFeature.class, name = Ops.Pixelfeatures.LoGPixelFeature.NAME)
-public class LoGPixelFeature<T extends RealType<T>>
-		extends AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, CompositeIntervalView<T, RealComposite<T>>>
-		implements Ops.Pixelfeatures.LoGPixelFeature {
+@Plugin(type = Ops.Pixelfeatures.LoGPixelFeature.class,
+	name = Ops.Pixelfeatures.LoGPixelFeature.NAME)
+public class LoGPixelFeature<T extends RealType<T>> extends
+	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, CompositeIntervalView<T, RealComposite<T>>>
+	implements Ops.Pixelfeatures.LoGPixelFeature
+{
 
 	@Parameter
 	private double minSigma;
@@ -41,17 +44,20 @@ public class LoGPixelFeature<T extends RealType<T>>
 		for (int i = 0; i <= maxSteps; i++) {
 			double sigma = 0.0d;
 			sigma = Math.pow(2, i) * minSigma;
-			RandomAccessibleInterval<T> kernel = ops().create().kernelLog(sigma, in().numDimensions(),
-					Util.getTypeFromInterval(in()));
+			RandomAccessibleInterval<T> kernel = ops().create().kernelLog(sigma, in()
+				.numDimensions(), Util.getTypeFromInterval(in()));
 			loGOps.add(RAIs.function(ops(), Convolve.class, in(), kernel));
 		}
 	}
 
 	@Override
-	public CompositeIntervalView<T, RealComposite<T>> calculate(RandomAccessibleInterval<T> input) {
+	public CompositeIntervalView<T, RealComposite<T>> calculate(
+		RandomAccessibleInterval<T> input)
+	{
 		List<RandomAccessibleInterval<T>> results = new ArrayList<>();
 		for (UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> loGOp : loGOps) {
-			results.add(loGOp.calculate(Views.interval(Views.extendMirrorDouble(input), input)));
+			results.add(loGOp.calculate(Views.interval(Views.extendMirrorDouble(
+				input), input)));
 		}
 		return Views.collapseReal(Views.stack(results));
 	}

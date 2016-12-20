@@ -42,8 +42,18 @@ public class KuwaharaFilterTest extends AbstractOpTest {
 
 		RandomAccessibleInterval<FloatType> output = ops.pixelfeature().kuwaharaFilter(img, 5, 30);
 		Cursor<FloatType> outCursor = Views.iterable(output).cursor();
+		System.out.println("outputimage-----------------------");
+		String values = "";
+		int counter = 0;
 		while (outCursor.hasNext()) {
-			System.out.println(outCursor.next().get());
+			FloatType value = outCursor.next();
+			values += value +"|";
+			counter++;
+			if(counter == 11) {
+				counter = 0;
+				System.out.println(values);
+				values = "";
+			}
 		}
 
 		fail("Not yet implemented");

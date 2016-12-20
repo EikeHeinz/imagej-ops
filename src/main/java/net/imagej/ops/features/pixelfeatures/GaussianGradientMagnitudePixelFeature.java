@@ -1,3 +1,4 @@
+
 package net.imagej.ops.features.pixelfeatures;
 
 import java.util.ArrayList;
@@ -18,10 +19,13 @@ import net.imglib2.view.composite.RealComposite;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
-@Plugin(type = Ops.Pixelfeatures.GaussianGradientMagnitudePixelFeature.class, name = Ops.Pixelfeatures.GaussianGradientMagnitudePixelFeature.NAME)
+@Plugin(type = Ops.Pixelfeatures.GaussianGradientMagnitudePixelFeature.class,
+	name = Ops.Pixelfeatures.GaussianGradientMagnitudePixelFeature.NAME)
 public class GaussianGradientMagnitudePixelFeature<T extends RealType<T>>
-		extends AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, CompositeIntervalView<T, RealComposite<T>>>
-		implements Ops.Pixelfeatures.GaussianGradientMagnitudePixelFeature {
+	extends
+	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, CompositeIntervalView<T, RealComposite<T>>>
+	implements Ops.Pixelfeatures.GaussianGradientMagnitudePixelFeature
+{
 
 	@Parameter
 	private double minSigma;
@@ -49,8 +53,11 @@ public class GaussianGradientMagnitudePixelFeature<T extends RealType<T>>
 	}
 
 	@Override
-	public CompositeIntervalView<T, RealComposite<T>> calculate(RandomAccessibleInterval<T> input) {
-		RandomAccessibleInterval<T> extended = Views.interval(Views.extendMirrorSingle(input), input);
+	public CompositeIntervalView<T, RealComposite<T>> calculate(
+		RandomAccessibleInterval<T> input)
+	{
+		RandomAccessibleInterval<T> extended = Views.interval(Views
+			.extendMirrorSingle(input), input);
 		List<RandomAccessibleInterval<T>> blurredImgs = new ArrayList<>();
 
 		for (UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> gaussOp : gaussOps) {

@@ -1,3 +1,4 @@
+
 package net.imagej.ops.features.pixelfeatures;
 
 import java.util.ArrayList;
@@ -25,8 +26,10 @@ import org.scijava.plugin.Plugin;
 
 @Plugin(type = Ops.Pixelfeatures.StructureTensor.class)
 public class StructureTensorEigenvaluesPixelFeature<T extends RealType<T>>
-		extends AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, CompositeIntervalView<T, RealComposite<T>>>
-		implements StructureTensor {
+	extends
+	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, CompositeIntervalView<T, RealComposite<T>>>
+	implements StructureTensor
+{
 
 	@Parameter
 	private double sigma;
@@ -41,11 +44,15 @@ public class StructureTensorEigenvaluesPixelFeature<T extends RealType<T>>
 
 	@Override
 	public void initialize() {
-		derivativeComputerX = RAIs.function(ops(), Ops.Filter.PartialDerivative.class, in(), 0);
-		derivativeComputerY = RAIs.function(ops(), Ops.Filter.PartialDerivative.class, in(), 1);
+		derivativeComputerX = RAIs.function(ops(),
+			Ops.Filter.PartialDerivative.class, in(), 0);
+		derivativeComputerY = RAIs.function(ops(),
+			Ops.Filter.PartialDerivative.class, in(), 1);
 		Sqr sqr = ops().op(Ops.Math.Sqr.class, RealType.class, RealType.class);
-		sqrRAI = RAIs.function(ops(), Ops.Map.class, in(), sqr, Util.getTypeFromInterval(in()));
-		multiplyRAI = RAIs.binaryComputer(ops(), Ops.Math.Multiply.class, in(), in());
+		sqrRAI = RAIs.function(ops(), Ops.Map.class, in(), sqr, Util
+			.getTypeFromInterval(in()));
+		multiplyRAI = RAIs.binaryComputer(ops(), Ops.Math.Multiply.class, in(),
+			in());
 		createRAI = RAIs.function(ops(), Ops.Create.Img.class, in());
 		double[] sigmas = new double[in().numDimensions()];
 		Arrays.fill(sigmas, sigma);
@@ -53,9 +60,13 @@ public class StructureTensorEigenvaluesPixelFeature<T extends RealType<T>>
 	}
 
 	@Override
-	public CompositeIntervalView<T, RealComposite<T>> calculate(RandomAccessibleInterval<T> input) {
-		RandomAccessibleInterval<T> derivativeX = derivativeComputerX.calculate(input);
-		RandomAccessibleInterval<T> derivativeY = derivativeComputerY.calculate(input);
+	public CompositeIntervalView<T, RealComposite<T>> calculate(
+		RandomAccessibleInterval<T> input)
+	{
+		RandomAccessibleInterval<T> derivativeX = derivativeComputerX.calculate(
+			input);
+		RandomAccessibleInterval<T> derivativeY = derivativeComputerY.calculate(
+			input);
 		List<RandomAccessibleInterval<T>> components = new ArrayList<>();
 
 		RandomAccessibleInterval<T> squareX = sqrRAI.calculate(derivativeX);
@@ -68,13 +79,15 @@ public class StructureTensorEigenvaluesPixelFeature<T extends RealType<T>>
 		components.add(gauss.calculate(xy));
 		components.add(gauss.calculate(squareY));
 
-		CompositeIntervalView<T, RealComposite<T>> compositeview = Views.collapseReal(Views.stack(components));
+		CompositeIntervalView<T, RealComposite<T>> compositeview = Views
+			.collapseReal(Views.stack(components));
 
 		RandomAccessibleInterval<T> largeEigenvalues = createRAI.calculate(input);
 		RandomAccess<T> largeEigenvaluesRA = largeEigenvalues.randomAccess();
 		RandomAccessibleInterval<T> smallEigenvalues = createRAI.calculate(input);
 		RandomAccess<T> smallEigenvaluesRA = smallEigenvalues.randomAccess();
-		Cursor<RealComposite<T>> viewCursor = Views.iterable(compositeview).cursor();
+		Cursor<RealComposite<T>> viewCursor = Views.iterable(compositeview)
+			.cursor();
 		while (viewCursor.hasNext()) {
 			RealComposite<T> composite = viewCursor.next();
 			long[] position = new long[2];
@@ -85,12 +98,15 @@ public class StructureTensorEigenvaluesPixelFeature<T extends RealType<T>>
 			double b = composite.get(1).getRealDouble();
 			double c = composite.get(2).getRealDouble();
 			double d = composite.get(3).getRealDouble();
-			double firstEigenvalue = ((a + d) / 2) + (Math.sqrt(((Math.pow((a + d), 2) / 4) - ((a * d) - (b * c)))));
-			double secondEigenvalue = ((a + d) / 2) - (Math.sqrt(((Math.pow((a + d), 2) / 4) - ((a * d) - (b * c)))));
+			double firstEigenvalue = ((a + d) / 2) + (Math.sqrt(((Math.pow((a + d),
+				2) / 4) - ((a * d) - (b * c)))));
+			double secondEigenvalue = ((a + d) / 2) - (Math.sqrt(((Math.pow((a + d),
+				2) / 4) - ((a * d) - (b * c)))));
 			if (firstEigenvalue < secondEigenvalue) {
 				largeEigenvaluesRA.get().setReal(secondEigenvalue);
 				smallEigenvaluesRA.get().setReal(firstEigenvalue);
-			} else {
+			}
+			else {
 				largeEigenvaluesRA.get().setReal(firstEigenvalue);
 				smallEigenvaluesRA.get().setReal(secondEigenvalue);
 			}

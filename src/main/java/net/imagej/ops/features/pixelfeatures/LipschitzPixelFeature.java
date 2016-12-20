@@ -1,3 +1,4 @@
+
 package net.imagej.ops.features.pixelfeatures;
 
 import java.util.ArrayList;
@@ -17,9 +18,10 @@ import net.imglib2.view.composite.RealComposite;
 import org.scijava.plugin.Plugin;
 
 @Plugin(type = Ops.Pixelfeatures.LipschitzPixFeature.class)
-public class LipschitzPixelFeature<T extends RealType<T>>
-		extends AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, CompositeIntervalView<T, RealComposite<T>>>
-		implements LipschitzPixFeature {
+public class LipschitzPixelFeature<T extends RealType<T>> extends
+	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, CompositeIntervalView<T, RealComposite<T>>>
+	implements LipschitzPixFeature
+{
 
 	private boolean m_Down = true; //
 
@@ -28,7 +30,9 @@ public class LipschitzPixelFeature<T extends RealType<T>>
 	private double m_Slope = 5; // slope
 
 	@Override
-	public CompositeIntervalView<T, RealComposite<T>> calculate(RandomAccessibleInterval<T> input) {
+	public CompositeIntervalView<T, RealComposite<T>> calculate(
+		RandomAccessibleInterval<T> input)
+	{
 		// m_stack = m_imp.getStack();
 		// m_scount = m_stack.getSize();
 		// m_roi = ip.getRoi();
@@ -50,15 +54,12 @@ public class LipschitzPixelFeature<T extends RealType<T>>
 		List<RandomAccessibleInterval<T>> filtered = new ArrayList<>();
 		for (int slope = 5; slope <= 25; slope += 5) {
 			m_Slope = slope;
-			filtered.add(Lipschitz2D(Views.interval(Views.extendMirrorDouble(input), input)));
+			filtered.add(Lipschitz2D(Views.interval(Views.extendMirrorDouble(input),
+				input)));
 		}
 
 		return Views.collapseReal(Views.stack(filtered));
 	}
-
-
-
-
 
 	static int ImageHeight;
 	static int ImageWidth;
@@ -67,7 +68,9 @@ public class LipschitzPixelFeature<T extends RealType<T>>
 	// TODO verify results
 	// TODO change calculation to fit image size
 
-	private RandomAccessibleInterval<T> Lipschitz2D(RandomAccessibleInterval<T> input) {
+	private RandomAccessibleInterval<T> Lipschitz2D(
+		RandomAccessibleInterval<T> input)
+	{
 		float slope, slope1, p, p1, p2, p3, p4, maxz;
 
 //		int[][] destPixels = new int[m_channels][ImageHeight * ImageWidth];
@@ -75,9 +78,12 @@ public class LipschitzPixelFeature<T extends RealType<T>>
 //		byte[][] tmpBytePixels = new byte[m_channels][ImageHeight * ImageWidth];
 //		short[][] tmpShortPixels = new short[m_channels][ImageHeight * ImageWidth];
 
-		RandomAccessibleInterval<T> tmpPixelsOps = (RandomAccessibleInterval<T>) ops().create().img(input);
-		RandomAccessibleInterval<T> srcPixelsOps = (RandomAccessibleInterval<T>) ops().create().img(input);
-		RandomAccessibleInterval<T> destPixelsOps = (RandomAccessibleInterval<T>) ops().create().img(input);
+		RandomAccessibleInterval<T> tmpPixelsOps =
+			(RandomAccessibleInterval<T>) ops().create().img(input);
+		RandomAccessibleInterval<T> srcPixelsOps =
+			(RandomAccessibleInterval<T>) ops().create().img(input);
+		RandomAccessibleInterval<T> destPixelsOps =
+			(RandomAccessibleInterval<T>) ops().create().img(input);
 		RandomAccess<T> srcPixelsOpsRA = srcPixelsOps.randomAccess();
 		RandomAccess<T> destPixelsOpsRA = destPixelsOps.randomAccess();
 		Cursor<T> tmpPixelsOpsCursor = Views.iterable(tmpPixelsOps).cursor();
@@ -136,54 +142,56 @@ public class LipschitzPixelFeature<T extends RealType<T>>
 				for (int x = 0; x < ImageWidth; x++) {
 					p = (p2 - slope);
 					p1 = (p3 - slope1);
-					if (p1 > p)
-						p = p1;
+					if (p1 > p) p = p1;
 					// destPixelsOpsRA.setPosition(new int[] { z, x + ImageWidth
 					// * (Math.max(y - 1, 0)) });
 					int pos = x + ImageWidth * (Math.max(y - 1, 0));
 					int realPosX = Math.floorDiv(pos, ImageWidth);
 					int realPosY = pos % ImageWidth;
-					System.out.println("pos:"+pos+"|realX:"+realPosX+"|"+"realY:"+realPosY);
+					System.out.println("pos:" + pos + "|realX:" + realPosX + "|" +
+						"realY:" + realPosY);
 					destPixelsOpsRA.setPosition(new int[] { realPosX, realPosY });
 					p3 = destPixelsOpsRA.get().getRealFloat();
 					// p3 = destPixels[z][x + ImageWidth * (Math.max(y - 1,
 					// 0))];
 					p1 = p3 - slope;
-					if (p1 > p)
-						p = p1;
+					if (p1 > p) p = p1;
 
 //					destPixelsOpsRA.setPosition(
 //							new int[] { z, Math.min(x + 1, ImageWidth - 1) + ImageWidth * (Math.max(y - 1, 0)) });
 //					destPixelsOpsRA.setPosition(
 //							new int[] { Math.min(x + 1, ImageWidth - 1) , ImageWidth * (Math.max(y - 1, 0)) });
-					pos = Math.min(x + 1, ImageWidth - 1) + ImageWidth * (Math.max(y - 1, 0));
+					pos = Math.min(x + 1, ImageWidth - 1) + ImageWidth * (Math.max(y - 1,
+						0));
 					realPosX = Math.floorDiv(pos, ImageWidth);
 					realPosY = pos % ImageWidth;
-					System.out.println("pos:"+pos+"|realX:"+realPosX+"|"+"realY:"+realPosY);
+					System.out.println("pos:" + pos + "|realX:" + realPosX + "|" +
+						"realY:" + realPosY);
 					destPixelsOpsRA.setPosition(new int[] { realPosX, realPosY });
 					p4 = destPixelsOpsRA.get().getRealFloat();
 					// p4 = destPixels[z][Math.min(x + 1, ImageWidth - 1) +
 					// ImageWidth * (Math.max(y - 1, 0))];
 					p1 = p4 - slope1;
-					if (p1 > p)
-						p = p1;
+					if (p1 > p) p = p1;
 
 //					srcPixelsOpsRA.setPosition(new int[] { z, x + ImageWidth * y });
-					srcPixelsOpsRA.setPosition(new int[] { x , ImageWidth * y });
+					srcPixelsOpsRA.setPosition(new int[] { x, ImageWidth * y });
 					pos = x + ImageWidth * y;
 					realPosX = Math.floorDiv(pos, ImageWidth);
 					realPosY = pos % ImageWidth;
-					System.out.println("pos:"+pos+"|realX:"+realPosX+"|"+"realY:"+realPosY);
+					System.out.println("pos:" + pos + "|realX:" + realPosX + "|" +
+						"realY:" + realPosY);
 					srcPixelsOpsRA.setPosition(new int[] { realPosX, realPosY });
 					p2 = srcPixelsOpsRA.get().getRealFloat();
 					// p2 = srcPixels[z][x + ImageWidth * y];
 					if (p > p2) {
 //						destPixelsOpsRA.setPosition(new int[] { z, x + ImageWidth * y });
-						destPixelsOpsRA.setPosition(new int[] { x , ImageWidth * y });
+						destPixelsOpsRA.setPosition(new int[] { x, ImageWidth * y });
 						pos = x + ImageWidth * y;
 						realPosX = Math.floorDiv(pos, ImageWidth);
 						realPosY = pos % ImageWidth;
-						System.out.println("pos:"+pos+"|realX:"+realPosX+"|"+"realY:"+realPosY);
+						System.out.println("pos:" + pos + "|realX:" + realPosX + "|" +
+							"realY:" + realPosY);
 						destPixelsOpsRA.setPosition(new int[] { realPosX, realPosY });
 						destPixelsOpsRA.get().setReal(p);
 						// destPixels[z][x + ImageWidth * y] = p;
@@ -205,41 +213,42 @@ public class LipschitzPixelFeature<T extends RealType<T>>
 				for (int x = ImageWidth - 1; x >= 0; x--) {
 					p = (p2 - slope);
 					p1 = (p3 - slope1);
-					if (p1 > p)
-						p = p1;
+					if (p1 > p) p = p1;
 
 //					destPixelsOpsRA.setPosition(new int[] { z, x + ImageWidth * (Math.min(y + 1, ImageHeight - 1)) });
 					int pos = x + ImageWidth * (Math.min(y + 1, ImageHeight - 1));
 					int realPosX = Math.floorDiv(pos, ImageWidth);
 					int realPosY = pos % ImageWidth;
-					System.out.println("pos:"+pos+"|realX:"+realPosX+"|"+"realY:"+realPosY);
+					System.out.println("pos:" + pos + "|realX:" + realPosX + "|" +
+						"realY:" + realPosY);
 					destPixelsOpsRA.setPosition(new int[] { realPosX, realPosY });
 					p3 = destPixelsOpsRA.get().getRealFloat();
 					// p3 = destPixels[z][x + ImageWidth * (Math.min(y + 1,
 					// ImageHeight - 1))];
 					p1 = p3 - slope;
-					if (p1 > p)
-						p = p1;
+					if (p1 > p) p = p1;
 
 //					destPixelsOpsRA.setPosition(
 //							new int[] { z, Math.max(x - 1, 0) + ImageWidth * (Math.min(y + 1, ImageHeight - 1)) });
-					pos = Math.max(x - 1, 0) + ImageWidth * (Math.min(y + 1, ImageHeight - 1));
+					pos = Math.max(x - 1, 0) + ImageWidth * (Math.min(y + 1, ImageHeight -
+						1));
 					realPosX = Math.floorDiv(pos, ImageWidth);
 					realPosY = pos % ImageWidth;
-					System.out.println("pos:"+pos+"|realX:"+realPosX+"|"+"realY:"+realPosY);
+					System.out.println("pos:" + pos + "|realX:" + realPosX + "|" +
+						"realY:" + realPosY);
 					destPixelsOpsRA.setPosition(new int[] { realPosX, realPosY });
 					p4 = destPixelsOpsRA.get().getRealFloat();
 					// p4 = destPixels[z][Math.max(x - 1, 0) + ImageWidth *
 					// (Math.min(y + 1, ImageHeight - 1))];
 					p1 = p4 - slope1;
-					if (p1 > p)
-						p = p1;
+					if (p1 > p) p = p1;
 
 //					destPixelsOpsRA.setPosition(new int[] { z, x + ImageWidth * y });
 					pos = x + ImageWidth * y;
 					realPosX = Math.floorDiv(pos, ImageWidth);
 					realPosY = pos % ImageWidth;
-					System.out.println("pos:"+pos+"|realX:"+realPosX+"|"+"realY:"+realPosY);
+					System.out.println("pos:" + pos + "|realX:" + realPosX + "|" +
+						"realY:" + realPosY);
 					destPixelsOpsRA.setPosition(new int[] { realPosX, realPosY });
 					p2 = destPixelsOpsRA.get().getRealFloat();
 					// p2 = destPixels[z][x + ImageWidth * y];
@@ -264,19 +273,22 @@ public class LipschitzPixelFeature<T extends RealType<T>>
 				srcPixelsOpsRA.setPosition(tmpPixelsOpsCursor);
 				destPixelsOpsRA.setPosition(tmpPixelsOpsCursor);
 				if (m_TopHat) {
-					byte value = (m_Down
-							? (byte) (srcPixelsOpsRA.get().getRealFloat() - destPixelsOpsRA.get().getRealFloat() + 255)
-							: (byte) (destPixelsOpsRA.get().getRealFloat() - srcPixelsOpsRA.get().getRealFloat()));
+					byte value = (m_Down ? (byte) (srcPixelsOpsRA.get().getRealFloat() -
+						destPixelsOpsRA.get().getRealFloat() + 255)
+						: (byte) (destPixelsOpsRA.get().getRealFloat() - srcPixelsOpsRA
+							.get().getRealFloat()));
 					tmpPixelsOpsCursor.get().setReal(value);
 					// tmpBytePixels[ii][ij] = (m_Down ? (byte)
 					// (srcPixels[ii][ij] - destPixels[ii][ij] + 255)
 					// : (byte) (destPixels[ii][ij] - srcPixels[ii][ij]));
-				} else {
+				}
+				else {
 					// if (m_short) {
 					// tmpShortPixels[ii][ij] = (short) ((sign *
 					// destPixels[ii][ij] & 0xffff));
 					// } else {
-					tmpPixelsOpsCursor.get().setReal((byte) (sign * destPixelsOpsRA.get().getRealFloat()));
+					tmpPixelsOpsCursor.get().setReal((byte) (sign * destPixelsOpsRA.get()
+						.getRealFloat()));
 					// tmpBytePixels[ii][ij] = (byte) (sign *
 					// destPixels[ii][ij]);
 					// }
