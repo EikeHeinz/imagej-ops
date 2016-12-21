@@ -43,13 +43,14 @@ public class MembraneProjectionsTest extends AbstractOpTest {
 		
 		CompositeIntervalView<FloatType, RealComposite<FloatType>> out = ops.pixelfeature().membraneProjections(img);
 		Cursor<RealComposite<FloatType>> outCursor = Views.iterable(out).cursor();
+		System.out.println("OUTPUT---------------------");
 		while(outCursor.hasNext()) {
 			RealComposite<FloatType> composite = outCursor.next();
 			String values = "";
 			for(FloatType value: composite) {
 				values += value +"|";
 			}
-//			System.out.println(values);
+			System.out.println(values);
 		}
 				
 		fail("Not yet implemented");

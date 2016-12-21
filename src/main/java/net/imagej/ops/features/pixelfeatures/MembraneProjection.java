@@ -45,7 +45,7 @@ public class MembraneProjection<T extends RealType<T>> extends
 	private UnaryFunctionOp<RealComposite, RealType> medianOp;
 	private UnaryFunctionOp<RealComposite, RealType> maxOp;
 	private UnaryFunctionOp<RealComposite, RealType> minOp;
-	
+
 	private RandomAccessibleInterval<T>[] kernels;
 
 	@SuppressWarnings("unchecked")
@@ -55,7 +55,6 @@ public class MembraneProjection<T extends RealType<T>> extends
 			.create().img(new int[] { 19, 19 });
 		Cursor<T> kernelCursor = Views.iterable(kernel).cursor();
 		int counter = 0;
-//		String values = "";
 		while (kernelCursor.hasNext()) {
 			T value = kernelCursor.next();
 			if (counter == 9) {
@@ -64,18 +63,12 @@ public class MembraneProjection<T extends RealType<T>> extends
 			else {
 				value.setZero();
 			}
-//			values += value + "|";
-//			counter++;
-//			if (counter == 19) {
-//				counter = 0;
-//				System.out.println(values);
-//				values = "";
-//			}
+			counter++;
 		}
-//		List<RandomAccessibleInterval<T>> kernels = new ArrayList<>();
 		kernels = new RandomAccessibleInterval[30];
 		kernels[0] = kernel;
 		IntervalView<T> translatedkernel = Views.translate(kernel, -9, -9);
+
 		ExtendedRandomAccessibleInterval<T, RandomAccessibleInterval<T>> extendedKernel =
 			Views.extendZero(translatedkernel);
 
@@ -96,6 +89,7 @@ public class MembraneProjection<T extends RealType<T>> extends
 				rotationTransform);
 
 			MixedTransformView<T> backtranslated = Views.translate(rotated, 9, 9);
+			
 			IntervalView<T> rotatedKernel = Views.interval(backtranslated, kernel);
 			kernels[i] = rotatedKernel;
 
@@ -110,7 +104,7 @@ public class MembraneProjection<T extends RealType<T>> extends
 //				counter++;
 //				if(counter == 19) {
 //					counter = 0;
-//					System.out.println(values);
+////					System.out.println(values);
 //					values = "";
 //				}
 //			}
@@ -126,14 +120,18 @@ public class MembraneProjection<T extends RealType<T>> extends
 //		}
 		createRAI = RAIs.function(ops(), Ops.Create.Img.class, in());
 
-		sumOp = Functions.unary(ops(), Ops.Stats.Sum.class, RealType.class, RealComposite.class);
-		meanOp = Functions.unary(ops(), Ops.Stats.Mean.class, RealType.class, RealComposite.class);
+		sumOp = Functions.unary(ops(), Ops.Stats.Sum.class, RealType.class,
+			RealComposite.class);
+		meanOp = Functions.unary(ops(), Ops.Stats.Mean.class, RealType.class,
+			RealComposite.class);
 		stdDevOp = Functions.unary(ops(), Ops.Stats.StdDev.class, RealType.class,
 			RealComposite.class);
 		medianOp = Functions.unary(ops(), Ops.Stats.Median.class, RealType.class,
 			RealComposite.class);
-		maxOp = Functions.unary(ops(), Ops.Stats.Max.class, RealType.class, RealComposite.class);
-		minOp = Functions.unary(ops(), Ops.Stats.Min.class, RealType.class, RealComposite.class);
+		maxOp = Functions.unary(ops(), Ops.Stats.Max.class, RealType.class,
+			RealComposite.class);
+		minOp = Functions.unary(ops(), Ops.Stats.Min.class, RealType.class,
+			RealComposite.class);
 
 	}
 
@@ -144,10 +142,9 @@ public class MembraneProjection<T extends RealType<T>> extends
 		List<RandomAccessibleInterval<T>> convolvedImgs = new ArrayList<>();
 		for (int i = 0; i < kernels.length; i++) {
 			RandomAccessibleInterval<T> temp = createRAI.calculate(input);
-			//FIXME convolution returns empty image
-			RandomAccessibleInterval<T> tmp = ops().filter().convolve(Views.interval(Views.extendMirrorDouble(input), input), kernels[i]);
-//			convolveOps[i].compute(Views.interval(Views.extendMirrorDouble(input),
-//				input), temp);
+			// FIXME convolution returns empty image
+			RandomAccessibleInterval<T> tmp = ops().filter().convolve(Views.interval(
+				Views.extendMirrorDouble(input), input), kernels[i]);
 			convolvedImgs.add(tmp);
 		}
 
@@ -164,26 +161,6 @@ public class MembraneProjection<T extends RealType<T>> extends
 			compositeConvolved).cursor();
 		while (compositeCursor.hasNext()) {
 			RealComposite<T> composite = compositeCursor.next();
-//			double sumOfPixels, mean, stddev, median, max, min;
-//			sumOfPixels = 0.0d;
-//			min = Double.MAX_VALUE;
-//			max = -Double.MAX_VALUE;
-//			double[] values = new double[30];
-//			int i = 0;
-//			for (T value : composite) {
-//				values[i] = value.getRealDouble();
-//				sumOfPixels += values[i];
-//				i++;
-//			}
-//			Arrays.sort(values);
-//			min = values[0];
-//			max = values[values.length - 1];
-//			mean = sumOfPixels / 30;
-//			ops().stats().stdDev(composite);
-//			RealType test = sumOp.calculate(composite);
-//			if(!(test.getRealDouble() == sumOfPixels)) {
-//				System.out.println(test.getRealDouble()+"|"+sumOfPixels);
-//			}
 			double[] outValues = new double[6];
 			outValues[0] = sumOp.calculate(composite).getRealDouble();
 			outValues[1] = meanOp.calculate(composite).getRealDouble();
@@ -191,7 +168,7 @@ public class MembraneProjection<T extends RealType<T>> extends
 			outValues[3] = medianOp.calculate(composite).getRealDouble();
 			outValues[4] = maxOp.calculate(composite).getRealDouble();
 			outValues[5] = minOp.calculate(composite).getRealDouble();
-			for(int i = 0; i<outImgsRAs.length;i++) {
+			for (int i = 0; i < outImgsRAs.length; i++) {
 				outImgsRAs[i].setPosition(compositeCursor);
 				outImgsRAs[i].get().setReal(outValues[i]);
 			}
