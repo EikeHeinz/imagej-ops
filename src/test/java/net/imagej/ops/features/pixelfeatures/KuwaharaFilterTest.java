@@ -16,7 +16,8 @@ public class KuwaharaFilterTest extends AbstractOpTest {
 
 	@Test
 	public void test() {
-		Img<FloatType> img = generateFloatArrayTestImg(false, new long[] { 20, 20 });
+		Img<FloatType> img = generateFloatArrayTestImg(false, new long[] { 20,
+			20 });
 
 		Cursor<FloatType> cursorImg = img.cursor();
 		int counterX = 0;
@@ -24,7 +25,8 @@ public class KuwaharaFilterTest extends AbstractOpTest {
 		while (cursorImg.hasNext()) {
 			if (counterX > 7 && counterX < 13 || counterY > 7 && counterY < 13) {
 				cursorImg.next().setOne();
-			} else {
+			}
+			else {
 				cursorImg.next().setZero();
 			}
 
@@ -40,16 +42,17 @@ public class KuwaharaFilterTest extends AbstractOpTest {
 			}
 		}
 
-		RandomAccessibleInterval<FloatType> output = ops.pixelfeature().kuwaharaFilter(img, 5, 30);
+		RandomAccessibleInterval<FloatType> output = ops.pixelfeature()
+			.kuwaharaFilter(img, 5, 30);
 		Cursor<FloatType> outCursor = Views.iterable(output).cursor();
 		System.out.println("outputimage-----------------------");
 		String values = "";
 		int counter = 0;
 		while (outCursor.hasNext()) {
 			FloatType value = outCursor.next();
-			values += value +"|";
+			values += value + "|";
 			counter++;
-			if(counter == 11) {
+			if (counter == 11) {
 				counter = 0;
 				System.out.println(values);
 				values = "";
