@@ -1,3 +1,4 @@
+
 package net.imagej.ops.features.pixelfeatures;
 
 import static org.junit.Assert.*;
@@ -16,7 +17,8 @@ public class LipschitzPixelFeatureTest extends AbstractOpTest {
 
 	@Test
 	public void test() {
-		Img<FloatType> img = generateFloatArrayTestImg(false, new long[] { 10, 10 });
+		Img<FloatType> img = generateFloatArrayTestImg(false, new long[] { 10,
+			10 });
 
 		Cursor<FloatType> cursorImg = img.cursor();
 		int counterX = 0;
@@ -24,7 +26,8 @@ public class LipschitzPixelFeatureTest extends AbstractOpTest {
 		while (cursorImg.hasNext()) {
 			if (counterX > 3 && counterX < 6 || counterY > 3 && counterY < 6) {
 				cursorImg.next().setOne();
-			} else {
+			}
+			else {
 				cursorImg.next().setZero();
 			}
 			counterX++;
@@ -39,17 +42,18 @@ public class LipschitzPixelFeatureTest extends AbstractOpTest {
 			}
 		}
 
-		CompositeIntervalView<FloatType, RealComposite<FloatType>> out = ops.pixelfeature().lipschitzFeature(img);
+		CompositeIntervalView<FloatType, RealComposite<FloatType>> out = ops
+			.pixelfeature().lipschitzFeature(img);
 		Cursor<RealComposite<FloatType>> outCursor = Views.iterable(out).cursor();
-		while(outCursor.hasNext()) {
+		while (outCursor.hasNext()) {
 			String values = "";
 			RealComposite<FloatType> comp = outCursor.next();
-			for(FloatType value: comp) {
+			for (FloatType value : comp) {
 				values += value + "|";
 			}
 			System.out.println(values);
 		}
-		
+
 		fail("Not yet implemented");
 	}
 
