@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.imagej.ops.Ops;
-import net.imagej.ops.Ops.Pixelfeatures.Kuwahara;
+import net.imagej.ops.Ops.Pixelfeatures.LinearKuwahara;
 import net.imagej.ops.special.chain.RAIs;
 import net.imagej.ops.special.function.AbstractUnaryFunctionOp;
 import net.imagej.ops.special.function.UnaryFunctionOp;
@@ -30,10 +30,10 @@ import org.scijava.plugin.Plugin;
 
 import Jama.Matrix;
 
-@Plugin(type = Ops.Pixelfeatures.Kuwahara.class)
-public class KuwaharaPixelFeature<T extends RealType<T>> extends
+@Plugin(type = Ops.Pixelfeatures.LinearKuwahara.class)
+public class LinearKuwaharaPixelFeature<T extends RealType<T>> extends
 	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
-	implements Kuwahara
+	implements LinearKuwahara
 {
 
 	// TODO verify results
@@ -329,7 +329,6 @@ public class KuwaharaPixelFeature<T extends RealType<T>> extends
 		}
 	}
 
-
 	private final void calculateCriterion(RandomAccessibleInterval<T> imSum,
 		RandomAccessibleInterval<T> imSumOfSquares, double kernelSum,
 		RandomAccessibleInterval<T> value, RandomAccessibleInterval<T> criterion)
@@ -365,7 +364,7 @@ public class KuwaharaPixelFeature<T extends RealType<T>> extends
 		}
 	}
 
-	//	void setResultAndCriterion(RandomAccessibleInterval<T> result,
+	// void setResultAndCriterion(RandomAccessibleInterval<T> result,
 //		RandomAccessibleInterval<T> resultTemp,
 //		RandomAccessibleInterval<T> resultCriterion,
 //		RandomAccessibleInterval<T> resultCriterionTemp)
