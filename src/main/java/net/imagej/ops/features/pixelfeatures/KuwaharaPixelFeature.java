@@ -4,15 +4,10 @@ package net.imagej.ops.features.pixelfeatures;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.scijava.plugin.Parameter;
-import org.scijava.plugin.Plugin;
-
-import Jama.Matrix;
 import net.imagej.ops.Ops;
 import net.imagej.ops.Ops.Pixelfeatures.Kuwahara;
 import net.imagej.ops.special.chain.RAIs;
 import net.imagej.ops.special.function.AbstractUnaryFunctionOp;
-import net.imagej.ops.special.function.Functions;
 import net.imagej.ops.special.function.UnaryFunctionOp;
 import net.imglib2.Cursor;
 import net.imglib2.FinalInterval;
@@ -29,6 +24,11 @@ import net.imglib2.view.ExtendedRandomAccessibleInterval;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.MixedTransformView;
 import net.imglib2.view.Views;
+
+import org.scijava.plugin.Parameter;
+import org.scijava.plugin.Plugin;
+
+import Jama.Matrix;
 
 @Plugin(type = Ops.Pixelfeatures.Kuwahara.class)
 public class KuwaharaPixelFeature<T extends RealType<T>> extends
@@ -52,10 +52,6 @@ public class KuwaharaPixelFeature<T extends RealType<T>> extends
 
 	private int imageHeight;
 
-//	private int kernelWidth;
-//
-//	private int kernelHeight;
-
 	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> createOp;
 
 	private List<RandomAccessibleInterval<T>> kernels;
@@ -69,14 +65,8 @@ public class KuwaharaPixelFeature<T extends RealType<T>> extends
 	public void initialize() {
 		createOp = RAIs.function(ops(), Ops.Create.Img.class, in());
 
-		// TODO unnecessary?
-//		kernelWidth = kernelSize;
-//		kernelHeight = kernelSize;
-		/*
-		 * create kernel and rotate it
-		 */
+		// ------- create kernels ----------
 
-//		int nB = 3;
 		int sizeTemp = kernelSize + 2 * 3;
 
 		// create an image with a line
@@ -96,7 +86,6 @@ public class KuwaharaPixelFeature<T extends RealType<T>> extends
 
 		// floor instead of ceil because counting starts at 0
 		long offset = sizeTemp / 2;
-//		System.out.println("OFFSET:" + offset + "|sizeTemp:" + sizeTemp);
 
 		IntervalView<T> translatedkernel = Views.translate(kernel, -offset,
 			-offset);
@@ -122,6 +111,7 @@ public class KuwaharaPixelFeature<T extends RealType<T>> extends
 			MixedTransformView<T> backtranslated = Views.translate(rotated, offset,
 				offset);
 			IntervalView<T> rotatedKernel = Views.interval(backtranslated, kernel);
+			// subtract the 3 pixels added earlier
 			FinalInterval interval = FinalInterval.createMinMax(3, 3, sizeTemp - 3,
 				sizeTemp - 3);
 			IntervalView<T> finalKernel = Views.interval(rotatedKernel, interval);
@@ -146,6 +136,8 @@ public class KuwaharaPixelFeature<T extends RealType<T>> extends
 
 			kernels.add(finalKernel);
 		}
+
+		// ------- end create kernels ----------
 	}
 
 	@Override
@@ -185,6 +177,12 @@ public class KuwaharaPixelFeature<T extends RealType<T>> extends
 		RandomAccessibleInterval<T> resultCriterion = createOp.calculate(input);
 		RandomAccessibleInterval<T> resultCriterionTemp = createOp.calculate(input);
 
+		Cursor<T> resultCriterionCursor = Views.iterable(resultCriterion).cursor();
+		while (resultCriterionCursor.hasNext()) {
+			T resultValue = resultCriterionCursor.next();
+			resultValue.setReal(Float.MAX_VALUE);
+		}
+
 		double kernelSum = 0.0d;
 		int i = 0;
 		// loop through the different line orientations
@@ -197,26 +195,68 @@ public class KuwaharaPixelFeature<T extends RealType<T>> extends
 			System.out.println("kernel " + i);
 			kernelSum = kernelSum(kernel);
 			System.out.println("Sum:" + kernelSum);
-			System.out.println(kernelSize + "|" + kernel.dimension(0));
-
 			i++;
 
 			calculateCriterion(convolved1, convolved2, kernelSum, value, criterion);
 
 			// maybe inline
 			KuwaharaGM(value, criterion, kernel, resultTemp, resultCriterionTemp);
-			// inline 
-			setResultAndCriterion(result, resultTemp, resultCriterion,
-				resultCriterionTemp);
+
+			// set result and criterion to correct values
+			RandomAccess<T> resultRA = result.randomAccess();
+			RandomAccess<T> resultTempRA = resultTemp.randomAccess();
+			RandomAccess<T> resultCriterionRA = resultCriterion.randomAccess();
+			FinalInterval interval = FinalInterval.createMinMax(kernelSize,
+				kernelSize, imageWidth - kernelSize, imageHeight - kernelSize);
+			Cursor<T> resultCriterionTempCursor = Views.interval(resultCriterionTemp,
+				interval).cursor();
+			while (resultCriterionTempCursor.hasNext()) {
+				resultCriterionTempCursor.next();
+				resultCriterionRA.setPosition(resultCriterionTempCursor);
+				if (resultCriterionTempCursor.get().getRealDouble() < resultCriterionRA
+					.get().getRealDouble())
+				{
+					resultCriterionRA.get().setReal(resultCriterionTempCursor.get()
+						.getRealDouble());
+					resultRA.setPosition(resultCriterionTempCursor);
+					resultTempRA.setPosition(resultCriterionTempCursor);
+					resultRA.get().setReal(resultTempRA.get().getRealDouble());
+				}
+			}
 		}
 
-		// put the result into the image
+		// put the result into the output image
 		RandomAccessibleInterval<T> output = createOp.calculate(input);
-		putFloat2Image(output, result, imageMin); // add also the minimum back
-		// to
-		// the
-		// image to avoid that the offset
-		// shifts between images of a stack
+		RandomAccess<T> outputRA = output.randomAccess();
+		RandomAccess<T> imFloatRA = result.randomAccess();
+		// Cursor<T> inputCursor = Views.iterable(input).cursor();
+		// while(inputCursor.hasNext()) {
+		//
+		// }
+		for (int x1 = 0; x1 < imageWidth; x1++) {
+			for (int y1 = 0; y1 < imageHeight; y1++) {
+				int x2 = x1;
+				int y2 = y1; // duplicate the last meaningful pixels to the
+				// boundaries
+				if (x1 < kernelSize) {
+					x2 = kernelSize;
+				}
+				if (x1 >= imageWidth - kernelSize) {
+					x2 = imageWidth - kernelSize - 1;
+				}
+				if (y1 < kernelSize) {
+					y2 = kernelSize;
+				}
+				if (y1 >= imageHeight - kernelSize) {
+					y2 = imageHeight - kernelSize - 1;
+				}
+				outputRA.setPosition(new int[] { x1, y1 });
+				imFloatRA.setPosition(new int[] { x2, y2 });
+				// add min back to avoid shifting offset between images of a stack
+				outputRA.get().setReal(imFloatRA.get().getRealDouble() + 0.5 +
+					imageMin);
+			}
+		}
 		return output;
 
 	}
@@ -244,16 +284,13 @@ public class KuwaharaPixelFeature<T extends RealType<T>> extends
 		y1min = (kernelSize - 1) / 2;
 		y1max = imageHeight - (kernelSize - 1) / 2 - 1;
 
-//		int sum1, sum2, n, i;
-
 		int x1minPos, y1minPos;
 		double min;
-//		RandomAccess<T> resultRA = result.randomAccess();
 		RandomAccess<T> resultCriterionRA = resultCriterion.randomAccess();
 		RandomAccess<T> valueRA = value.randomAccess();
-		FinalInterval test = FinalInterval.createMinMax(x1min,y1min,x1max,y1max);
+		FinalInterval test = FinalInterval.createMinMax(x1min, y1min, x1max, y1max);
 		Cursor<T> resultIntervalCursor = Views.interval(result, test).cursor();
-		while(resultIntervalCursor.hasNext()) {
+		while (resultIntervalCursor.hasNext()) {
 			resultIntervalCursor.next();
 			int[] pos = new int[2];
 			resultIntervalCursor.localize(pos);
@@ -261,21 +298,18 @@ public class KuwaharaPixelFeature<T extends RealType<T>> extends
 			x2max = pos[0] + (kernelSize - 1) / 2;
 			y2min = pos[1] - (kernelSize - 1) / 2;
 			y2max = pos[1] + (kernelSize - 1) / 2;
-//			i = 0;
-//			n = 0;
 			min = Double.MAX_VALUE;
 			x1minPos = pos[0];
 			y1minPos = pos[1];
 			Cursor<T> kernelCursor = Views.iterable(kernel).cursor();
-//			RandomAccess<T> criterionRA = criterion.randomAccess();
-			// create interval and use cursor on that?
-			FinalInterval interval = FinalInterval.createMinMax(x2min,y2min,x2max,y2max);
+			FinalInterval interval = FinalInterval.createMinMax(x2min, y2min, x2max,
+				y2max);
 			IntervalView<T> intervalCriterion = Views.interval(criterion, interval);
 			Cursor<T> cursor = intervalCriterion.cursor();
 			// find min criterion
-			while(cursor.hasNext()) {
+			while (cursor.hasNext()) {
 				cursor.next();
-				if(kernelCursor.hasNext()) {
+				if (kernelCursor.hasNext()) {
 					if (kernelCursor.next().getRealDouble() > 0) {
 						if (cursor.get().getRealDouble() < min) {
 							min = cursor.get().getRealDouble();
@@ -283,122 +317,18 @@ public class KuwaharaPixelFeature<T extends RealType<T>> extends
 							cursor.localize(position);
 							x1minPos = position[0];
 							y1minPos = position[1];
-					}
+						}
 					}
 				}
 			}
-		
-		// use interval? probably not
-//		for (int x1 = x1min; x1 <= x1max; x1++) {
-//			for (int y1 = y1min; y1 <= y1max; y1++) {
-//				x2min = x1 - (kernelSize - 1) / 2;
-//				x2max = x1 + (kernelSize - 1) / 2;
-//				y2min = y1 - (kernelSize - 1) / 2;
-//				y2max = y1 + (kernelSize - 1) / 2;
-////				i = 0;
-////				n = 0;
-//				min = Double.MAX_VALUE;
-//				x1minPos = x1;
-//				y1minPos = y1;
-//				Cursor<T> kernelCursor = Views.iterable(kernel).cursor();
-////				RandomAccess<T> criterionRA = criterion.randomAccess();
-//				// create interval and use cursor on that?
-//				FinalInterval interval = FinalInterval.createMinMax(x2min,y2min,x2max,y2max);
-//				IntervalView<T> intervalCriterion = Views.interval(criterion, interval);
-//				Cursor<T> cursor = intervalCriterion.cursor();
-//				// find min criterion
-//				while(cursor.hasNext()) {
-//					cursor.next();
-//					if(kernelCursor.hasNext()) {
-//						if (kernelCursor.next().getRealDouble() > 0) {
-//							if (cursor.get().getRealDouble() < min) {
-//								min = cursor.get().getRealDouble();
-//								int[] position = new int[2];
-//								cursor.localize(position);
-//								x1minPos = position[0];
-//								y1minPos = position[1];
-//						}
-//						}
-//					}
-//				}
-//				for (int y2 = y2min; y2 <= y2max; y2++) {
-//					for (int x2 = x2min; x2 <= x2max; x2++) {
-//						// if (pixelsKernel[i++] > 0) { // searches for minimal
-//						// criterion along
-//						// the lines in the kernels
-//						// (=shifting)
-//						if (kernelCursor.hasNext()) {
-//							if (kernelCursor.next().getRealDouble() > 0) {
-//								criterionRA.setPosition(new int[] { x2, y2 });
-//								// if (criterion[x2][y2] < min) {
-//								if (criterionRA.get().getRealDouble() < min) {
-//									// min = criterion[x2][y2];
-//									min = criterionRA.get().getRealDouble();
-//									x1minPos = x2;
-//									y1minPos = y2;
-////									n++;
-//								}
-//							}
-//						}
-//					} // y2
-//				} // x2
-					// result[x1][y1] = value[x1minPos][y1minPos];
-//				resultRA.setPosition(new int[] { x1, y1 });
-				valueRA.setPosition(new int[] { x1minPos, y1minPos });
-				resultIntervalCursor.get().setReal(valueRA.get().getRealDouble());
-//				resultRA.get().setReal(valueRA.get().getRealDouble());
-				// resultCriterion[x1][y1] = min;
-//				resultCriterionRA.setPosition(new int[] { x1, y1 });
-				resultCriterionRA.setPosition(resultIntervalCursor);
-				resultCriterionRA.get().setReal(min);
-			} // y1
-		} // x1
-//	}
 
-	void setResultAndCriterion(RandomAccessibleInterval<T> result,
-		RandomAccessibleInterval<T> resultTemp,
-		RandomAccessibleInterval<T> resultCriterion,
-		RandomAccessibleInterval<T> resultCriterionTemp)
-	{
-		RandomAccess<T> resultRA = result.randomAccess();
-		RandomAccess<T> resultTempRA = resultTemp.randomAccess();
-		RandomAccess<T> resultCriterionRA = resultCriterion.randomAccess();
-//		RandomAccess<T> resultCriterionTempRA = resultCriterionTemp.randomAccess();
-		FinalInterval interval = FinalInterval.createMinMax(kernelSize,kernelSize,imageWidth-kernelSize,imageHeight-kernelSize);
-		Cursor<T> resultCriterionTempCursor = Views.interval(resultCriterionTemp, interval).cursor();
-		while(resultCriterionTempCursor.hasNext()) {
-			resultCriterionTempCursor.next();
-			resultCriterionRA.setPosition(resultCriterionTempCursor);
-			if (resultCriterionTempCursor.get().getRealDouble() < resultCriterionRA
-					.get().getRealDouble())
-				{
-					resultCriterionRA.get().setReal(resultCriterionTempCursor.get()
-						.getRealDouble());
-					resultRA.setPosition(resultCriterionTempCursor);
-					resultTempRA.setPosition(resultCriterionTempCursor);
-					resultRA.get().setReal(resultTempRA.get().getRealDouble());
-				}
+			valueRA.setPosition(new int[] { x1minPos, y1minPos });
+			resultIntervalCursor.get().setReal(valueRA.get().getRealDouble());
+			resultCriterionRA.setPosition(resultIntervalCursor);
+			resultCriterionRA.get().setReal(min);
 		}
-//		for (int x1 = kernelSize; x1 < imageWidth - kernelSize; x1++) {
-//			for (int y1 = kernelSize; y1 < imageHeight - kernelSize; y1++) {
-//				int[] position = new int[] { x1, y1 };
-//				resultCriterionTempRA.setPosition(position);
-//				resultCriterionRA.setPosition(position);
-//				// if (resultCriterionTemp[x1][y1] < resultCriterion[x1][y1]) {
-//				if (resultCriterionTempRA.get().getRealDouble() < resultCriterionRA
-//					.get().getRealDouble())
-//				{
-//					// resultCriterion[x1][y1] = resultCriterionTemp[x1][y1];
-//					resultCriterionRA.get().setReal(resultCriterionTempRA.get()
-//						.getRealDouble());
-//					// result[x1][y1] = resultTemp[x1][y1];
-//					resultRA.setPosition(position);
-//					resultTempRA.setPosition(position);
-//					resultRA.get().setReal(resultTempRA.get().getRealDouble());
-//				}
-//			}
-//		}
 	}
+
 
 	private final void calculateCriterion(RandomAccessibleInterval<T> imSum,
 		RandomAccessibleInterval<T> imSumOfSquares, double kernelSum,
@@ -410,8 +340,6 @@ public class KuwaharaPixelFeature<T extends RealType<T>> extends
 		RandomAccess<T> criterionRA = criterion.randomAccess();
 		while (imSumCursor.hasNext()) {
 			imSumCursor.next();
-//			long[] pos = new long[2];
-//			imSumCursor.localize(pos);
 			imSumOfSquaresRA.setPosition(imSumCursor);
 			valueRA.setPosition(imSumCursor);
 			criterionRA.setPosition(imSumCursor);
@@ -419,18 +347,17 @@ public class KuwaharaPixelFeature<T extends RealType<T>> extends
 			double tempCriterion = 0.0d;
 			switch (criterionMethod) {
 				case VARIANCE:
-//					temp = imSumCursor.get().getRealDouble() / kernelSum;
-					tempCriterion = imSumOfSquaresRA.get().getRealDouble() / kernelSum - Math.pow(tempValue, 2);
+					tempCriterion = imSumOfSquaresRA.get().getRealDouble() / kernelSum -
+						Math.pow(tempValue, 2);
 					break;
 				case VARIANCE_DIV_MEAN:
-//					temp = imSumCursor.get().getRealDouble() / kernelSum;
-					tempCriterion = (imSumOfSquaresRA.get().getRealDouble() / kernelSum) - (Math
-						.pow(tempValue, 2)) / (tempValue + Float.MIN_VALUE);
+					tempCriterion = (imSumOfSquaresRA.get().getRealDouble() / kernelSum) -
+						(Math.pow(tempValue, 2)) / (tempValue + Float.MIN_VALUE);
 					break;
 				case VARIANCE_DIV_MEAN_SQR:
-//					temp = imSumCursor.get().getRealDouble() / kernelSum;
-					tempCriterion = (imSumOfSquaresRA.get().getRealDouble() / kernelSum) - (Math
-						.pow(tempValue, 2)) / (Math.pow(tempValue, 2) + Float.MIN_VALUE);
+					tempCriterion = (imSumOfSquaresRA.get().getRealDouble() / kernelSum) -
+						(Math.pow(tempValue, 2)) / (Math.pow(tempValue, 2) +
+							Float.MIN_VALUE);
 					break;
 			}
 			valueRA.get().setReal(tempValue);
@@ -438,39 +365,66 @@ public class KuwaharaPixelFeature<T extends RealType<T>> extends
 		}
 	}
 
-	private void putFloat2Image(RandomAccessibleInterval<T> input,
-		RandomAccessibleInterval<T> imFloat, long imMin)
-	{
-		int x2, y2;
-		RandomAccess<T> inputRA = input.randomAccess();
-		RandomAccess<T> imFloatRA = imFloat.randomAccess();
-		// Cursor<T> inputCursor = Views.iterable(input).cursor();
-		// while(inputCursor.hasNext()) {
-		//
-		// }
-		for (int x1 = 0; x1 < imageWidth; x1++) {
-			for (int y1 = 0; y1 < imageHeight; y1++) {
-				x2 = x1;
-				y2 = y1; // duplicate the last meaningful pixels to the
-				// boundaries
-				if (x1 < kernelSize) {
-					x2 = kernelSize;
-				}
-				if (x1 >= imageWidth - kernelSize) {
-					x2 = imageWidth - kernelSize - 1;
-				}
-				if (y1 < kernelSize) {
-					y2 = kernelSize;
-				}
-				if (y1 >= imageHeight - kernelSize) {
-					y2 = imageHeight - kernelSize - 1;
-				}
-				inputRA.setPosition(new int[] { x1, y1 });
-				imFloatRA.setPosition(new int[] { x2, y2 });
-				inputRA.get().setReal(imFloatRA.get().getRealDouble() + 0.5 + imMin);
-			}
-		}
+	//	void setResultAndCriterion(RandomAccessibleInterval<T> result,
+//		RandomAccessibleInterval<T> resultTemp,
+//		RandomAccessibleInterval<T> resultCriterion,
+//		RandomAccessibleInterval<T> resultCriterionTemp)
+//	{
+//		RandomAccess<T> resultRA = result.randomAccess();
+//		RandomAccess<T> resultTempRA = resultTemp.randomAccess();
+//		RandomAccess<T> resultCriterionRA = resultCriterion.randomAccess();
+//		FinalInterval interval = FinalInterval.createMinMax(kernelSize, kernelSize,
+//			imageWidth - kernelSize, imageHeight - kernelSize);
+//		Cursor<T> resultCriterionTempCursor = Views.interval(resultCriterionTemp,
+//			interval).cursor();
+//		while (resultCriterionTempCursor.hasNext()) {
+//			resultCriterionTempCursor.next();
+//			resultCriterionRA.setPosition(resultCriterionTempCursor);
+//			if (resultCriterionTempCursor.get().getRealDouble() < resultCriterionRA
+//				.get().getRealDouble())
+//			{
+//				resultCriterionRA.get().setReal(resultCriterionTempCursor.get()
+//					.getRealDouble());
+//				resultRA.setPosition(resultCriterionTempCursor);
+//				resultTempRA.setPosition(resultCriterionTempCursor);
+//				resultRA.get().setReal(resultTempRA.get().getRealDouble());
+//			}
+//		}
+//	}
 
-	}
+//	private void putFloat2Image(RandomAccessibleInterval<T> input,
+//		RandomAccessibleInterval<T> imFloat, long imMin)
+//	{
+//		int x2, y2;
+//		RandomAccess<T> inputRA = input.randomAccess();
+//		RandomAccess<T> imFloatRA = imFloat.randomAccess();
+//		// Cursor<T> inputCursor = Views.iterable(input).cursor();
+//		// while(inputCursor.hasNext()) {
+//		//
+//		// }
+//		for (int x1 = 0; x1 < imageWidth; x1++) {
+//			for (int y1 = 0; y1 < imageHeight; y1++) {
+//				x2 = x1;
+//				y2 = y1; // duplicate the last meaningful pixels to the
+//				// boundaries
+//				if (x1 < kernelSize) {
+//					x2 = kernelSize;
+//				}
+//				if (x1 >= imageWidth - kernelSize) {
+//					x2 = imageWidth - kernelSize - 1;
+//				}
+//				if (y1 < kernelSize) {
+//					y2 = kernelSize;
+//				}
+//				if (y1 >= imageHeight - kernelSize) {
+//					y2 = imageHeight - kernelSize - 1;
+//				}
+//				inputRA.setPosition(new int[] { x1, y1 });
+//				imFloatRA.setPosition(new int[] { x2, y2 });
+//				inputRA.get().setReal(imFloatRA.get().getRealDouble() + 0.5 + imMin);
+//			}
+//		}
+//
+//	}
 
 }
