@@ -36,7 +36,7 @@ public class KuwaharaPixelFeature<T extends RealType<T>> extends
 	implements Kuwahara
 {
 
-	// TODO verify results, combine criterion calculation, create initialize
+	// TODO verify results
 
 	@Parameter
 	private int kernelSize;
@@ -58,7 +58,7 @@ public class KuwaharaPixelFeature<T extends RealType<T>> extends
 
 	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> createOp;
 
-	private ArrayList<RandomAccessibleInterval<T>> kernels;
+	private List<RandomAccessibleInterval<T>> kernels;
 
 	// TODO add string to enum for GUI?
 	public enum KuwaharaCriterionMethod {
@@ -69,6 +69,9 @@ public class KuwaharaPixelFeature<T extends RealType<T>> extends
 	public void initialize() {
 		createOp = RAIs.function(ops(), Ops.Create.Img.class, in());
 
+		// TODO unnecessary?
+		kernelWidth = kernelSize;
+		kernelHeight = kernelSize;
 		/*
 		 * create kernel and rotate it
 		 */
@@ -119,7 +122,8 @@ public class KuwaharaPixelFeature<T extends RealType<T>> extends
 			MixedTransformView<T> backtranslated = Views.translate(rotated, offset,
 				offset);
 			IntervalView<T> rotatedKernel = Views.interval(backtranslated, kernel);
-			FinalInterval interval = FinalInterval.createMinMax(3,3,sizeTemp-3,sizeTemp-3);
+			FinalInterval interval = FinalInterval.createMinMax(3, 3, sizeTemp - 3,
+				sizeTemp - 3);
 			IntervalView<T> finalKernel = Views.interval(rotatedKernel, interval);
 
 			// -- KERNEL SYSOUT DEBUG
@@ -148,23 +152,9 @@ public class KuwaharaPixelFeature<T extends RealType<T>> extends
 	public RandomAccessibleInterval<T> calculate(
 		RandomAccessibleInterval<T> input)
 	{
-		// int size = (sizeROI + 1) / 2;
-		// int offset = (sizeROI - 1) / 2;
-		//
-		// float[][] mean = new float[(int)input.dimension(0)][(int)
-		// input.dimension(1)];
-		// float[][] variance = new float[(int)input.dimension(0)][(int)
-		// input.dimension(1)];
-		//
-		// // test
-		// int x1start = offset;
-		// int y1start = offset;
-
-		// TODO all 4 parameters unnecessary?
-		imageWidth = (int) input.dimension(0);
-		imageHeight = (int) input.dimension(1);
-		kernelWidth = kernelSize;
-		kernelHeight = kernelSize;
+		// TODO unnecessary?
+		imageWidth = (int) in().dimension(0);
+		imageHeight = (int) in().dimension(1);
 
 		long[] mins = new long[2];
 		input.min(mins);
@@ -211,22 +201,12 @@ public class KuwaharaPixelFeature<T extends RealType<T>> extends
 			System.out.println(kernelWidth + "|" + kernel.dimension(0));
 
 			i++;
-			// TODO: combine criterion calculation
-			switch (criterionMethod) {
-				case VARIANCE:
-					calculateCriterionVariance(convolved1, convolved2, kernelSum, value,
-						criterion);
-					break;
-				case VARIANCE_DIV_MEAN:
-					calculateCriterionVarianceDivMean(convolved1, convolved2, kernelSum,
-						value, criterion);
-					break;
-				case VARIANCE_DIV_MEAN_SQR:
-					calculateCriterionVarianceDivMean2(convolved1, convolved2, kernelSum,
-						value, criterion);
-					break;
-			}
+
+			calculateCriterion(convolved1, convolved2, kernelSum, value, criterion);
+
+			// maybe inline
 			KuwaharaGM(value, criterion, kernel, resultTemp, resultCriterionTemp);
+			// inline 
 			setResultAndCriterion(result, resultTemp, resultCriterion,
 				resultCriterionTemp);
 		}
@@ -272,6 +252,7 @@ public class KuwaharaPixelFeature<T extends RealType<T>> extends
 		RandomAccess<T> resultRA = result.randomAccess();
 		RandomAccess<T> resultCriterionRA = resultCriterion.randomAccess();
 		RandomAccess<T> valueRA = value.randomAccess();
+		// use interval?
 		for (int x1 = x1min; x1 <= x1max; x1++) {
 			for (int y1 = y1min; y1 <= y1max; y1++) {
 				x2min = x1 - (kernelWidth - 1) / 2;
@@ -285,6 +266,7 @@ public class KuwaharaPixelFeature<T extends RealType<T>> extends
 				y1minPos = y1;
 				Cursor<T> kernelCursor = Views.iterable(kernel).cursor();
 				RandomAccess<T> criterionRA = criterion.randomAccess();
+				// create interval and use cursor on that?
 				for (int y2 = y2min; y2 <= y2max; y2++) {
 					for (int x2 = x2min; x2 <= x2max; x2++) {
 						// if (pixelsKernel[i++] > 0) { // searches for minimal
@@ -358,9 +340,7 @@ public class KuwaharaPixelFeature<T extends RealType<T>> extends
 //		}
 //	}
 
-	// TODO inline kernelSum, combine all three methods based on criterion
-	private final void calculateCriterionVariance(
-		RandomAccessibleInterval<T> imSum,
+	private final void calculateCriterion(RandomAccessibleInterval<T> imSum,
 		RandomAccessibleInterval<T> imSumOfSquares, double kernelSum,
 		RandomAccessibleInterval<T> value, RandomAccessibleInterval<T> criterion)
 	{
@@ -370,87 +350,31 @@ public class KuwaharaPixelFeature<T extends RealType<T>> extends
 		RandomAccess<T> criterionRA = criterion.randomAccess();
 		while (imSumCursor.hasNext()) {
 			imSumCursor.next();
-			long[] pos = new long[2];
-			imSumCursor.localize(pos);
-			imSumOfSquaresRA.setPosition(pos);
-			valueRA.setPosition(pos);
-			criterionRA.setPosition(pos);
-			double temp = imSumCursor.get().getRealDouble() / kernelSum;
-			valueRA.get().setReal(temp);
-			double temp2 = imSumOfSquaresRA.get().getRealDouble() / kernelSum;
-			criterionRA.get().setReal(temp2 - (Math.pow(temp, 2)));
-		}
-		// for (int x1 = 0; x1 < imageWidth; x1++) {
-		// for (int y1 = 0; y1 < imageHeight; y1++) {
-		// value[x1][y1] = imSum[x1][y1] / kernelSum;
-		// criterion[x1][y1] = imSumOfSquares[x1][y1] / kernelSum -
-		// value[x1][y1] *
-		// value[x1][y1];
-		// }
-		// }
-	}
-
-	private final void calculateCriterionVarianceDivMean(
-		RandomAccessibleInterval<T> imSum,
-		RandomAccessibleInterval<T> imSumOfSquares, double kernelSum,
-		RandomAccessibleInterval<T> value, RandomAccessibleInterval<T> criterion)
-	{
-		Cursor<T> imSumCursor = Views.iterable(imSum).cursor();
-		RandomAccess<T> imSumOfSquaresRA = imSumOfSquares.randomAccess();
-		RandomAccess<T> valueRA = value.randomAccess();
-		RandomAccess<T> criterionRA = criterion.randomAccess();
-		while (imSumCursor.hasNext()) {
-			imSumCursor.next();
-			long[] pos = new long[2];
-			imSumCursor.localize(pos);
-			imSumOfSquaresRA.setPosition(pos);
-			valueRA.setPosition(pos);
-			criterionRA.setPosition(pos);
-			double temp = imSumCursor.get().getRealDouble() / kernelSum;
-			valueRA.get().setReal(temp);
-			double temp2 = (imSumOfSquaresRA.get().getRealDouble() / kernelSum) -
-				(Math.pow(temp, 2)) / (temp + Float.MIN_VALUE);
-			criterionRA.get().setReal(temp2);
-
-			// for (int x1 = 0; x1 < imageWidth; x1++) {
-			// for (int y1 = 0; y1 < imageHeight; y1++) {
-			// value[x1][y1] = imSum[x1][y1] / kernelSum;
-			// criterion[x1][y1] = (imSumOfSquares[x1][y1] / kernelSum -
-			// value[x1][y1] * value[x1][y1]) / (value[x1][y1] +
-			// Float.MIN_VALUE);
-			// }
-		}
-	}
-
-	private final void calculateCriterionVarianceDivMean2(
-		RandomAccessibleInterval<T> imSum,
-		RandomAccessibleInterval<T> imSumOfSquares, double kernelSum,
-		RandomAccessibleInterval<T> value, RandomAccessibleInterval<T> criterion)
-	{
-		Cursor<T> imSumCursor = Views.iterable(imSum).cursor();
-		RandomAccess<T> imSumOfSquaresRA = imSumOfSquares.randomAccess();
-		RandomAccess<T> valueRA = value.randomAccess();
-		RandomAccess<T> criterionRA = criterion.randomAccess();
-		while (imSumCursor.hasNext()) {
-			imSumCursor.next();
-			long[] pos = new long[2];
-			imSumCursor.localize(pos);
-			imSumOfSquaresRA.setPosition(pos);
-			valueRA.setPosition(pos);
-			criterionRA.setPosition(pos);
-			double temp = imSumCursor.get().getRealDouble() / kernelSum;
-			valueRA.get().setReal(temp);
-			double temp2 = (imSumOfSquaresRA.get().getRealDouble() / kernelSum) -
-				(Math.pow(temp, 2)) / (Math.pow(temp, 2) + Float.MIN_VALUE);
-			criterionRA.get().setReal(temp2);
-
-			// for (int x1 = 0; x1 < imageWidth; x1++) {
-			// for (int y1 = 0; y1 < imageHeight; y1++) {
-			// value[x1][y1] = imSum[x1][y1] / kernelSum;
-			// criterion[x1][y1] = (imSumOfSquares[x1][y1] / kernelSum -
-			// value[x1][y1] * value[x1][y1]) / (value[x1][y1] * value[x1][y1] +
-			// Float.MIN_VALUE);
-			// }
+//			long[] pos = new long[2];
+//			imSumCursor.localize(pos);
+			imSumOfSquaresRA.setPosition(imSumCursor);
+			valueRA.setPosition(imSumCursor);
+			criterionRA.setPosition(imSumCursor);
+			double tempValue = imSumCursor.get().getRealDouble() / kernelSum;
+			double tempCriterion = 0.0d;
+			switch (criterionMethod) {
+				case VARIANCE:
+//					temp = imSumCursor.get().getRealDouble() / kernelSum;
+					tempCriterion = imSumOfSquaresRA.get().getRealDouble() / kernelSum - Math.pow(tempValue, 2);
+					break;
+				case VARIANCE_DIV_MEAN:
+//					temp = imSumCursor.get().getRealDouble() / kernelSum;
+					tempCriterion = (imSumOfSquaresRA.get().getRealDouble() / kernelSum) - (Math
+						.pow(tempValue, 2)) / (tempValue + Float.MIN_VALUE);
+					break;
+				case VARIANCE_DIV_MEAN_SQR:
+//					temp = imSumCursor.get().getRealDouble() / kernelSum;
+					tempCriterion = (imSumOfSquaresRA.get().getRealDouble() / kernelSum) - (Math
+						.pow(tempValue, 2)) / (Math.pow(tempValue, 2) + Float.MIN_VALUE);
+					break;
+			}
+			valueRA.get().setReal(tempValue);
+			criterionRA.get().setReal(tempCriterion - (Math.pow(tempValue, 2)));
 		}
 	}
 
