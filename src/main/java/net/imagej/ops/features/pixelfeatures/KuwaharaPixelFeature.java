@@ -15,6 +15,7 @@ import net.imagej.ops.special.function.AbstractUnaryFunctionOp;
 import net.imagej.ops.special.function.Functions;
 import net.imagej.ops.special.function.UnaryFunctionOp;
 import net.imglib2.Cursor;
+import net.imglib2.FinalInterval;
 import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
@@ -118,6 +119,8 @@ public class KuwaharaPixelFeature<T extends RealType<T>> extends
 			MixedTransformView<T> backtranslated = Views.translate(rotated, offset,
 				offset);
 			IntervalView<T> rotatedKernel = Views.interval(backtranslated, kernel);
+			FinalInterval interval = FinalInterval.createMinMax(3,3,sizeTemp-3,sizeTemp-3);
+			IntervalView<T> finalKernel = Views.interval(rotatedKernel, interval);
 
 			// -- KERNEL SYSOUT DEBUG
 //			System.out.println("Begin-Kernel--------------" + i);
@@ -137,7 +140,7 @@ public class KuwaharaPixelFeature<T extends RealType<T>> extends
 //			}
 //			System.out.println("End-Kernel--------------");
 
-			kernels.add(rotatedKernel);
+			kernels.add(finalKernel);
 		}
 	}
 
@@ -262,7 +265,7 @@ public class KuwaharaPixelFeature<T extends RealType<T>> extends
 		y1min = (kernelHeight - 1) / 2;
 		y1max = imageHeight - (kernelHeight - 1) / 2 - 1;
 
-		int sum1, sum2, n, i;
+//		int sum1, sum2, n, i;
 
 		int x1minPos, y1minPos;
 		double min;
@@ -275,8 +278,8 @@ public class KuwaharaPixelFeature<T extends RealType<T>> extends
 				x2max = x1 + (kernelWidth - 1) / 2;
 				y2min = y1 - (kernelHeight - 1) / 2;
 				y2max = y1 + (kernelHeight - 1) / 2;
-				i = 0;
-				n = 0;
+//				i = 0;
+//				n = 0;
 				min = Double.MAX_VALUE;
 				x1minPos = x1;
 				y1minPos = y1;
@@ -297,7 +300,7 @@ public class KuwaharaPixelFeature<T extends RealType<T>> extends
 									min = criterionRA.get().getRealDouble();
 									x1minPos = x2;
 									y1minPos = y2;
-									n++;
+//									n++;
 								}
 							}
 						}
