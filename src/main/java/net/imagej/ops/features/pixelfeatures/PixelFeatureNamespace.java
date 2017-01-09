@@ -4,6 +4,7 @@ package net.imagej.ops.features.pixelfeatures;
 import net.imagej.ops.AbstractNamespace;
 import net.imagej.ops.Namespace;
 import net.imagej.ops.OpMethod;
+import net.imagej.ops.features.pixelfeatures.LinearKuwaharaPixelFeature.KuwaharaCriterionMethod;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.composite.CompositeIntervalView;
@@ -21,169 +22,150 @@ public class PixelFeatureNamespace extends AbstractNamespace {
 
 	// -- difference of gaussian --
 	@OpMethod(op = net.imagej.ops.features.pixelfeatures.DoGPixelFeature.class)
-	public <T extends RealType<T>> CompositeIntervalView<T, RealComposite<T>> doG(
-		final RandomAccessibleInterval<T> in, final double minSigma,
-		final double maxSigma)
-	{
+	public <T extends RealType<T>> CompositeIntervalView<T, RealComposite<T>> doG(final RandomAccessibleInterval<T> in,
+			final double minSigma, final double maxSigma) {
 		@SuppressWarnings("unchecked")
-		final CompositeIntervalView<T, RealComposite<T>> result =
-			(CompositeIntervalView<T, RealComposite<T>>) ops().run(
-				net.imagej.ops.features.pixelfeatures.DoGPixelFeature.class, in,
-				minSigma, maxSigma);
+		final CompositeIntervalView<T, RealComposite<T>> result = (CompositeIntervalView<T, RealComposite<T>>) ops()
+				.run(net.imagej.ops.features.pixelfeatures.DoGPixelFeature.class, in, minSigma, maxSigma);
 		return result;
 	}
 
 	// -- gaussian --
 
 	@OpMethod(op = net.imagej.ops.features.pixelfeatures.GaussPixelFeature.class)
-	public <T extends RealType<T>> CompositeIntervalView<T, RealComposite<T>>
-		gaussian(final RandomAccessibleInterval<T> in, final double minSigma,
-			final double maxSigma)
-	{
+	public <T extends RealType<T>> CompositeIntervalView<T, RealComposite<T>> gaussian(
+			final RandomAccessibleInterval<T> in, final double minSigma, final double maxSigma) {
 		@SuppressWarnings("unchecked")
-		final CompositeIntervalView<T, RealComposite<T>> result =
-			(CompositeIntervalView<T, RealComposite<T>>) ops().run(
-				net.imagej.ops.features.pixelfeatures.GaussPixelFeature.class, in,
-				minSigma, maxSigma);
+		final CompositeIntervalView<T, RealComposite<T>> result = (CompositeIntervalView<T, RealComposite<T>>) ops()
+				.run(net.imagej.ops.features.pixelfeatures.GaussPixelFeature.class, in, minSigma, maxSigma);
 		return result;
 	}
 
 	// -- gaussian gradient magnitude --
 
-	@OpMethod(
-		op = net.imagej.ops.features.pixelfeatures.GaussianGradientMagnitudePixelFeature.class)
-	public <T extends RealType<T>> CompositeIntervalView<T, RealComposite<T>>
-		gaussianGradientMagnitude(final RandomAccessibleInterval<T> in,
-			final double minSigma, final double maxSigma)
-	{
+	@OpMethod(op = net.imagej.ops.features.pixelfeatures.GaussianGradientMagnitudePixelFeature.class)
+	public <T extends RealType<T>> CompositeIntervalView<T, RealComposite<T>> gaussianGradientMagnitude(
+			final RandomAccessibleInterval<T> in, final double minSigma, final double maxSigma) {
 		@SuppressWarnings("unchecked")
-		final CompositeIntervalView<T, RealComposite<T>> result =
-			(CompositeIntervalView<T, RealComposite<T>>) ops().run(
-				net.imagej.ops.features.pixelfeatures.GaussianGradientMagnitudePixelFeature.class,
-				in, minSigma, maxSigma);
+		final CompositeIntervalView<T, RealComposite<T>> result = (CompositeIntervalView<T, RealComposite<T>>) ops()
+				.run(net.imagej.ops.features.pixelfeatures.GaussianGradientMagnitudePixelFeature.class, in, minSigma,
+						maxSigma);
 		return result;
 	}
 
 	// -- hessian --
 
-	@OpMethod(
-		op = net.imagej.ops.features.pixelfeatures.HessianPixelFeature.class)
-	public <T extends RealType<T>> CompositeIntervalView<T, RealComposite<T>>
-		hessian(final RandomAccessibleInterval<T> in, final double minSigma,
-			final double maxSigma)
-	{
+	@OpMethod(op = net.imagej.ops.features.pixelfeatures.HessianPixelFeature.class)
+	public <T extends RealType<T>> CompositeIntervalView<T, RealComposite<T>> hessian(
+			final RandomAccessibleInterval<T> in, final double minSigma, final double maxSigma) {
 		@SuppressWarnings("unchecked")
-		final CompositeIntervalView<T, RealComposite<T>> result =
-			(CompositeIntervalView<T, RealComposite<T>>) ops().run(
-				net.imagej.ops.features.pixelfeatures.HessianPixelFeature.class, in,
-				minSigma, maxSigma);
+		final CompositeIntervalView<T, RealComposite<T>> result = (CompositeIntervalView<T, RealComposite<T>>) ops()
+				.run(net.imagej.ops.features.pixelfeatures.HessianPixelFeature.class, in, minSigma, maxSigma);
 		return result;
 	}
 
-	@OpMethod(
-		op = net.imagej.ops.features.pixelfeatures.KuwaharaPixelFeature.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> kuwaharaFilter(
-		final RandomAccessibleInterval<T> in, int size, int numberOfAngles)
-	{
-		final RandomAccessibleInterval<T> result =
-			(RandomAccessibleInterval<T>) ops().run(
-				net.imagej.ops.features.pixelfeatures.KuwaharaPixelFeature.class, in,
-				size, numberOfAngles);
+	// -- kuwahara --
+
+	@OpMethod(op = net.imagej.ops.features.pixelfeatures.LinearKuwaharaPixelFeature.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> linearKuwaharaFilter(
+			final RandomAccessibleInterval<T> in, final int kernelSize, final int numberOfAngles) {
+		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops().run(
+				net.imagej.ops.features.pixelfeatures.LinearKuwaharaPixelFeature.class, in, kernelSize, numberOfAngles);
+		return result;
+	}
+
+	@OpMethod(op = net.imagej.ops.features.pixelfeatures.LinearKuwaharaPixelFeature.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> linearKuwaharaFilter(
+			final RandomAccessibleInterval<T> in, final int kernelSize, final int numberOfAngles,
+			final KuwaharaCriterionMethod criterionMethod) {
+		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval) ops().run(
+				net.imagej.ops.features.pixelfeatures.LinearKuwaharaPixelFeature.class, in, kernelSize, numberOfAngles,
+				criterionMethod);
+		return result;
+	}
+
+	@OpMethod(op = net.imagej.ops.features.pixelfeatures.SquareKuwaharaPixelFeature.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> squareKuwaharaFilter(
+			final RandomAccessibleInterval<T> in, final int kernelSize) {
+		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
+				.run(net.imagej.ops.features.pixelfeatures.SquareKuwaharaPixelFeature.class, in, kernelSize);
 		return result;
 	}
 
 	// -- laplacian of gaussian --
 
 	@OpMethod(op = net.imagej.ops.features.pixelfeatures.LoGPixelFeature.class)
-	public <T extends RealType<T>> CompositeIntervalView<T, RealComposite<T>> loG(
-		final RandomAccessibleInterval<T> in, final double minSigma,
-		final double maxSigma)
-	{
+	public <T extends RealType<T>> CompositeIntervalView<T, RealComposite<T>> loG(final RandomAccessibleInterval<T> in,
+			final double minSigma, final double maxSigma) {
 		@SuppressWarnings("unchecked")
-		final CompositeIntervalView<T, RealComposite<T>> result =
-			(CompositeIntervalView<T, RealComposite<T>>) ops().run(
-				net.imagej.ops.features.pixelfeatures.LoGPixelFeature.class, in,
-				minSigma, maxSigma);
+		final CompositeIntervalView<T, RealComposite<T>> result = (CompositeIntervalView<T, RealComposite<T>>) ops()
+				.run(net.imagej.ops.features.pixelfeatures.LoGPixelFeature.class, in, minSigma, maxSigma);
 		return result;
 	}
 
 	// -- max --
 
-	@OpMethod(
-		op = net.imagej.ops.features.pixelfeatures.RectangleMaxPixelFeature.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> max(
-		final RandomAccessibleInterval<T> in, final int span)
-	{
+	@OpMethod(op = net.imagej.ops.features.pixelfeatures.RectangleMaxPixelFeature.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> max(final RandomAccessibleInterval<T> in,
+			final int span) {
 		@SuppressWarnings("unchecked")
-		final RandomAccessibleInterval<T> result =
-			(RandomAccessibleInterval<T>) ops().run(
-				net.imagej.ops.features.pixelfeatures.RectangleMaxPixelFeature.class,
-				in, span);
+		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
+				.run(net.imagej.ops.features.pixelfeatures.RectangleMaxPixelFeature.class, in, span);
 		return result;
 	}
 
 	// -- mean --
 
-	@OpMethod(
-		op = net.imagej.ops.features.pixelfeatures.RectangleMeanPixelFeature.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> mean(
-		final RandomAccessibleInterval<T> in, final int span)
-	{
+	@OpMethod(op = net.imagej.ops.features.pixelfeatures.RectangleMeanPixelFeature.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> mean(final RandomAccessibleInterval<T> in,
+			final int span) {
 		@SuppressWarnings("unchecked")
-		final RandomAccessibleInterval<T> result =
-			(RandomAccessibleInterval<T>) ops().run(
-				net.imagej.ops.features.pixelfeatures.RectangleMeanPixelFeature.class,
-				in, span);
+		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
+				.run(net.imagej.ops.features.pixelfeatures.RectangleMeanPixelFeature.class, in, span);
 		return result;
 	}
 
 	// -- min --
 
-	@OpMethod(
-		op = net.imagej.ops.features.pixelfeatures.RectangleMinPixelFeature.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> min(
-		final RandomAccessibleInterval<T> in, final int span)
-	{
+	@OpMethod(op = net.imagej.ops.features.pixelfeatures.RectangleMinPixelFeature.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> min(final RandomAccessibleInterval<T> in,
+			final int span) {
 		@SuppressWarnings("unchecked")
-		final RandomAccessibleInterval<T> result =
-			(RandomAccessibleInterval<T>) ops().run(
-				net.imagej.ops.features.pixelfeatures.RectangleMinPixelFeature.class,
-				in, span);
+		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
+				.run(net.imagej.ops.features.pixelfeatures.RectangleMinPixelFeature.class, in, span);
 		return result;
 	}
 
-	@OpMethod(
-		op = net.imagej.ops.features.pixelfeatures.StructureTensorEigenvaluesPixelFeature.class)
-	public <T extends RealType<T>> CompositeIntervalView<T, RealComposite<T>>
-		structureTensor(final RandomAccessibleInterval<T> in, final double sigma)
-	{
+	@OpMethod(op = net.imagej.ops.features.pixelfeatures.StructureTensorEigenvaluesPixelFeature.class)
+	public <T extends RealType<T>> CompositeIntervalView<T, RealComposite<T>> structureTensor(
+			final RandomAccessibleInterval<T> in, final double sigma) {
 		@SuppressWarnings("unchecked")
-		final CompositeIntervalView<T, RealComposite<T>> result =
-			(CompositeIntervalView<T, RealComposite<T>>) ops().run(
-				net.imagej.ops.features.pixelfeatures.StructureTensorEigenvaluesPixelFeature.class,
-				in, sigma);
+		final CompositeIntervalView<T, RealComposite<T>> result = (CompositeIntervalView<T, RealComposite<T>>) ops()
+				.run(net.imagej.ops.features.pixelfeatures.StructureTensorEigenvaluesPixelFeature.class, in, sigma);
 		return result;
 	}
 
-	@OpMethod(
-		op = net.imagej.ops.features.pixelfeatures.LipschitzPixelFeature.class)
-	public <T extends RealType<T>> CompositeIntervalView<T, RealComposite<T>>
-		lipschitzFeature(final RandomAccessibleInterval<T> in)
-	{
-		final CompositeIntervalView<T, RealComposite<T>> result =
-			(CompositeIntervalView<T, RealComposite<T>>) ops().run(
-				net.imagej.ops.features.pixelfeatures.LipschitzPixelFeature.class, in);
+	@OpMethod(op = net.imagej.ops.features.pixelfeatures.LipschitzPixelFeature.class)
+	public <T extends RealType<T>> CompositeIntervalView<T, RealComposite<T>> lipschitzFeature(
+			final RandomAccessibleInterval<T> in) {
+		final CompositeIntervalView<T, RealComposite<T>> result = (CompositeIntervalView<T, RealComposite<T>>) ops()
+				.run(net.imagej.ops.features.pixelfeatures.LipschitzPixelFeature.class, in);
 		return result;
 	}
 
 	@OpMethod(op = net.imagej.ops.features.pixelfeatures.MembraneProjection.class)
-	public <T extends RealType<T>> CompositeIntervalView<T, RealComposite<T>>
-		membraneProjections(final RandomAccessibleInterval<T> in)
-	{
-		final CompositeIntervalView<T, RealComposite<T>> result =
-			(CompositeIntervalView<T, RealComposite<T>>) ops().run(
-				net.imagej.ops.features.pixelfeatures.MembraneProjection.class, in);
+	public <T extends RealType<T>> CompositeIntervalView<T, RealComposite<T>> membraneProjections(
+			final RandomAccessibleInterval<T> in) {
+		final CompositeIntervalView<T, RealComposite<T>> result = (CompositeIntervalView<T, RealComposite<T>>) ops()
+				.run(net.imagej.ops.features.pixelfeatures.MembraneProjection.class, in);
 		return result;
 	}
 
+	@OpMethod(op = net.imagej.ops.features.pixelfeatures.BilateralFilter.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> bilateralFilter(final RandomAccessibleInterval<T> in, final double spatialRadius, final double rangeRadius, final int radius) {
+		final RandomAccessibleInterval<T> result =
+			(RandomAccessibleInterval<T>) ops().run(net.imagej.ops.features.pixelfeatures.BilateralFilter.class, in, spatialRadius, rangeRadius, radius);
+		return result;
+	}
+	
 }

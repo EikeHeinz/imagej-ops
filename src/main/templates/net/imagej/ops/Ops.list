@@ -330,6 +330,7 @@ namespaces = ```
 	    [name: "squareKuwaharaFilter",			 iface: "SquareKuwahara"],
 	    [name: "lipschitzFeature",               iface: "LipschitzPixFeature"],
 	    [name: "membraneProjections",            iface: "MembraneProjections"],
+	    [name: "bilateralFilter",                iface: "BilateralFilter"],
     ]],
 	[name: "stats", iface: "Stats", ops: [
 		[name: "geometricMean",                  iface: "GeometricMean"],
