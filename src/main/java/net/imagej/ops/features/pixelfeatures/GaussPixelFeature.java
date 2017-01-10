@@ -23,7 +23,7 @@ import net.imglib2.view.composite.RealComposite;
 @Plugin(type = Ops.Pixelfeatures.GaussPixelFeature.class,
 	name = Ops.Pixelfeatures.GaussPixelFeature.NAME)
 public class GaussPixelFeature<T extends RealType<T>> extends
-	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, CompositeIntervalView<T, RealComposite<T>>>
+	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
 	implements Ops.Pixelfeatures.GaussPixelFeature
 {
 
@@ -49,7 +49,7 @@ public class GaussPixelFeature<T extends RealType<T>> extends
 	}
 
 	@Override
-	public CompositeIntervalView<T, RealComposite<T>> calculate(
+	public RandomAccessibleInterval<T> calculate(
 		RandomAccessibleInterval<T> input)
 	{
 
@@ -61,7 +61,7 @@ public class GaussPixelFeature<T extends RealType<T>> extends
 			blurredImgs.add(gaussOp.calculate(extendedIn));
 		}
 
-		return Views.collapseReal(Views.stack(blurredImgs));
+		return Views.stack(blurredImgs);
 	}
 
 }

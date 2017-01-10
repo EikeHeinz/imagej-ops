@@ -4,6 +4,7 @@ import static org.junit.Assert.fail;
 
 import net.imagej.ops.AbstractOpTest;
 import net.imglib2.Cursor;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.FloatType;
@@ -41,19 +42,19 @@ public class MembraneProjectionsTest extends AbstractOpTest {
 			}
 		}
 		
-		CompositeIntervalView<FloatType, RealComposite<FloatType>> out = ops.pixelfeature().membraneProjections(img);
-		Cursor<RealComposite<FloatType>> outCursor = Views.iterable(out).cursor();
+		RandomAccessibleInterval<FloatType> out = ops.pixelfeature().membraneProjections(img);
+		Cursor<FloatType> outCursor = Views.iterable(out).cursor();
 		System.out.println("OUTPUT---------------------");
 		while(outCursor.hasNext()) {
-			RealComposite<FloatType> composite = outCursor.next();
+			FloatType composite = outCursor.next();
 			String values = "";
-			for(FloatType value: composite) {
-				values += value +"|";
-			}
-			System.out.println(values);
+//			for(FloatType value: composite) {
+//				values += value +"|";
+//			}
+			System.out.println(composite);
 		}
 				
-		fail("Not yet implemented");
+//		fail("Not yet implemented");
 	}
 
 }

@@ -23,7 +23,7 @@ import org.scijava.plugin.Plugin;
 	name = Ops.Pixelfeatures.GaussianGradientMagnitudePixelFeature.NAME)
 public class GaussianGradientMagnitudePixelFeature<T extends RealType<T>>
 	extends
-	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, CompositeIntervalView<T, RealComposite<T>>>
+	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
 	implements Ops.Pixelfeatures.GaussianGradientMagnitudePixelFeature
 {
 
@@ -53,7 +53,7 @@ public class GaussianGradientMagnitudePixelFeature<T extends RealType<T>>
 	}
 
 	@Override
-	public CompositeIntervalView<T, RealComposite<T>> calculate(
+	public RandomAccessibleInterval<T> calculate(
 		RandomAccessibleInterval<T> input)
 	{
 		RandomAccessibleInterval<T> extended = Views.interval(Views
@@ -69,6 +69,6 @@ public class GaussianGradientMagnitudePixelFeature<T extends RealType<T>>
 			results.add(sobelOp.calculate(blurredImg));
 		}
 
-		return Views.collapseReal(Views.stack(results));
+		return Views.stack(results);
 	}
 }

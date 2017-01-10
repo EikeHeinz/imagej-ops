@@ -5,6 +5,7 @@ import net.imagej.ops.Ops;
 import net.imagej.ops.Ops.Pixelfeatures.SquareKuwahara;
 import net.imagej.ops.special.chain.RAIs;
 import net.imagej.ops.special.function.AbstractUnaryFunctionOp;
+import net.imagej.ops.special.function.Functions;
 import net.imagej.ops.special.function.UnaryFunctionOp;
 import net.imglib2.Cursor;
 import net.imglib2.FinalInterval;
@@ -28,11 +29,21 @@ public class SquareKuwaharaPixelFeature<T extends RealType<T>> extends
 
 	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> createOp;
 
+	@SuppressWarnings("rawtypes")
+	private UnaryFunctionOp<IntervalView, RealType> meanOp;
+
+	@SuppressWarnings("rawtypes")
+	private UnaryFunctionOp<IntervalView, RealType> stdDevOp;
+
+
 	@Override
 	public void initialize() {
 		createOp = RAIs.function(ops(), Ops.Create.Img.class, in());
+		meanOp = Functions.unary(ops(), Ops.Stats.Mean.class, RealType.class, IntervalView.class);
+		stdDevOp = Functions.unary(ops(), Ops.Stats.StdDev.class, RealType.class, IntervalView.class);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public RandomAccessibleInterval<T> calculate(
 		RandomAccessibleInterval<T> input)
@@ -53,35 +64,35 @@ public class SquareKuwaharaPixelFeature<T extends RealType<T>> extends
 			FinalInterval region1Interval = FinalInterval.createMinMax(position[0] -
 				halfsize, position[1] - halfsize, position[0], position[1]);
 			IntervalView<T> region1 = Views.interval(extendedInput, region1Interval);
-			T mean1 = ops().stats().mean(region1);
-			T stddev1 = ops().stats().stdDev(region1);
+			 RealType<T> mean1 = meanOp.calculate(region1);
+			 RealType<T> stddev1 = stdDevOp.calculate(region1);
 
 			// REGION 2
 			FinalInterval region2Interval = FinalInterval.createMinMax(position[0],
 				position[1] - halfsize, position[0] + halfsize, position[1]);
 			IntervalView<T> region2 = Views.interval(extendedInput, region2Interval);
-			T mean2 = ops().stats().mean(region2);
-			T stddev2 = ops().stats().stdDev(region2);
+			RealType<T> mean2 = meanOp.calculate(region2);
+			RealType<T> stddev2 = stdDevOp.calculate(region2);
 
 			// REGION 3
 			FinalInterval region3Interval = FinalInterval.createMinMax(position[0] -
 				halfsize, position[1], position[0], position[1]+halfsize);
 			IntervalView<T> region3 = Views.interval(extendedInput, region3Interval);
-			T mean3 = ops().stats().mean(region3);
-			T stddev3 = ops().stats().stdDev(region3);
+			RealType<T> mean3 = meanOp.calculate(region3);
+			RealType<T> stddev3 = stdDevOp.calculate(region3);
 
 			// REGION 4
 			FinalInterval region4Interval = FinalInterval.createMinMax(position[0],
 				position[1], position[0] + halfsize, position[1] + halfsize);
 			IntervalView<T> region4 = Views.interval(extendedInput, region4Interval);
-			T mean4 = ops().stats().mean(region4);
-			T stddev4 = ops().stats().stdDev(region4);
+			RealType<T> mean4 = meanOp.calculate(region4);
+			RealType<T> stddev4 = stdDevOp.calculate(region4);
 
-			T minCandidate1 = (stddev1.getRealDouble() < stddev2.getRealDouble())
+			RealType<T> minCandidate1 = (stddev1.getRealDouble() < stddev2.getRealDouble())
 				? stddev1 : stddev2;
-			T minCandidate2 = (stddev3.getRealDouble() < stddev4.getRealDouble())
+			RealType<T> minCandidate2 = (stddev3.getRealDouble() < stddev4.getRealDouble())
 				? stddev3 : stddev4;
-			T minStdDev = (minCandidate1.getRealDouble() < minCandidate2
+			RealType<T> minStdDev = (minCandidate1.getRealDouble() < minCandidate2
 				.getRealDouble()) ? minCandidate1 : minCandidate2;
 
 			outputRA.setPosition(inputCursor);

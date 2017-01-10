@@ -25,7 +25,7 @@ import org.scijava.plugin.Plugin;
 @Plugin(type = Ops.Pixelfeatures.HessianPixelFeature.class,
 	name = Ops.Pixelfeatures.HessianPixelFeature.NAME)
 public class HessianPixelFeature<T extends RealType<T>> extends
-	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, CompositeIntervalView<T, RealComposite<T>>>
+	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
 	implements Ops.Pixelfeatures.HessianPixelFeature
 {
 
@@ -60,7 +60,7 @@ public class HessianPixelFeature<T extends RealType<T>> extends
 
 	@SuppressWarnings({ "unchecked" })
 	@Override
-	public CompositeIntervalView<T, RealComposite<T>> calculate(
+	public RandomAccessibleInterval<T> calculate(
 		RandomAccessibleInterval<T> input)
 	{
 		List<CompositeIntervalView<T, RealComposite<T>>> blurredHessianMatrices =
@@ -207,6 +207,6 @@ public class HessianPixelFeature<T extends RealType<T>> extends
 		}
 
 		RandomAccessibleInterval<T> stacked = Views.stack(results);
-		return Views.collapseReal(stacked);
+		return stacked;
 	}
 }

@@ -22,7 +22,7 @@ import org.scijava.plugin.Plugin;
 @Plugin(type = Ops.Pixelfeatures.LoGPixelFeature.class,
 	name = Ops.Pixelfeatures.LoGPixelFeature.NAME)
 public class LoGPixelFeature<T extends RealType<T>> extends
-	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, CompositeIntervalView<T, RealComposite<T>>>
+	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
 	implements Ops.Pixelfeatures.LoGPixelFeature
 {
 
@@ -51,7 +51,7 @@ public class LoGPixelFeature<T extends RealType<T>> extends
 	}
 
 	@Override
-	public CompositeIntervalView<T, RealComposite<T>> calculate(
+	public RandomAccessibleInterval<T> calculate(
 		RandomAccessibleInterval<T> input)
 	{
 		List<RandomAccessibleInterval<T>> results = new ArrayList<>();
@@ -59,7 +59,7 @@ public class LoGPixelFeature<T extends RealType<T>> extends
 			results.add(loGOp.calculate(Views.interval(Views.extendMirrorDouble(
 				input), input)));
 		}
-		return Views.collapseReal(Views.stack(results));
+		return Views.stack(results);
 	}
 
 }

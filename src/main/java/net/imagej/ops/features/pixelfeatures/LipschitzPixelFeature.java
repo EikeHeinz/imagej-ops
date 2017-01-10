@@ -19,7 +19,7 @@ import org.scijava.plugin.Plugin;
 
 @Plugin(type = Ops.Pixelfeatures.LipschitzPixFeature.class)
 public class LipschitzPixelFeature<T extends RealType<T>> extends
-	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, CompositeIntervalView<T, RealComposite<T>>>
+	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
 	implements LipschitzPixFeature
 {
 
@@ -30,7 +30,7 @@ public class LipschitzPixelFeature<T extends RealType<T>> extends
 	private double m_Slope = 5; // slope
 
 	@Override
-	public CompositeIntervalView<T, RealComposite<T>> calculate(
+	public RandomAccessibleInterval<T> calculate(
 		RandomAccessibleInterval<T> input)
 	{
 
@@ -44,7 +44,7 @@ public class LipschitzPixelFeature<T extends RealType<T>> extends
 				input)));
 		}
 
-		return Views.collapseReal(Views.stack(filtered));
+		return Views.stack(filtered);
 	}
 
 	static int ImageHeight;
@@ -126,6 +126,7 @@ public class LipschitzPixelFeature<T extends RealType<T>> extends
 
 					// is never accessed (with current test img)
 					if (p > p2) {
+						System.out.println("entered");
 						xPos = x;
 						yPos = y;
 						destPixelsOpsRA.setPosition(new int[] { xPos, yPos });
@@ -170,6 +171,7 @@ public class LipschitzPixelFeature<T extends RealType<T>> extends
 
 					// is never accessed (with current test img)
 					if (p > p2) {
+						System.out.println("entered");
 						xPos = x;
 						yPos = y;
 						destPixelsOpsRA.setPosition(new int[] { xPos, yPos });

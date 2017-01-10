@@ -61,6 +61,12 @@ public class LinearKuwaharaPixelFeature<T extends RealType<T>> extends
 			VARIANCE, VARIANCE_DIV_MEAN, VARIANCE_DIV_MEAN_SQR
 	}
 
+	public KuwaharaCriterionMethod[] getAvailableMethods() {
+		return new KuwaharaCriterionMethod[] { KuwaharaCriterionMethod.VARIANCE,
+			KuwaharaCriterionMethod.VARIANCE_DIV_MEAN,
+			KuwaharaCriterionMethod.VARIANCE_DIV_MEAN_SQR };
+	}
+
 	@Override
 	public void initialize() {
 		createOp = RAIs.function(ops(), Ops.Create.Img.class, in());

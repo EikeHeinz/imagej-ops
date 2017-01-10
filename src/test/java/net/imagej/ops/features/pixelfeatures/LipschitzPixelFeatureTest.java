@@ -3,8 +3,11 @@ package net.imagej.ops.features.pixelfeatures;
 
 import static org.junit.Assert.*;
 
+import java.util.Random;
+
 import net.imagej.ops.AbstractOpTest;
 import net.imglib2.Cursor;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.view.Views;
@@ -42,16 +45,16 @@ public class LipschitzPixelFeatureTest extends AbstractOpTest {
 			}
 		}
 
-		CompositeIntervalView<FloatType, RealComposite<FloatType>> out = ops
-			.pixelfeature().lipschitzFeature(img);
-		Cursor<RealComposite<FloatType>> outCursor = Views.iterable(out).cursor();
+		RandomAccessibleInterval<FloatType> out = ops.pixelfeature()
+			.lipschitzFeature(img);
+		Cursor<FloatType> outCursor = Views.iterable(out).cursor();
 		while (outCursor.hasNext()) {
 			String values = "";
-			RealComposite<FloatType> comp = outCursor.next();
-			for (FloatType value : comp) {
-				values += value + "|";
-			}
-			System.out.println(values);
+			FloatType comp = outCursor.next();
+//			for (FloatType value : comp) {
+//				values += value + "|";
+//			}
+			System.out.println(comp);
 		}
 
 		fail("Not yet implemented");

@@ -27,7 +27,7 @@ import org.scijava.plugin.Plugin;
 @Plugin(type = Ops.Pixelfeatures.StructureTensor.class)
 public class StructureTensorEigenvaluesPixelFeature<T extends RealType<T>>
 	extends
-	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, CompositeIntervalView<T, RealComposite<T>>>
+	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
 	implements StructureTensor
 {
 
@@ -60,7 +60,7 @@ public class StructureTensorEigenvaluesPixelFeature<T extends RealType<T>>
 	}
 
 	@Override
-	public CompositeIntervalView<T, RealComposite<T>> calculate(
+	public RandomAccessibleInterval<T> calculate(
 		RandomAccessibleInterval<T> input)
 	{
 		RandomAccessibleInterval<T> derivativeX = derivativeComputerX.calculate(
@@ -113,7 +113,7 @@ public class StructureTensorEigenvaluesPixelFeature<T extends RealType<T>>
 
 		}
 
-		return Views.collapseReal(Views.stack(largeEigenvalues, smallEigenvalues));
+		return Views.stack(largeEigenvalues, smallEigenvalues);
 	}
 
 }

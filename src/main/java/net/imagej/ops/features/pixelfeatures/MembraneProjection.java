@@ -33,9 +33,11 @@ import Jama.Matrix;
 
 @Plugin(type = Ops.Pixelfeatures.MembraneProjections.class)
 public class MembraneProjection<T extends RealType<T>> extends
-	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, CompositeIntervalView<T, RealComposite<T>>>
+	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
 	implements MembraneProjections
 {
+	
+	// membrane thickness, patchsize?
 
 	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>[] convolveOps;
 	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> createRAI;
@@ -89,7 +91,7 @@ public class MembraneProjection<T extends RealType<T>> extends
 				rotationTransform);
 
 			MixedTransformView<T> backtranslated = Views.translate(rotated, 9, 9);
-			
+
 			IntervalView<T> rotatedKernel = Views.interval(backtranslated, kernel);
 			kernels[i] = rotatedKernel;
 
@@ -136,7 +138,7 @@ public class MembraneProjection<T extends RealType<T>> extends
 	}
 
 	@Override
-	public CompositeIntervalView<T, RealComposite<T>> calculate(
+	public RandomAccessibleInterval<T> calculate(
 		RandomAccessibleInterval<T> input)
 	{
 		List<RandomAccessibleInterval<T>> convolvedImgs = new ArrayList<>();
@@ -145,6 +147,7 @@ public class MembraneProjection<T extends RealType<T>> extends
 			// FIXME convolution returns empty image
 			RandomAccessibleInterval<T> tmp = ops().filter().convolve(Views.interval(
 				Views.extendMirrorDouble(input), input), kernels[i]);
+//			convolveOps[i].compute(Views.interval(Views.extendMirrorDouble(input), input), temp);
 			convolvedImgs.add(tmp);
 		}
 
@@ -173,7 +176,7 @@ public class MembraneProjection<T extends RealType<T>> extends
 				outImgsRAs[i].get().setReal(outValues[i]);
 			}
 		}
-		return Views.collapseReal(Views.stack(outImgs));
+		return Views.stack(outImgs);
 	}
 
 }

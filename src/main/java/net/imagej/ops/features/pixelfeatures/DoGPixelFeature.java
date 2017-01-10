@@ -21,7 +21,7 @@ import net.imglib2.view.composite.RealComposite;
 @Plugin(type = Ops.Pixelfeatures.DoGPixelFeature.class,
 	name = Ops.Pixelfeatures.DoGPixelFeature.NAME)
 public class DoGPixelFeature<T extends RealType<T>> extends
-	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, CompositeIntervalView<T, RealComposite<T>>>
+	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
 	implements Ops.Pixelfeatures.DoGPixelFeature
 {
 
@@ -56,7 +56,7 @@ public class DoGPixelFeature<T extends RealType<T>> extends
 	}
 
 	@Override
-	public CompositeIntervalView<T, RealComposite<T>> calculate(
+	public RandomAccessibleInterval<T> calculate(
 		RandomAccessibleInterval<T> input)
 	{
 		IntervalView<T> extendedIn = Views.interval(Views.extendMirrorDouble(input),
@@ -66,7 +66,7 @@ public class DoGPixelFeature<T extends RealType<T>> extends
 			dogImages.add(doGFunction.calculate(extendedIn));
 		}
 
-		return Views.collapseReal(Views.stack(dogImages));
+		return Views.stack(dogImages);
 	}
 
 }
