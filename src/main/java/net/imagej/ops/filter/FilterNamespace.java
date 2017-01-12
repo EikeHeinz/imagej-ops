@@ -141,6 +141,15 @@ public class FilterNamespace extends AbstractNamespace {
 			net.imagej.ops.filter.addPoissonNoise.AddPoissonNoiseMap.class, out, in);
 		return result;
 	}
+	
+	// -- bilateral --
+	@OpMethod(op = net.imagej.ops.filter.bilateral.DefaultBilateral.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> bilateralFilter(final RandomAccessibleInterval<T> in,
+			final double spatialRadius, final double rangeRadius, final int radius) {
+		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
+				.run(net.imagej.ops.filter.bilateral.DefaultBilateral.class, in, spatialRadius, rangeRadius, radius);
+		return result;
+	}
 
 	// -- convolve --
 	/** Executes the "convolve" operation on the given arguments. */

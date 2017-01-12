@@ -85,6 +85,7 @@ namespaces = ```
 	[name: "filter", iface: "Filter", ops: [
 		[name: "addNoise",                       iface: "AddNoise"],
 		[name: "addPoissonNoise",                iface: "AddPoissonNoise"],
+		[name: "bilateral",		                 iface: "BilateralFilter"],
 		[name: "convolve",                       iface: "Convolve"],
 		[name: "correlate",                      iface: "Correlate"],
 		[name: "createFFTOutput",                iface: "CreateFFTOutput"],
@@ -332,7 +333,6 @@ namespaces = ```
 	    [name: "squareKuwaharaFilter",			 iface: "SquareKuwahara"],
 	    [name: "lipschitzFeature",               iface: "LipschitzPixFeature"],
 	    [name: "membraneProjections",            iface: "MembraneProjections"],
-	    [name: "bilateralFilter",                iface: "BilateralFilter"],
     ]],
 	[name: "stats", iface: "Stats", ops: [
 		[name: "geometricMean",                  iface: "GeometricMean"],

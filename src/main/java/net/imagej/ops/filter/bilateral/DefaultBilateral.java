@@ -1,6 +1,7 @@
-package net.imagej.ops.features.pixelfeatures;
+package net.imagej.ops.filter.bilateral;
 
 import net.imagej.ops.Ops;
+import net.imagej.ops.Ops.Filter.BilateralFilter;
 import net.imagej.ops.special.chain.RAIs;
 import net.imagej.ops.special.function.AbstractUnaryFunctionOp;
 import net.imagej.ops.special.function.UnaryFunctionOp;
@@ -15,9 +16,9 @@ import net.imglib2.view.Views;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
-@Plugin(type = Ops.Pixelfeatures.BilateralFilter.class)
-public class BilateralFilter<T extends RealType<T>>
-		extends AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> {
+@Plugin(type = Ops.Filter.BilateralFilter.class)
+public class DefaultBilateral<T extends RealType<T>> extends
+		AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> implements BilateralFilter {
 
 	@Parameter
 	private double domain;
