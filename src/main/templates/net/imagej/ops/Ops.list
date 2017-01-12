@@ -319,6 +319,7 @@ namespaces = ```
 		[name: "topHat",                         iface: "TopHat"],
 	]],
 	[name: "pixelfeatures", iface: "Pixelfeatures", ops: [
+		[name: "bilateral",						 iface: "BilateralFeature"],
 	    [name: "doG",                            iface: "DoGPixelFeature"],
 	    [name: "gaussianGradientMagnitude",      iface: "GaussianGradientMagnitudePixelFeature"],
 		[name: "gaussian",                       iface: "GaussPixelFeature"],

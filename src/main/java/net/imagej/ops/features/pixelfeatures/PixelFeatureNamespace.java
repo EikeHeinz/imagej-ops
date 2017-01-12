@@ -20,6 +20,14 @@ public class PixelFeatureNamespace extends AbstractNamespace {
 		return "pixelfeatures";
 	}
 
+	// -- bilateral --
+	@OpMethod(op = net.imagej.ops.features.pixelfeatures.BilateralPixelFeature.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> bilateral(final RandomAccessibleInterval<T> in) {
+		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
+				.run(net.imagej.ops.features.pixelfeatures.BilateralPixelFeature.class, in);
+		return result;
+	}
+
 	// -- difference of gaussian --
 	@OpMethod(op = net.imagej.ops.features.pixelfeatures.DoGPixelFeature.class)
 	public <T extends RealType<T>> RandomAccessibleInterval<T> doG(final RandomAccessibleInterval<T> in,
