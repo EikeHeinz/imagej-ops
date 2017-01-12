@@ -74,6 +74,15 @@ public class PixelFeatureNamespace extends AbstractNamespace {
 
 	// -- kuwahara
 
+	@OpMethod(op = net.imagej.ops.features.pixelfeatures.KuwaharaPixelFeature.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> kuwahara(final RandomAccessibleInterval<T> in) {
+		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
+				.run(net.imagej.ops.features.pixelfeatures.KuwaharaPixelFeature.class, in);
+		return result;
+	}
+
+	// -- linear kuwahara --
+
 	@OpMethod(op = net.imagej.ops.features.pixelfeatures.LinearKuwaharaPixelFeature.class)
 	public <T extends RealType<T>> RandomAccessibleInterval<T> linearKuwaharaFilter(
 			final RandomAccessibleInterval<T> in, final int kernelSize, final int numberOfAngles) {

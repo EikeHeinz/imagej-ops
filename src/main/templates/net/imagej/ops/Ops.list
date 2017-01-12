@@ -324,6 +324,7 @@ namespaces = ```
 	    [name: "gaussianGradientMagnitude",      iface: "GaussianGradientMagnitudePixelFeature"],
 		[name: "gaussian",                       iface: "GaussPixelFeature"],
 		[name: "hessian",                        iface: "HessianPixelFeature"],
+		[name: "kuwahara",                       iface: "KuwaharaFeature"],
 		[name: "loG",                            iface: "LoGPixelFeature"],
 		[name: "max",                            iface: "MaxPixelFeature"],
 		[name: "mean",                           iface: "MeanPixelFeature"],

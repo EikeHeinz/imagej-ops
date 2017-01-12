@@ -5,9 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.scijava.plugin.Parameter;
-import org.scijava.plugin.Plugin;
-
 import net.imagej.ops.Ops;
 import net.imagej.ops.Ops.Filter.Gauss;
 import net.imagej.ops.special.chain.RAIs;
@@ -17,8 +14,9 @@ import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
-import net.imglib2.view.composite.CompositeIntervalView;
-import net.imglib2.view.composite.RealComposite;
+
+import org.scijava.plugin.Parameter;
+import org.scijava.plugin.Plugin;
 
 @Plugin(type = Ops.Pixelfeatures.GaussPixelFeature.class,
 	name = Ops.Pixelfeatures.GaussPixelFeature.NAME)

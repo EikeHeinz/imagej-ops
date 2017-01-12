@@ -42,8 +42,10 @@ public class KuwaharaFilterTest extends AbstractOpTest {
 			}
 		}
 
-		RandomAccessibleInterval<FloatType> output = ops.pixelfeature()
-			.linearKuwaharaFilter(img, 5, 30);
+//		RandomAccessibleInterval<FloatType> output = ops.pixelfeature()
+//			.linearKuwaharaFilter(img, 5, 30);
+		
+		RandomAccessibleInterval<FloatType> output = ops.pixelfeature().kuwahara(img);
 		
 		Cursor<FloatType> outCursor = Views.iterable(output).cursor();
 		System.out.println("outputimage-----------------------");
