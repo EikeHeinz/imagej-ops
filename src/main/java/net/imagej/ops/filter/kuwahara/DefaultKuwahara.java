@@ -1,8 +1,8 @@
 
-package net.imagej.ops.features.pixelfeatures;
+package net.imagej.ops.filter.kuwahara;
 
 import net.imagej.ops.Ops;
-import net.imagej.ops.Ops.Pixelfeatures.SquareKuwahara;
+import net.imagej.ops.Ops.Filter.Kuwahara;
 import net.imagej.ops.special.chain.RAIs;
 import net.imagej.ops.special.function.AbstractUnaryFunctionOp;
 import net.imagej.ops.special.function.Functions;
@@ -18,10 +18,10 @@ import net.imglib2.view.Views;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
-@Plugin(type = SquareKuwahara.class)
-public class SquareKuwaharaPixelFeature<T extends RealType<T>> extends
+@Plugin(type = Ops.Filter.Kuwahara.class)
+public class DefaultKuwahara<T extends RealType<T>> extends
 	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
-	implements SquareKuwahara
+	implements Kuwahara
 {
 
 	@Parameter

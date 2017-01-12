@@ -901,6 +901,15 @@ public class FilterNamespace extends AbstractNamespace {
 				net.imagej.ops.filter.ifft.IFFTMethodsOpI.class, arg);
 		return result;
 	}
+	
+	// -- kuwahara --
+	@OpMethod(op = net.imagej.ops.filter.kuwahara.DefaultKuwahara.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> kuwahara(
+			final RandomAccessibleInterval<T> in, final int kernelSize) {
+		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
+				.run(net.imagej.ops.filter.kuwahara.DefaultKuwahara.class, in, kernelSize);
+		return result;
+	}
 
 	// -- linear filter --
 

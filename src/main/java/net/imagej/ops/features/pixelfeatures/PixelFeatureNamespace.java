@@ -84,14 +84,6 @@ public class PixelFeatureNamespace extends AbstractNamespace {
 		return result;
 	}
 
-	@OpMethod(op = net.imagej.ops.features.pixelfeatures.SquareKuwaharaPixelFeature.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> squareKuwaharaFilter(
-			final RandomAccessibleInterval<T> in, final int kernelSize) {
-		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
-				.run(net.imagej.ops.features.pixelfeatures.SquareKuwaharaPixelFeature.class, in, kernelSize);
-		return result;
-	}
-
 	// -- laplacian of gaussian --
 
 	@OpMethod(op = net.imagej.ops.features.pixelfeatures.LoGPixelFeature.class)

@@ -1,7 +1,6 @@
+package net.imagej.ops.filter.kuwahara;
 
-package net.imagej.ops.features.pixelfeatures;
-
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import net.imagej.ops.AbstractOpTest;
 import net.imglib2.Cursor;
@@ -12,12 +11,11 @@ import net.imglib2.view.Views;
 
 import org.junit.Test;
 
-public class KuwaharaFilterTest extends AbstractOpTest {
+public class DefaultKuwaharaTest extends AbstractOpTest {
 
 	@Test
 	public void test() {
-		Img<FloatType> img = generateFloatArrayTestImg(false, new long[] { 20,
-			20 });
+		Img<FloatType> img = generateFloatArrayTestImg(false, new long[] { 20, 20 });
 
 		Cursor<FloatType> cursorImg = img.cursor();
 		int counterX = 0;
@@ -25,8 +23,7 @@ public class KuwaharaFilterTest extends AbstractOpTest {
 		while (cursorImg.hasNext()) {
 			if (counterX > 7 && counterX < 13 || counterY > 7 && counterY < 13) {
 				cursorImg.next().setOne();
-			}
-			else {
+			} else {
 				cursorImg.next().setZero();
 			}
 
@@ -42,9 +39,7 @@ public class KuwaharaFilterTest extends AbstractOpTest {
 			}
 		}
 
-		RandomAccessibleInterval<FloatType> output = ops.pixelfeature()
-			.linearKuwaharaFilter(img, 5, 30);
-		
+		RandomAccessibleInterval<FloatType> output = ops.filter().kuwahara(img, 5);
 		Cursor<FloatType> outCursor = Views.iterable(output).cursor();
 		System.out.println("outputimage-----------------------");
 		String values = "";
@@ -59,7 +54,6 @@ public class KuwaharaFilterTest extends AbstractOpTest {
 				values = "";
 			}
 		}
-
 		fail("Not yet implemented");
 	}
 
