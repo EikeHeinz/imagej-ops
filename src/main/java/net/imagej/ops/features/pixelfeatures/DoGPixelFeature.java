@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.imagej.ops.Ops;
+import net.imagej.ops.Ops.Pixelfeatures.DoGFeature;
 import net.imagej.ops.special.chain.RAIs;
 import net.imagej.ops.special.function.AbstractUnaryFunctionOp;
 import net.imagej.ops.special.function.UnaryFunctionOp;
@@ -16,12 +17,9 @@ import net.imglib2.view.Views;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
-@Plugin(type = Ops.Pixelfeatures.DoGPixelFeature.class,
-	name = Ops.Pixelfeatures.DoGPixelFeature.NAME)
+@Plugin(type = Ops.Pixelfeatures.DoGFeature.class)
 public class DoGPixelFeature<T extends RealType<T>> extends
-	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
-	implements Ops.Pixelfeatures.DoGPixelFeature
-{
+		AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> implements DoGFeature {
 
 	@Parameter
 	private double minSigma;
@@ -43,28 +41,20 @@ public class DoGPixelFeature<T extends RealType<T>> extends
 			for (int j = i + 1; j <= maxSteps; j++) {
 				Double sigma1 = new Double(Math.pow(2, i) * minSigma);
 				Double sigma2 = new Double(Math.pow(2, j) * minSigma);
-
-				UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> tempOp =
-					RAIs.function(ops(), Ops.Filter.DoG.class, in(), sigma1, sigma2);
-
+				UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> tempOp = RAIs.function(ops(),
+						Ops.Filter.DoG.class, in(), sigma1, sigma2);
 				doGFunctions.add(tempOp);
-
 			}
 		}
 	}
 
 	@Override
-	public RandomAccessibleInterval<T> calculate(
-		RandomAccessibleInterval<T> input)
-	{
-		IntervalView<T> extendedIn = Views.interval(Views.extendMirrorDouble(input),
-			input);
+	public RandomAccessibleInterval<T> calculate(RandomAccessibleInterval<T> input) {
+		IntervalView<T> extendedIn = Views.interval(Views.extendMirrorDouble(input), input);
 		List<RandomAccessibleInterval<T>> dogImages = new ArrayList<>();
 		for (UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> doGFunction : doGFunctions) {
 			dogImages.add(doGFunction.calculate(extendedIn));
 		}
-
 		return Views.stack(dogImages);
 	}
-
 }
