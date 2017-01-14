@@ -7,8 +7,6 @@ import net.imagej.ops.OpMethod;
 import net.imagej.ops.features.pixelfeatures.LinearKuwaharaPixelFeature.KuwaharaCriterionMethod;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.RealType;
-import net.imglib2.view.composite.CompositeIntervalView;
-import net.imglib2.view.composite.RealComposite;
 
 import org.scijava.plugin.Plugin;
 
@@ -83,26 +81,6 @@ public class PixelFeatureNamespace extends AbstractNamespace {
 		return result;
 	}
 
-	// -- linear kuwahara --
-
-	@OpMethod(op = net.imagej.ops.features.pixelfeatures.LinearKuwaharaPixelFeature.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> linearKuwaharaFilter(
-			final RandomAccessibleInterval<T> in, final int kernelSize, final int numberOfAngles) {
-		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops().run(
-				net.imagej.ops.features.pixelfeatures.LinearKuwaharaPixelFeature.class, in, kernelSize, numberOfAngles);
-		return result;
-	}
-
-	@OpMethod(op = net.imagej.ops.features.pixelfeatures.LinearKuwaharaPixelFeature.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> linearKuwaharaFilter(
-			final RandomAccessibleInterval<T> in, final int kernelSize, final int numberOfAngles,
-			final KuwaharaCriterionMethod criterionMethod) {
-		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops().run(
-				net.imagej.ops.features.pixelfeatures.LinearKuwaharaPixelFeature.class, in, kernelSize, numberOfAngles,
-				criterionMethod);
-		return result;
-	}
-
 	// -- laplacian of gaussian --
 
 	@OpMethod(op = net.imagej.ops.features.pixelfeatures.LoGPixelFeature.class)
@@ -151,6 +129,17 @@ public class PixelFeatureNamespace extends AbstractNamespace {
 		return result;
 	}
 
+	// -- membrane projections --
+
+	@OpMethod(op = net.imagej.ops.features.pixelfeatures.MembraneProjection.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> membraneProjections(
+			final RandomAccessibleInterval<T> in) {
+		@SuppressWarnings("unchecked")
+		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
+				.run(net.imagej.ops.features.pixelfeatures.MembraneProjection.class, in);
+		return result;
+	}
+
 	// -- min --
 
 	@OpMethod(op = net.imagej.ops.features.pixelfeatures.RectangleMinPixelFeature.class)
@@ -165,6 +154,27 @@ public class PixelFeatureNamespace extends AbstractNamespace {
 		return result;
 	}
 
+	// -- neighbors --
+	@OpMethod(op = net.imagej.ops.features.pixelfeatures.NeighborsPixelFeature.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> neighbors(final RandomAccessibleInterval<T> in,
+			final int minSigma, final int maxSigma) {
+		@SuppressWarnings("unchecked")
+		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
+				.run(net.imagej.ops.features.pixelfeatures.NeighborsPixelFeature.class, in, minSigma, maxSigma);
+		return result;
+	}
+
+	// -- structure tensor --
+
+	@OpMethod(op = net.imagej.ops.features.pixelfeatures.StructureTensorEigenvaluesPixelFeature.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> structureTensor(final RandomAccessibleInterval<T> in,
+			final double sigma) {
+		@SuppressWarnings("unchecked")
+		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
+				.run(net.imagej.ops.features.pixelfeatures.StructureTensorEigenvaluesPixelFeature.class, in, sigma);
+		return result;
+	}
+
 	// -- variance --
 
 	@OpMethod(op = net.imagej.ops.features.pixelfeatures.RectangleVariancePixelFeature.class)
@@ -176,14 +186,7 @@ public class PixelFeatureNamespace extends AbstractNamespace {
 		return result;
 	}
 
-	@OpMethod(op = net.imagej.ops.features.pixelfeatures.StructureTensorEigenvaluesPixelFeature.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> structureTensor(final RandomAccessibleInterval<T> in,
-			final double sigma) {
-		@SuppressWarnings("unchecked")
-		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
-				.run(net.imagej.ops.features.pixelfeatures.StructureTensorEigenvaluesPixelFeature.class, in, sigma);
-		return result;
-	}
+	// -- Lipschitz --
 
 	@OpMethod(op = net.imagej.ops.features.pixelfeatures.LipschitzPixelFeature.class)
 	public <T extends RealType<T>> RandomAccessibleInterval<T> lipschitzFeature(final RandomAccessibleInterval<T> in) {
@@ -192,20 +195,24 @@ public class PixelFeatureNamespace extends AbstractNamespace {
 		return result;
 	}
 
-	@OpMethod(op = net.imagej.ops.features.pixelfeatures.MembraneProjection.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> membraneProjections(
-			final RandomAccessibleInterval<T> in) {
-		@SuppressWarnings("unchecked")
-		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
-				.run(net.imagej.ops.features.pixelfeatures.MembraneProjection.class, in);
+	// -- linear kuwahara --
+
+	@OpMethod(op = net.imagej.ops.features.pixelfeatures.LinearKuwaharaPixelFeature.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> linearKuwaharaFilter(
+			final RandomAccessibleInterval<T> in, final int kernelSize, final int numberOfAngles) {
+		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops().run(
+				net.imagej.ops.features.pixelfeatures.LinearKuwaharaPixelFeature.class, in, kernelSize, numberOfAngles);
 		return result;
 	}
 
-	@OpMethod(op = net.imagej.ops.features.pixelfeatures.BilateralFilter.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> bilateralFilter(final RandomAccessibleInterval<T> in, final double spatialRadius, final double rangeRadius, final int radius) {
-		final RandomAccessibleInterval<T> result =
-			(RandomAccessibleInterval<T>) ops().run(net.imagej.ops.features.pixelfeatures.BilateralFilter.class, in, spatialRadius, rangeRadius, radius);
+	@OpMethod(op = net.imagej.ops.features.pixelfeatures.LinearKuwaharaPixelFeature.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> linearKuwaharaFilter(
+			final RandomAccessibleInterval<T> in, final int kernelSize, final int numberOfAngles,
+			final KuwaharaCriterionMethod criterionMethod) {
+		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops().run(
+				net.imagej.ops.features.pixelfeatures.LinearKuwaharaPixelFeature.class, in, kernelSize, numberOfAngles,
+				criterionMethod);
 		return result;
 	}
-	
+
 }
