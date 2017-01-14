@@ -144,10 +144,11 @@ public class FilterNamespace extends AbstractNamespace {
 	
 	// -- bilateral --
 	@OpMethod(op = net.imagej.ops.filter.bilateral.DefaultBilateral.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> bilateralFilter(final RandomAccessibleInterval<T> in,
-			final double spatialRadius, final double rangeRadius, final int radius) {
+	public <T extends RealType<T>> RandomAccessibleInterval<T> bilateral(final RandomAccessibleInterval<T> in,
+			final double domain, final double range, final int radius) {
+		@SuppressWarnings("unchecked")
 		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
-				.run(net.imagej.ops.filter.bilateral.DefaultBilateral.class, in, spatialRadius, rangeRadius, radius);
+				.run(net.imagej.ops.filter.bilateral.DefaultBilateral.class, in, domain, range, radius);
 		return result;
 	}
 
@@ -906,6 +907,7 @@ public class FilterNamespace extends AbstractNamespace {
 	@OpMethod(op = net.imagej.ops.filter.kuwahara.DefaultKuwahara.class)
 	public <T extends RealType<T>> RandomAccessibleInterval<T> kuwahara(
 			final RandomAccessibleInterval<T> in, final int kernelSize) {
+		@SuppressWarnings("unchecked")
 		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
 				.run(net.imagej.ops.filter.kuwahara.DefaultKuwahara.class, in, kernelSize);
 		return result;

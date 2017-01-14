@@ -1,13 +1,13 @@
 package net.imagej.ops.filter.bilateral;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import net.imagej.ops.AbstractOpTest;
 import net.imglib2.Cursor;
+import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.type.numeric.real.FloatType;
-import net.imglib2.view.Views;
 
 import org.junit.Test;
 
@@ -21,7 +21,7 @@ public class BilateralTest extends AbstractOpTest {
 		int counterX = 0;
 		int counterY = 0;
 		while (cursorImg.hasNext()) {
-			if (counterX > 3 && counterX < 6 || counterY > 3 && counterY < 6) {
+			if (counterX > 3 && counterX < 7 || counterY > 3 && counterY < 7) {
 				cursorImg.next().setOne();
 			} else {
 				cursorImg.next().setZero();
@@ -37,22 +37,15 @@ public class BilateralTest extends AbstractOpTest {
 				counterY = 0;
 			}
 		}
-		
-		RandomAccessibleInterval<FloatType> out = ops.filter().bilateralFilter(img, 1.0d, 1.0d, 0);
-		Cursor<FloatType> outCursor = Views.iterable(out).cursor();
-		int counter = 0;
-		String values = "";
-		while(outCursor.hasNext()) {
-			FloatType value = outCursor.next();
-			values += value + "|";
-			counter++;
-			if(counter == 10) {
-				System.out.println(values);
-				values = "";
-				counter = 0;
-			}
-		}
-		fail("Not yet implemented");
-	}
 
+		RandomAccessibleInterval<FloatType> out = ops.filter().bilateral(img, 5.0d, 5.0d, 0);
+
+		RandomAccess<FloatType> outRA = out.randomAccess();
+		float[] values = new float[] { 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f };
+		for (int i = 0; i < values.length; i++) {
+			long[] pos = new long[] { i, i };
+			outRA.setPosition(pos);
+			assertEquals(values[i], outRA.get().getRealFloat(), 0.0000f);
+		}
+	}
 }
