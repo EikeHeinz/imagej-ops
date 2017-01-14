@@ -23,6 +23,7 @@ public class PixelFeatureNamespace extends AbstractNamespace {
 	// -- bilateral --
 	@OpMethod(op = net.imagej.ops.features.pixelfeatures.BilateralPixelFeature.class)
 	public <T extends RealType<T>> RandomAccessibleInterval<T> bilateral(final RandomAccessibleInterval<T> in) {
+		@SuppressWarnings("unchecked")
 		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
 				.run(net.imagej.ops.features.pixelfeatures.BilateralPixelFeature.class, in);
 		return result;
@@ -76,6 +77,7 @@ public class PixelFeatureNamespace extends AbstractNamespace {
 
 	@OpMethod(op = net.imagej.ops.features.pixelfeatures.KuwaharaPixelFeature.class)
 	public <T extends RealType<T>> RandomAccessibleInterval<T> kuwahara(final RandomAccessibleInterval<T> in) {
+		@SuppressWarnings("unchecked")
 		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
 				.run(net.imagej.ops.features.pixelfeatures.KuwaharaPixelFeature.class, in);
 		return result;
@@ -143,6 +145,7 @@ public class PixelFeatureNamespace extends AbstractNamespace {
 	@OpMethod(op = net.imagej.ops.features.pixelfeatures.RectangleMedianPixelFeature.class)
 	public <T extends RealType<T>> RandomAccessibleInterval<T> median(final RandomAccessibleInterval<T> in,
 			final int span) {
+		@SuppressWarnings("unchecked")
 		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
 				.run(net.imagej.ops.features.pixelfeatures.RectangleMedianPixelFeature.class, in, span);
 		return result;
@@ -167,6 +170,7 @@ public class PixelFeatureNamespace extends AbstractNamespace {
 	@OpMethod(op = net.imagej.ops.features.pixelfeatures.RectangleVariancePixelFeature.class)
 	public <T extends RealType<T>> RandomAccessibleInterval<T> variance(final RandomAccessibleInterval<T> in,
 			final int span) {
+		@SuppressWarnings("unchecked")
 		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
 				.run(net.imagej.ops.features.pixelfeatures.RectangleVariancePixelFeature.class, in, span);
 		return result;
@@ -191,6 +195,7 @@ public class PixelFeatureNamespace extends AbstractNamespace {
 	@OpMethod(op = net.imagej.ops.features.pixelfeatures.MembraneProjection.class)
 	public <T extends RealType<T>> RandomAccessibleInterval<T> membraneProjections(
 			final RandomAccessibleInterval<T> in) {
+		@SuppressWarnings("unchecked")
 		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
 				.run(net.imagej.ops.features.pixelfeatures.MembraneProjection.class, in);
 		return result;

@@ -17,9 +17,9 @@ import org.scijava.plugin.Plugin;
 @Plugin(type = Ops.Pixelfeatures.KuwaharaFeature.class)
 public class KuwaharaPixelFeature<T extends RealType<T>> extends
 		AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> implements KuwaharaFeature {
-
+	
 	private List<UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>> kuwaharaOps;
-
+	
 	@Override
 	public void initialize() {
 

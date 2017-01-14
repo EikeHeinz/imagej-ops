@@ -13,8 +13,6 @@ import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Util;
 import net.imglib2.view.Views;
-import net.imglib2.view.composite.CompositeIntervalView;
-import net.imglib2.view.composite.RealComposite;
 
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
