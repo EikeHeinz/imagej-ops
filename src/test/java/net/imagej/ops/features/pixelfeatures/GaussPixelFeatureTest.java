@@ -9,8 +9,6 @@ import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.view.Views;
-import net.imglib2.view.composite.CompositeIntervalView;
-import net.imglib2.view.composite.RealComposite;
 
 import org.junit.Test;
 
@@ -41,37 +39,39 @@ public class GaussPixelFeatureTest extends AbstractOpTest {
 			}
 		}
 
-//		CompositeIntervalView<FloatType, RealComposite<FloatType>> out = ops.pixelfeature().gaussian(img, 1.0d, 8.0d);
-//
-//		RandomAccessibleInterval<FloatType> manualFirstSigma = ops.filter()
-//				.gauss(Views.interval(Views.extendMirrorDouble(img), img), 1.0d);
-//		RandomAccess<FloatType> FirstSigmaRA = manualFirstSigma.randomAccess();
-//		
-//		RandomAccessibleInterval<FloatType> manualSecondSigma = ops.filter()
-//				.gauss(Views.interval(Views.extendMirrorDouble(img), img), 2.0d);
-//		RandomAccess<FloatType> SecondSigmaRA = manualSecondSigma.randomAccess();
-//		
-//		RandomAccessibleInterval<FloatType> manualThirdSigma = ops.filter()
-//				.gauss(Views.interval(Views.extendMirrorDouble(img), img), 4.0d);
-//		RandomAccess<FloatType> ThirdSigmaRA = manualThirdSigma.randomAccess();
-//		
-//		RandomAccessibleInterval<FloatType> manualFourthSigma = ops.filter()
-//				.gauss(Views.interval(Views.extendMirrorDouble(img), img), 8.0d);
-//		RandomAccess<FloatType> FourthSigmaRA = manualFourthSigma.randomAccess();
-//		
-//		Cursor<RealComposite<FloatType>> outCursor = Views.iterable(out).cursor();
-//		while (outCursor.hasNext()) {
-//			RealComposite<FloatType> composite = outCursor.next();
-//			long[] position = new long[2];
-//			outCursor.localize(position);
-//			FirstSigmaRA.setPosition(position);
-//			SecondSigmaRA.setPosition(position);
-//			ThirdSigmaRA.setPosition(position);
-//			FourthSigmaRA.setPosition(position);
-//			assertEquals(FirstSigmaRA.get(), composite.get(0));
-//			assertEquals(SecondSigmaRA.get(), composite.get(1));
-//			assertEquals(ThirdSigmaRA.get(), composite.get(2));
-//			assertEquals(FourthSigmaRA.get(), composite.get(3));
-//		}
+		RandomAccessibleInterval<FloatType> out = ops.pixelfeature().gaussian(img, 1.0d, 8.0d);
+		RandomAccess<FloatType> outRA = out.randomAccess();
+
+		RandomAccessibleInterval<FloatType> manualFirstSigma = ops.filter()
+				.gauss(Views.interval(Views.extendMirrorDouble(img), img), 1.0d);
+		Cursor<FloatType> manualFirstSigmaCursor = Views.iterable(manualFirstSigma).cursor();
+
+		RandomAccessibleInterval<FloatType> manualSecondSigma = ops.filter()
+				.gauss(Views.interval(Views.extendMirrorDouble(img), img), 2.0d);
+		RandomAccess<FloatType> secondSigmaRA = manualSecondSigma.randomAccess();
+
+		RandomAccessibleInterval<FloatType> manualThirdSigma = ops.filter()
+				.gauss(Views.interval(Views.extendMirrorDouble(img), img), 4.0d);
+		RandomAccess<FloatType> thirdSigmaRA = manualThirdSigma.randomAccess();
+
+		while (manualFirstSigmaCursor.hasNext()) {
+			manualFirstSigmaCursor.next();
+			long[] pos = new long[2];
+			manualFirstSigmaCursor.localize(pos);
+			secondSigmaRA.setPosition(pos);
+			thirdSigmaRA.setPosition(pos);
+			long[] stackPos = new long[3];
+			stackPos[0] = pos[0];
+			stackPos[1] = pos[1];
+			stackPos[2] = 0;
+			outRA.setPosition(stackPos);
+			assertEquals(manualFirstSigmaCursor.get(), outRA.get());
+			stackPos[2] = 1;
+			outRA.setPosition(stackPos);
+			assertEquals(secondSigmaRA.get(), outRA.get());
+			stackPos[2] = 2;
+			outRA.setPosition(stackPos);
+			assertEquals(thirdSigmaRA.get(), outRA.get());
+		}
 	}
 }
