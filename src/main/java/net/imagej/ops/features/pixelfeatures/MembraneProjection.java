@@ -27,6 +27,7 @@ import net.imglib2.view.Views;
 import net.imglib2.view.composite.CompositeIntervalView;
 import net.imglib2.view.composite.RealComposite;
 
+import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
 import Jama.Matrix;
@@ -37,6 +38,11 @@ public class MembraneProjection<T extends RealType<T>>
 		implements MembraneProjectionsFeature {
 
 	// membrane thickness, patchsize?
+	@Parameter
+	private int membraneSize = 1;
+
+	@Parameter
+	private int patchSize = 19;
 
 	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>[] convolveOps;
 	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> createRAI;
@@ -52,18 +58,23 @@ public class MembraneProjection<T extends RealType<T>>
 	@SuppressWarnings("unchecked")
 	@Override
 	public void initialize() {
-		RandomAccessibleInterval<T> kernel = (RandomAccessibleInterval<T>) ops().create().img(new int[] { 19, 19 });
+		RandomAccessibleInterval<T> kernel = (RandomAccessibleInterval<T>) ops().create()
+				.img(new int[] { patchSize, patchSize });
+		RandomAccess<T> kernelRA = kernel.randomAccess();
 		Cursor<T> kernelCursor = Views.iterable(kernel).cursor();
 		int counter = 0;
-		while (kernelCursor.hasNext()) {
-			T value = kernelCursor.next();
-			if (counter == 9) {
-				value.setOne();
-			} else {
-				value.setZero();
+
+		int middle = Math.round(patchSize / 2);
+		int startX = middle - (int) Math.floor(membraneSize / 2.0);
+		int endX = middle + (int) Math.ceil(membraneSize / 2.0);
+
+		for (int x = startX; x <= endX - 1; x++) {
+			for (int y = 0; y < patchSize; y++) {
+				kernelRA.setPosition(new int[] { x, y });
+				kernelRA.get().setOne();
 			}
-			counter++;
 		}
+
 		kernels = new RandomAccessibleInterval[30];
 		kernels[0] = kernel;
 		IntervalView<T> translatedkernel = Views.translate(kernel, -9, -9);
@@ -94,7 +105,7 @@ public class MembraneProjection<T extends RealType<T>>
 			// DEBUG STUFF ------------------
 			// System.out.println("Begin-Kernel--------------" + i);
 			// Cursor<T> rotatedCursor = Views.iterable(rotatedKernel).cursor();
-			// values = "";
+			// String values = "";
 			// counter = 0;
 			// while (rotatedCursor.hasNext()) {
 			// T value = rotatedCursor.next();
@@ -102,7 +113,7 @@ public class MembraneProjection<T extends RealType<T>>
 			// counter++;
 			// if(counter == 19) {
 			// counter = 0;
-			//// System.out.println(values);
+			// System.out.println(values);
 			// values = "";
 			// }
 			// }

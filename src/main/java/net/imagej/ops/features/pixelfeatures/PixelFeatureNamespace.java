@@ -132,11 +132,11 @@ public class PixelFeatureNamespace extends AbstractNamespace {
 	// -- membrane projections --
 
 	@OpMethod(op = net.imagej.ops.features.pixelfeatures.MembraneProjection.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> membraneProjections(
-			final RandomAccessibleInterval<T> in) {
+	public <T extends RealType<T>> RandomAccessibleInterval<T> membraneProjections(final RandomAccessibleInterval<T> in,
+			final int membraneSize, final int patchSize) {
 		@SuppressWarnings("unchecked")
 		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
-				.run(net.imagej.ops.features.pixelfeatures.MembraneProjection.class, in);
+				.run(net.imagej.ops.features.pixelfeatures.MembraneProjection.class, in, membraneSize, patchSize);
 		return result;
 	}
 

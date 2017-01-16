@@ -40,20 +40,20 @@ public class MembraneProjectionsTest extends AbstractOpTest {
 			}
 		}
 
-		RandomAccessibleInterval<FloatType> out = ops.pixelfeature().membraneProjections(img);
+		RandomAccessibleInterval<FloatType> out = ops.pixelfeature().membraneProjections(img, 1, 19);
 		RandomAccess<FloatType> outRA = out.randomAccess();
-		float[] valuesSum = new float[] { 5.6977525f, 4.042903f, 0.092166655f, -9.181864E-8f, -5.2038303E-9f,
-				-3.4967462E-7f, -1.2869846E-7f, 1.7815857E-8f, 1.7521361f, 2.426858f };
-		float[] valuesMean = new float[] { 0.18992509f, 0.13476342f, 0.003072222f, -3.0606213E-9f, -1.7346101E-10f,
-				-1.165582E-8f, -4.2899484E-9f, 5.938619E-10f, 0.058404535f, 0.08089527f };
-		float[] valuesStdDev = new float[] { 0.38703936f, 0.3064844f, 0.012186458f, 4.0971667E-8f, 3.8031022E-8f,
-				1.9334514E-8f, 3.209443E-8f, 3.1700917E-8f, 0.19785716f, 0.27678636f };
-		float[] valuesMedian = new float[] { -3.4134402E-9f, 1.8946128E-8f, 9.934108E-10f, -4.9594435E-9f, 0.0f,
-				-8.940697E-9f, -5.3236726E-10f, -5.804542E-9f, 1.4901161E-8f, 1.1904074E-8f };
-		float[] valuesMax = new float[] { 1.0191867f, 0.95304805f, 0.059171356f, 9.536743E-8f, 7.251386E-8f,
-				3.264064E-8f, 6.357829E-8f, 8.684956E-8f, 1.0126531f, 1.1701688f };
-		float[] valuesMin = new float[] { -5.268387E-8f, -4.86494E-8f, -4.7820652E-8f, -9.536743E-8f, -1.2715658E-7f,
-				-4.4774442E-8f, -1.2715658E-7f, -3.7606963E-8f, -4.0978193E-8f, -4.7683717E-8f };
+		float[] valuesSum = new float[] { 75.71942f, 100.44581f, 126.2946f, 165.18263f, 224.89537f, 236.38914f,
+				220.10951f, 158.82895f, 119.70989f, 86.33595f };
+		float[] valuesMean = new float[] { 2.5239806f, 3.3481934f, 4.20982f, 5.506088f, 7.4965124f, 7.879638f,
+				7.3369837f, 5.2942986f, 3.9903297f, 2.877865f };
+		float[] valuesStdDev = new float[] { 2.0307617f, 2.1009798f, 1.3697824f, 1.1668729f, 1.371079f, 2.0070376f,
+				1.3115847f, 1.5655895f, 2.3294756f, 2.4602454f };
+		float[] valuesMedian = new float[] { 3.035905f, 3.0790527f, 4.0478735f, 5.765988f, 7.602315f, 8.806245f,
+				7.347774f, 5.2497377f, 3.3975503f, 3.0000002f };
+		float[] valuesMax = new float[] { 5.4939485f, 6.7205176f, 6.791072f, 7.4696307f, 10.0f, 10.096897f, 10.0f,
+				7.48015f, 8.029925f, 6.8780336f };
+		float[] valuesMin = new float[] { -5.0862633E-7f, -5.0862633E-7f, 2.6952355f, 2.9999998f, 5.0827727f, 5.110183f,
+				5.0827723f, 2.9999995f, 0.07234764f, -5.0862633E-7f };
 		for (int i = 0; i < valuesSum.length; i++) {
 			long[] pos = new long[] { i, i, 0 };
 			outRA.setPosition(pos);
