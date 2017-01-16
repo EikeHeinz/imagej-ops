@@ -38,11 +38,15 @@ import net.imagej.ops.special.computer.UnaryComputerOp;
 import net.imagej.ops.special.function.AbstractUnaryFunctionOp;
 import net.imagej.ops.special.function.UnaryFunctionOp;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.outofbounds.OutOfBoundsFactory;
+import net.imglib2.outofbounds.OutOfBoundsMirrorFactory;
+import net.imglib2.outofbounds.OutOfBoundsMirrorFactory.Boundary;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
 import net.imglib2.view.composite.CompositeIntervalView;
 import net.imglib2.view.composite.RealComposite;
 
+import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
 /**
@@ -58,6 +62,9 @@ public class HessianRAI<T extends RealType<T>> extends
 	implements Ops.Filter.Hessian
 {
 
+	@Parameter(required = false)
+	private OutOfBoundsFactory<T, RandomAccessibleInterval<T>> fac;
+		
 	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>[] derivativeComputers;
 
 	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> createRAIFromRAI;
@@ -65,12 +72,15 @@ public class HessianRAI<T extends RealType<T>> extends
 	@SuppressWarnings("unchecked")
 	@Override
 	public void initialize() {
+		if(fac == null) {
+			fac = new OutOfBoundsMirrorFactory<>(Boundary.DOUBLE);
+		}
 		createRAIFromRAI = RAIs.function(ops(), Ops.Create.Img.class, in());
 
 		derivativeComputers = new UnaryComputerOp[in().numDimensions()];
 		for (int i = 0; i < in().numDimensions(); i++) {
 			derivativeComputers[i] = RAIs.computer(ops(),
-				Ops.Filter.PartialDerivative.class, in(), i);
+				Ops.Filter.PartialDerivative.class, in(), i, fac);
 		}
 	}
 

@@ -38,8 +38,12 @@ import net.imagej.ops.special.computer.UnaryComputerOp;
 import net.imagej.ops.special.function.UnaryFunctionOp;
 import net.imagej.ops.special.hybrid.AbstractUnaryHybridCF;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.outofbounds.OutOfBoundsFactory;
+import net.imglib2.outofbounds.OutOfBoundsMirrorFactory;
+import net.imglib2.outofbounds.OutOfBoundsMirrorFactory.Boundary;
 import net.imglib2.type.numeric.RealType;
 
+import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
 /**
@@ -54,7 +58,10 @@ public class SobelRAI<T extends RealType<T>> extends
 	AbstractUnaryHybridCF<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
 	implements Ops.Filter.Sobel
 {
-
+	
+	@Parameter(required = false)
+	private OutOfBoundsFactory<T, RandomAccessibleInterval<T>> fac;
+	
 	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> createRAIFromRAI;
 
 	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> squareMapOp;
@@ -68,6 +75,9 @@ public class SobelRAI<T extends RealType<T>> extends
 	@SuppressWarnings("unchecked")
 	@Override
 	public void initialize() {
+		if(fac == null) {
+			fac = new OutOfBoundsMirrorFactory<>(Boundary.DOUBLE);
+		}
 		createRAIFromRAI = RAIs.function(ops(), Ops.Create.Img.class, in());
 
 		Sqr squareOp = ops().op(Ops.Math.Sqr.class, RealType.class, RealType.class);
@@ -79,7 +89,7 @@ public class SobelRAI<T extends RealType<T>> extends
 		derivativeComputers = new UnaryComputerOp[in().numDimensions()];
 		for (int i = 0; i < in().numDimensions(); i++) {
 			derivativeComputers[i] = RAIs.computer(ops(),
-				Ops.Filter.PartialDerivative.class, in(), i);
+				Ops.Filter.PartialDerivative.class, in(), i, fac);
 		}
 
 	}

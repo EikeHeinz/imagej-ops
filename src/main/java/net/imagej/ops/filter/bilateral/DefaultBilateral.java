@@ -9,6 +9,9 @@ import net.imglib2.Cursor;
 import net.imglib2.FinalInterval;
 import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.outofbounds.OutOfBoundsFactory;
+import net.imglib2.outofbounds.OutOfBoundsMirrorFactory;
+import net.imglib2.outofbounds.OutOfBoundsMirrorFactory.Boundary;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
@@ -28,18 +31,24 @@ public class DefaultBilateral<T extends RealType<T>> extends
 
 	@Parameter
 	private int radius;
+	
+	@Parameter(required = false)
+	private OutOfBoundsFactory<T, RandomAccessibleInterval<T>> fac;
 
 	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> createOp;
 
 	@Override
 	public void initialize() {
+		if(fac == null) {
+			fac = new OutOfBoundsMirrorFactory<>(Boundary.DOUBLE);
+		}
 		createOp = RAIs.function(ops(), Ops.Create.Img.class, in());
 
 	}
 
 	@Override
 	public RandomAccessibleInterval<T> calculate(RandomAccessibleInterval<T> input) {
-		IntervalView<T> extendedInput = Views.interval(Views.extendMirrorDouble(input), input);
+		IntervalView<T> extendedInput = Views.interval(Views.extend(input,fac), input);
 		Cursor<T> cursor = Views.iterable(extendedInput).cursor();
 		RandomAccessibleInterval<T> output = createOp.calculate(input);
 		RandomAccess<T> outputRA = output.randomAccess();

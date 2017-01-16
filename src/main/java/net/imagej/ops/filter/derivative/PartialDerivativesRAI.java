@@ -34,14 +34,19 @@ import java.util.List;
 
 import net.imagej.ops.Ops;
 import net.imagej.ops.special.chain.RAIs;
+import net.imagej.ops.special.computer.UnaryComputerOp;
 import net.imagej.ops.special.function.AbstractUnaryFunctionOp;
 import net.imagej.ops.special.function.UnaryFunctionOp;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.outofbounds.OutOfBoundsFactory;
+import net.imglib2.outofbounds.OutOfBoundsMirrorFactory;
+import net.imglib2.outofbounds.OutOfBoundsMirrorFactory.Boundary;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
 import net.imglib2.view.composite.CompositeIntervalView;
 import net.imglib2.view.composite.RealComposite;
 
+import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
 /**
@@ -49,35 +54,41 @@ import org.scijava.plugin.Plugin;
  * using a separated sobel kernel and returns a {@link CompositeIntervalView}.
  * 
  * @author Eike Heinz, University of Konstanz
- * @param <T> type of input
+ * @param <T>
+ *            type of input
  */
 
 @Plugin(type = Ops.Filter.AllPartialDerivatives.class)
-public class PartialDerivativesRAI<T extends RealType<T>> extends
-	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, CompositeIntervalView<T, RealComposite<T>>>
-	implements Ops.Filter.AllPartialDerivatives
-{
+public class PartialDerivativesRAI<T extends RealType<T>>
+		extends AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, CompositeIntervalView<T, RealComposite<T>>>
+		implements Ops.Filter.AllPartialDerivatives {
 
-	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>[] derivativeComputers;
+	@Parameter(required = false)
+	private OutOfBoundsFactory<T, RandomAccessibleInterval<T>> fac;
+
+	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>[] derivativeComputers;
+
+	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> createRAIFromRAI;
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void initialize() {
-		derivativeComputers = new UnaryFunctionOp[in().numDimensions()];
-		for (int i = 0; i < in().numDimensions(); i++) {
-			derivativeComputers[i] = RAIs.function(ops(),
-				Ops.Filter.PartialDerivative.class, in(), i);
+		if (fac == null) {
+			fac = new OutOfBoundsMirrorFactory<>(Boundary.DOUBLE);
 		}
+		derivativeComputers = new UnaryComputerOp[in().numDimensions()];
+		for (int i = 0; i < in().numDimensions(); i++) {
+			derivativeComputers[i] = RAIs.computer(ops(), Ops.Filter.PartialDerivative.class, in(), i, fac);
+		}
+		createRAIFromRAI = RAIs.function(ops(), Ops.Create.Img.class, in());
 	}
 
 	@Override
-	public CompositeIntervalView<T, RealComposite<T>> calculate(
-		RandomAccessibleInterval<T> input)
-	{
+	public CompositeIntervalView<T, RealComposite<T>> calculate(RandomAccessibleInterval<T> input) {
 		List<RandomAccessibleInterval<T>> derivatives = new ArrayList<>();
 		for (int i = 0; i < derivativeComputers.length; i++) {
-			RandomAccessibleInterval<T> derivative = derivativeComputers[i].calculate(
-				input);
+			RandomAccessibleInterval<T> derivative = createRAIFromRAI.calculate(input);
+			derivativeComputers[i].compute(input, derivative);
 			derivatives.add(derivative);
 		}
 

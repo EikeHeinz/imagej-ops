@@ -11,6 +11,9 @@ import net.imglib2.Cursor;
 import net.imglib2.FinalInterval;
 import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.outofbounds.OutOfBoundsFactory;
+import net.imglib2.outofbounds.OutOfBoundsMirrorFactory;
+import net.imglib2.outofbounds.OutOfBoundsMirrorFactory.Boundary;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
@@ -27,6 +30,9 @@ public class DefaultKuwahara<T extends RealType<T>> extends
 	@Parameter
 	private int kernelSize = 5;
 
+	@Parameter(required = false)
+	private OutOfBoundsFactory<T, RandomAccessibleInterval<T>> fac;
+	
 	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> createOp;
 
 	@SuppressWarnings("rawtypes")
@@ -38,6 +44,9 @@ public class DefaultKuwahara<T extends RealType<T>> extends
 
 	@Override
 	public void initialize() {
+		if(fac == null) {
+			fac = new OutOfBoundsMirrorFactory<>(Boundary.DOUBLE);
+		}
 		createOp = RAIs.function(ops(), Ops.Create.Img.class, in());
 		meanOp = Functions.unary(ops(), Ops.Stats.Mean.class, RealType.class, IntervalView.class);
 		stdDevOp = Functions.unary(ops(), Ops.Stats.StdDev.class, RealType.class, IntervalView.class);
@@ -57,8 +66,8 @@ public class DefaultKuwahara<T extends RealType<T>> extends
 			long[] position = new long[2];
 			inputCursor.localize(position);
 			int halfsize = kernelSize / 2;
-			IntervalView<T> extendedInput = Views.interval(Views.extendMirrorDouble(
-				input), input);
+			IntervalView<T> extendedInput = Views.interval(Views.extend(
+				input, fac), input);
 
 			// REGION 1
 			FinalInterval region1Interval = FinalInterval.createMinMax(position[0] -
