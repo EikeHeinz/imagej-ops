@@ -12,7 +12,7 @@ import net.imglib2.view.Views;
 
 import org.scijava.plugin.Parameter;
 
-public abstract class AbstractNeighborhoodBasedPixelFeature<T extends RealType<T>>
+public abstract class AbstractNeighborhoodStatBasedPixelFeature<T extends RealType<T>>
 	extends
 	AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
 {

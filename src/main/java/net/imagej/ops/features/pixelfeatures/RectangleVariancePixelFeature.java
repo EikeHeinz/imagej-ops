@@ -9,7 +9,7 @@ import net.imglib2.type.numeric.RealType;
 import org.scijava.plugin.Plugin;
 
 @Plugin(type = Ops.Pixelfeatures.VarianceFeature.class)
-public class RectangleVariancePixelFeature<T extends RealType<T>> extends AbstractNeighborhoodBasedPixelFeature<T>
+public class RectangleVariancePixelFeature<T extends RealType<T>> extends AbstractNeighborhoodStatBasedPixelFeature<T>
 		implements VarianceFeature {
 
 	@Override

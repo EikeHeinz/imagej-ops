@@ -10,7 +10,7 @@ import net.imglib2.type.numeric.RealType;
 import org.scijava.plugin.Plugin;
 
 @Plugin(type = Ops.Pixelfeatures.MaxFeature.class)
-public class RectangleMaxPixelFeature<T extends RealType<T>> extends AbstractNeighborhoodBasedPixelFeature<T>
+public class RectangleMaxPixelFeature<T extends RealType<T>> extends AbstractNeighborhoodStatBasedPixelFeature<T>
 		implements MaxFeature {
 
 	@Override

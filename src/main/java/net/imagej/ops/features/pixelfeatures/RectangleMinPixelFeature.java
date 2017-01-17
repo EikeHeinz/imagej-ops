@@ -10,7 +10,7 @@ import net.imglib2.type.numeric.RealType;
 import org.scijava.plugin.Plugin;
 
 @Plugin(type = Ops.Pixelfeatures.MinFeature.class)
-public class RectangleMinPixelFeature<T extends RealType<T>> extends AbstractNeighborhoodBasedPixelFeature<T>
+public class RectangleMinPixelFeature<T extends RealType<T>> extends AbstractNeighborhoodStatBasedPixelFeature<T>
 		implements MinFeature {
 
 	@Override

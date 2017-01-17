@@ -14,7 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 
-public class NeighborhoodBasedPixelFeatureTest extends AbstractOpTest {
+public class NeighborhoodStatBasedPixelFeatureTest extends AbstractOpTest {
 
 
 	private ArrayImg<FloatType, FloatArray> img;
