@@ -13,9 +13,7 @@ import net.imglib2.type.numeric.real.FloatType;
 import org.junit.Before;
 import org.junit.Test;
 
-
 public class NeighborhoodStatBasedPixelFeatureTest extends AbstractOpTest {
-
 
 	private ArrayImg<FloatType, FloatArray> img;
 
@@ -44,31 +42,33 @@ public class NeighborhoodStatBasedPixelFeatureTest extends AbstractOpTest {
 			}
 		}
 	}
-	
+
 	@Test
 	public void testMax() {
 		RandomAccessibleInterval<FloatType> out = ops.pixelfeature().max(img, 3);
 		RandomAccess<FloatType> outRA = out.randomAccess();
 		float[] values = new float[] { 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f };
 		for (int i = 0; i < values.length; i++) {
-			int[] pos = new int[2];
+			int[] pos = new int[3];
 			pos[0] = i;
 			pos[1] = i;
+			pos[2] = 0;
 
 			outRA.setPosition(pos);
 			assertEquals(values[i], outRA.get().getRealFloat(), 0.0000f);
 		}
 	}
-	
+
 	@Test
 	public void testMin() {
-			RandomAccessibleInterval<FloatType> out = ops.pixelfeature().min(img, 3);
+		RandomAccessibleInterval<FloatType> out = ops.pixelfeature().min(img, 3);
 		RandomAccess<FloatType> outRA = out.randomAccess();
 		float[] values = new float[] { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 		for (int i = 0; i < values.length; i++) {
-			int[] pos = new int[2];
+			int[] pos = new int[3];
 			pos[0] = i;
 			pos[1] = i;
+			pos[2] = 0;
 
 			outRA.setPosition(pos);
 			assertEquals(values[i], outRA.get().getRealFloat(), 0.0000f);
@@ -82,41 +82,42 @@ public class NeighborhoodStatBasedPixelFeatureTest extends AbstractOpTest {
 		float[] values = new float[] { 0.0f, 0.0f, 0.26530612f, 0.26530612f, 0.26530612f, 0.26530612f, 0.26530612f,
 				0.26530612f, 0.26530612f, 0.0f };
 		for (int i = 0; i < values.length; i++) {
-			int[] pos = new int[2];
+			int[] pos = new int[3];
 			pos[0] = i;
 			pos[1] = i;
+			pos[2] = 0;
 
 			outRA.setPosition(pos);
 			assertEquals(values[i], outRA.get().getRealFloat(), 0.0000f);
 		}
 	}
-	
+
 	@Test
 	public void testMedian() {
 		RandomAccessibleInterval<FloatType> out = ops.pixelfeature().median(img, 3);
 		RandomAccess<FloatType> outRA = out.randomAccess();
-		float[] values = new float[] { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-				0.0f, 0.0f, 0.0f };
+		float[] values = new float[] { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 		for (int i = 0; i < values.length; i++) {
-			int[] pos = new int[2];
+			int[] pos = new int[3];
 			pos[0] = i;
 			pos[1] = i;
+			pos[2] = 0;
 
 			outRA.setPosition(pos);
 			assertEquals(values[i], outRA.get().getRealFloat(), 0.0000f);
 		}
 	}
-	
+
 	@Test
 	public void testVariance() {
 		RandomAccessibleInterval<FloatType> out = ops.pixelfeature().variance(img, 3);
 		RandomAccess<FloatType> outRA = out.randomAccess();
-		float[] values = new float[] { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-				0.0f, 0.0f, 0.0f };
+		float[] values = new float[] { 0.0f, 0.0f, 0.19897959f, 0.19897959f, 0.19897959f, 0.19897959f, 0.19897959f, 0.19897959f, 0.19897959f, 0.0f };
 		for (int i = 0; i < values.length; i++) {
-			int[] pos = new int[2];
+			int[] pos = new int[3];
 			pos[0] = i;
 			pos[1] = i;
+			pos[2] = 0;
 
 			outRA.setPosition(pos);
 			assertEquals(values[i], outRA.get().getRealFloat(), 0.0000f);
