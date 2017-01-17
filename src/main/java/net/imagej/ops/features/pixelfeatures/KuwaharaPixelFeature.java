@@ -12,11 +12,15 @@ import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
 
+import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
 @Plugin(type = Ops.Pixelfeatures.KuwaharaFeature.class)
 public class KuwaharaPixelFeature<T extends RealType<T>> extends
 		AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> implements KuwaharaFeature {
+	
+	@Parameter
+	private int maxSigma;
 
 	private List<UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>> kuwaharaOps;
 
@@ -24,9 +28,11 @@ public class KuwaharaPixelFeature<T extends RealType<T>> extends
 	public void initialize() {
 
 		kuwaharaOps = new ArrayList<>();
-		int currentSize = 3;
+		int currentSize = 5;
+		
+		int maxSize = (maxSigma % 2 == 0) ? maxSigma-1 : maxSigma;
 
-		while (currentSize <= 9) {
+		while (currentSize <= maxSize) {
 			kuwaharaOps.add(RAIs.function(ops(), Ops.Filter.Kuwahara.class, in(), currentSize));
 			currentSize += 2;
 		}

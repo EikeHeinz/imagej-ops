@@ -40,9 +40,9 @@ public class KuwaharaFilterTest extends AbstractOpTest {
 			}
 		}
 
-		RandomAccessibleInterval<FloatType> output = ops.pixelfeature().kuwahara(img);
+		RandomAccessibleInterval<FloatType> output = ops.pixelfeature().kuwahara(img,5);
 		RandomAccess<FloatType> outputRA = output.randomAccess();
-		float[] values = new float[] { 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f };
+		float[] values = new float[] { 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.8888889f, 1.0f, 0.0f, 0.0f, 0.0f };
 
 		for (int i = 0; i < values.length; i++) {
 			int[] pos = new int[3];
