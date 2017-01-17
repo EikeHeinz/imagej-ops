@@ -37,7 +37,6 @@ public class MembraneProjection<T extends RealType<T>>
 		extends AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
 		implements MembraneProjectionsFeature {
 
-	// membrane thickness, patchsize?
 	@Parameter
 	private int membraneSize = 1;
 
@@ -46,11 +45,17 @@ public class MembraneProjection<T extends RealType<T>>
 
 	private UnaryComputerOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>[] convolveOps;
 	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> createRAI;
+	@SuppressWarnings("rawtypes")
 	private UnaryFunctionOp<RealComposite, RealType> sumOp;
+	@SuppressWarnings("rawtypes")
 	private UnaryFunctionOp<RealComposite, RealType> meanOp;
+	@SuppressWarnings("rawtypes")
 	private UnaryFunctionOp<RealComposite, RealType> stdDevOp;
+	@SuppressWarnings("rawtypes")
 	private UnaryFunctionOp<RealComposite, RealType> medianOp;
+	@SuppressWarnings("rawtypes")
 	private UnaryFunctionOp<RealComposite, RealType> maxOp;
+	@SuppressWarnings("rawtypes")
 	private UnaryFunctionOp<RealComposite, RealType> minOp;
 
 	private RandomAccessibleInterval<T>[] kernels;
@@ -61,8 +66,6 @@ public class MembraneProjection<T extends RealType<T>>
 		RandomAccessibleInterval<T> kernel = (RandomAccessibleInterval<T>) ops().create()
 				.img(new int[] { patchSize, patchSize });
 		RandomAccess<T> kernelRA = kernel.randomAccess();
-		Cursor<T> kernelCursor = Views.iterable(kernel).cursor();
-		int counter = 0;
 
 		int middle = Math.round(patchSize / 2);
 		int startX = middle - (int) Math.floor(membraneSize / 2.0);
@@ -120,14 +123,13 @@ public class MembraneProjection<T extends RealType<T>>
 			// System.out.println("End-Kernel--------------");
 			// END DEBUG STUFF --------------
 		}
-		int size = 30;
-		convolveOps = new UnaryComputerOp[size];
-		// for (int i = 0; i < kernels.length; i++) {
-		// // FIXME
-		// convolveOps[i] = RAIs.computer(ops(), Ops.Filter.Convolve.class,
-		// in(),
-		// new Object[] { kernels[i] });
-		// }
+//		int size = 30;
+//		convolveOps = new UnaryComputerOp[size];
+//		for (int i = 0; i < kernels.length; i++) {
+			// FIXME
+//			convolveOps[i] = RAIs.computer(ops(), Ops.Filter.Convolve.class, in(), new Object[] { kernels[i] });
+//			convolveOps[i] = RAIs.computer(ops(), Ops.Filter.Convolve.class, in(), new Object[] { kernels[i] });
+//		}
 		createRAI = RAIs.function(ops(), Ops.Create.Img.class, in());
 
 		sumOp = Functions.unary(ops(), Ops.Stats.Sum.class, RealType.class, RealComposite.class);
@@ -143,12 +145,12 @@ public class MembraneProjection<T extends RealType<T>>
 	public RandomAccessibleInterval<T> calculate(RandomAccessibleInterval<T> input) {
 		List<RandomAccessibleInterval<T>> convolvedImgs = new ArrayList<>();
 		for (int i = 0; i < kernels.length; i++) {
-			RandomAccessibleInterval<T> temp = createRAI.calculate(input);
+//			RandomAccessibleInterval<T> temp = createRAI.calculate(input);
 			// FIXME convolution returns empty image
 			RandomAccessibleInterval<T> tmp = ops().filter()
 					.convolve(Views.interval(Views.extendMirrorDouble(input), input), kernels[i]);
-			// convolveOps[i].compute(Views.interval(Views.extendMirrorDouble(input),
-			// input), temp);
+//			 convolveOps[i].compute(Views.interval(Views.extendMirrorDouble(input),
+//			 input), temp);
 			convolvedImgs.add(tmp);
 		}
 
