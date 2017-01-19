@@ -321,6 +321,7 @@ namespaces = ```
 	[name: "pixelfeatures", iface: "Pixelfeatures", ops: [
 		[name: "bilateral",						 iface: "BilateralFeature"],
 	    [name: "doG",                            iface: "DoGFeature"],
+	    [name: "entropy",                        iface: "EntropyFeature"],
 	    [name: "gaussianGradientMagnitude",      iface: "GaussianGradientMagnitudeFeature"],
 		[name: "gaussian",                       iface: "GaussFeature"],
 		[name: "hessian",                        iface: "HessianFeature"],

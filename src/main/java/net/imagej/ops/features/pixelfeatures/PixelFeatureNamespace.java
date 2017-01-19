@@ -36,6 +36,16 @@ public class PixelFeatureNamespace extends AbstractNamespace {
 				.run(net.imagej.ops.features.pixelfeatures.DoGPixelFeature.class, in, minSigma, maxSigma);
 		return result;
 	}
+	
+	// -- entropy --
+	@OpMethod(op = net.imagej.ops.features.pixelfeatures.EntropyPixelFeature.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> entropy(final RandomAccessibleInterval<T> in,
+			final int radius) {
+		@SuppressWarnings("unchecked")
+		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
+				.run(net.imagej.ops.features.pixelfeatures.EntropyPixelFeature.class, in, radius);
+		return result;
+	}
 
 	// -- gaussian --
 
@@ -74,10 +84,10 @@ public class PixelFeatureNamespace extends AbstractNamespace {
 	// -- kuwahara
 
 	@OpMethod(op = net.imagej.ops.features.pixelfeatures.KuwaharaPixelFeature.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> kuwahara(final RandomAccessibleInterval<T> in) {
+	public <T extends RealType<T>> RandomAccessibleInterval<T> kuwahara(final RandomAccessibleInterval<T> in, final int maxSigma) {
 		@SuppressWarnings("unchecked")
 		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
-				.run(net.imagej.ops.features.pixelfeatures.KuwaharaPixelFeature.class, in);
+				.run(net.imagej.ops.features.pixelfeatures.KuwaharaPixelFeature.class, in, maxSigma);
 		return result;
 	}
 
@@ -105,16 +115,12 @@ public class PixelFeatureNamespace extends AbstractNamespace {
 
 	// -- mean --
 
-	@OpMethod(
-		op = net.imagej.ops.features.pixelfeatures.RectangleMeanPixelFeature.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> mean(
-		final RandomAccessibleInterval<T> in, final int span)
-	{
+	@OpMethod(op = net.imagej.ops.features.pixelfeatures.RectangleMeanPixelFeature.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> mean(final RandomAccessibleInterval<T> in,
+			final int span) {
 		@SuppressWarnings("unchecked")
-		final RandomAccessibleInterval<T> result =
-			(RandomAccessibleInterval<T>) ops().run(
-				net.imagej.ops.features.pixelfeatures.RectangleMeanPixelFeature.class,
-				in, span);
+		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
+				.run(net.imagej.ops.features.pixelfeatures.RectangleMeanPixelFeature.class, in, span);
 		return result;
 	}
 
@@ -144,13 +150,10 @@ public class PixelFeatureNamespace extends AbstractNamespace {
 
 	@OpMethod(op = net.imagej.ops.features.pixelfeatures.RectangleMinPixelFeature.class)
 	public <T extends RealType<T>> RandomAccessibleInterval<T> min(final RandomAccessibleInterval<T> in,
-		final RandomAccessibleInterval<T> in, final int span)
-	{
+			final int span) {
 		@SuppressWarnings("unchecked")
-		final RandomAccessibleInterval<T> result =
-			(RandomAccessibleInterval<T>) ops().run(
-				net.imagej.ops.features.pixelfeatures.RectangleMinPixelFeature.class,
-				in, span);
+		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
+				.run(net.imagej.ops.features.pixelfeatures.RectangleMinPixelFeature.class, in, span);
 		return result;
 	}
 
