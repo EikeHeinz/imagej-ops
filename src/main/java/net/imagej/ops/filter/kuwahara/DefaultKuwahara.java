@@ -28,7 +28,7 @@ public class DefaultKuwahara<T extends RealType<T>> extends
 {
 
 	@Parameter
-	private int kernelSize = 5;
+	private int kernelSize;
 
 	@Parameter(required = false)
 	private OutOfBoundsFactory<T, RandomAccessibleInterval<T>> fac;

@@ -41,7 +41,7 @@ public class EntropyPixelFeature<T extends RealType<T>>
 
 	@Override
 	public RandomAccessibleInterval<T> calculate(RandomAccessibleInterval<T> input) {
-		List<RandomAccessibleInterval<T>> results = new ArrayList<>();
+		List<RandomAccessibleInterval<T>> results = new ArrayList<>();		
 		for (int currentBinSize = 32; currentBinSize <= 256; currentBinSize *= 2) {
 			RandomAccessibleInterval<T> output = createOp.calculate(input);
 			RandomAccess<T> outRA = output.randomAccess();

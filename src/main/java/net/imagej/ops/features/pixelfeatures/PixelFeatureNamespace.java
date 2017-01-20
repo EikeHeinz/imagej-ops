@@ -217,5 +217,10 @@ public class PixelFeatureNamespace extends AbstractNamespace {
 				criterionMethod);
 		return result;
 	}
+	
+	@OpMethod(op = net.imagej.ops.features.pixelfeatures.DummyThreadOp.class)
+	public void dummyThread(final int number) {
+		ops().run(net.imagej.ops.features.pixelfeatures.DummyThreadOp.class, number);
+	}
 
 }

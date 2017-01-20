@@ -64,10 +64,14 @@ public class StructureTensorEigenvaluesPixelFeature<T extends RealType<T>>
 		RandomAccessibleInterval<T> xy = createRAI.calculate(input);
 		multiplyRAI.compute(derivativeX, derivativeY, xy);
 
-		components.add(gauss.calculate(squareX));
-		components.add(gauss.calculate(xy));
-		components.add(gauss.calculate(xy));
-		components.add(gauss.calculate(squareY));
+//		components.add(gauss.calculate(squareX));
+//		components.add(gauss.calculate(xy));
+//		components.add(gauss.calculate(xy));
+//		components.add(gauss.calculate(squareY));
+		components.add(squareX);
+		components.add(xy);
+		components.add(xy);
+		components.add(squareY);
 
 		CompositeIntervalView<T, RealComposite<T>> compositeview = Views.collapseReal(Views.stack(components));
 

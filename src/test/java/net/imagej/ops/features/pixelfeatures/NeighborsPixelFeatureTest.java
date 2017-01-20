@@ -39,24 +39,24 @@ public class NeighborsPixelFeatureTest extends AbstractOpTest {
 			}
 		}
 		
-		String values = "";
-		int counter = 0;
-		Cursor<FloatType> cursor = Views.iterable(img).cursor();
-		System.out.println("original-------------");
-		while(cursor.hasNext()) {
-			values += cursor.next().getRealDouble()+"|";
-			counter++;
-			if(counter == 10) {
-				System.out.println(values);
-				counter = 0;
-				values = "";
-			}
-			
-		}
-		
-		RandomAccessibleInterval<FloatType> out = ops.pixelfeature().neighbors(img, 1, 1);
-		
-		fail("Not yet implemented");
+//		String values = "";
+//		int counter = 0;
+//		Cursor<FloatType> cursor = Views.iterable(img).cursor();
+//		System.out.println("original-------------");
+//		while(cursor.hasNext()) {
+//			values += cursor.next().getRealDouble()+"|";
+//			counter++;
+//			if(counter == 10) {
+//				System.out.println(values);
+//				counter = 0;
+//				values = "";
+//			}
+//			
+//		}
+//		
+//		RandomAccessibleInterval<FloatType> out = ops.pixelfeature().neighbors(img, 1, 1);
+//		
+//		fail("Not yet implemented");
 	}
 
 }
