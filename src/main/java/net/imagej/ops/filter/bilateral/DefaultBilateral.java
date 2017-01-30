@@ -24,14 +24,14 @@ public class DefaultBilateral<T extends RealType<T>> extends
 		AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> implements BilateralFilter {
 
 	@Parameter
+	private double spatial;
+
+	@Parameter
 	private double domain;
 
 	@Parameter
-	private double range;
-
-	@Parameter
 	private int radius;
-	
+
 	@Parameter(required = false)
 	private OutOfBoundsFactory<T, RandomAccessibleInterval<T>> fac;
 
@@ -39,7 +39,7 @@ public class DefaultBilateral<T extends RealType<T>> extends
 
 	@Override
 	public void initialize() {
-		if(fac == null) {
+		if (fac == null) {
 			fac = new OutOfBoundsMirrorFactory<>(Boundary.DOUBLE);
 		}
 		createOp = RAIs.function(ops(), Ops.Create.Img.class, in());
@@ -48,7 +48,7 @@ public class DefaultBilateral<T extends RealType<T>> extends
 
 	@Override
 	public RandomAccessibleInterval<T> calculate(RandomAccessibleInterval<T> input) {
-		IntervalView<T> extendedInput = Views.interval(Views.extend(input,fac), input);
+		IntervalView<T> extendedInput = Views.interval(Views.extend(input, fac), input);
 		Cursor<T> cursor = Views.iterable(extendedInput).cursor();
 		RandomAccessibleInterval<T> output = createOp.calculate(input);
 		RandomAccess<T> outputRA = output.randomAccess();
@@ -68,13 +68,17 @@ public class DefaultBilateral<T extends RealType<T>> extends
 			IntervalView<T> subsetView = Views.interval(extendedInput, interval);
 			Cursor<T> subsetCursor = subsetView.cursor();
 			while (subsetCursor.hasNext()) {
+				double y = subsetCursor.next().getRealDouble();
 				long[] subsetCursorPos = new long[2];
 				subsetCursor.localize(subsetCursorPos);
-				double y = subsetCursor.next().getRealDouble();
-				double currentRange = gaussRange(x, y);
-				double currentDomain = gaussDomain(cursorPos, subsetCursorPos);
-				sum += (y * currentDomain * currentRange);
-				normalization += currentDomain * currentRange;
+
+				double distance = Math.sqrt(Math.pow(cursorPos[0] - subsetCursorPos[0], 2)
+						+ Math.pow(cursorPos[1] - subsetCursorPos[1], 2));
+				double currentSpatial = gauss(distance, spatial);
+				double difference = Math.abs(x - y);
+				double currentDomain = gauss(difference, domain);
+				sum += (y * currentSpatial * currentDomain);
+				normalization += currentSpatial * currentDomain;
 			}
 
 			outputRA.setPosition(cursor);
@@ -84,13 +88,8 @@ public class DefaultBilateral<T extends RealType<T>> extends
 		return output;
 	}
 
-	private double gaussDomain(long[] coord1, long[] coord2) {
-		double distance = Math.sqrt(Math.pow(coord1[0] - coord2[0], 2) + Math.pow(coord1[1] - coord2[1], 2));
-		return (1 / (2 * Math.PI * Math.pow(domain, 2)) * Math.exp((distance) / 2 * Math.pow(domain, 2)));
-	}
-
-	private double gaussRange(double x, double y) {
-		return (1 / (2 * Math.PI * Math.pow(range, 2)) * Math.exp(Math.pow(x - y, 2) / 2 * Math.pow(range, 2)));
+	private double gauss(final double x, final double sigma) {
+		return (1 / (sigma * Math.sqrt(2 * Math.PI))) * Math.exp((-0.5 * x * x) / (sigma * sigma));
 	}
 
 }

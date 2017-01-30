@@ -143,21 +143,22 @@ public class FilterNamespace extends AbstractNamespace {
 	}
 	
 	// -- bilateral --
-	@OpMethod(op = net.imagej.ops.filter.bilateral.DefaultBilateral.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> bilateral(final RandomAccessibleInterval<T> in,
-			final double domain, final double range, final int radius) {
-		@SuppressWarnings("unchecked")
-		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
-				.run(net.imagej.ops.filter.bilateral.DefaultBilateral.class, in, domain, range, radius);
-		return result;
-	}
 	
 	@OpMethod(op = net.imagej.ops.filter.bilateral.DefaultBilateral.class)
 	public <T extends RealType<T>> RandomAccessibleInterval<T> bilateral(final RandomAccessibleInterval<T> in,
-			final double domain, final double range, final int radius,
+			final double spatial, final double domain, final int radius) {
+		@SuppressWarnings("unchecked")
+		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
+				.run(net.imagej.ops.filter.bilateral.DefaultBilateral.class, in, spatial, domain, radius);
+		return result;
+	}
+
+	@OpMethod(op = net.imagej.ops.filter.bilateral.DefaultBilateral.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> bilateral(final RandomAccessibleInterval<T> in,
+			final double spatial, final double domain, final int radius,
 			final OutOfBoundsFactory<T, RandomAccessibleInterval<T>> fac) {
 		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
-				.run(net.imagej.ops.filter.bilateral.DefaultBilateral.class, in, domain, range, radius, fac);
+				.run(net.imagej.ops.filter.bilateral.DefaultBilateral.class, in, spatial, domain, radius, fac);
 		return result;
 	}
 
