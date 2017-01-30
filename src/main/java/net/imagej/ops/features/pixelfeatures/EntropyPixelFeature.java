@@ -29,9 +29,6 @@ public class EntropyPixelFeature<T extends RealType<T>>
 	@Parameter
 	private int radius;
 
-	// @Parameter
-	// private int numBins;
-
 	private UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> createOp;
 
 	@Override
@@ -49,6 +46,7 @@ public class EntropyPixelFeature<T extends RealType<T>>
 			IntervalView<T> extendedInput = Views.interval(Views.extendMirrorDouble(input), input);
 			while (cursor.hasNext()) {
 				cursor.next();
+				// TODO min, max value
 				BinMapper1d<T> binMapper = new Real1dBinMapper<>(0, 1, currentBinSize, false);
 				Histogram1d<T> histogram = new Histogram1d<>(binMapper);
 
