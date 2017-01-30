@@ -58,18 +58,6 @@ public class PixelFeatureNamespace extends AbstractNamespace {
 		return result;
 	}
 
-	// -- gaussian gradient magnitude --
-
-	@OpMethod(op = net.imagej.ops.features.pixelfeatures.GaussianGradientMagnitudePixelFeature.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> gaussianGradientMagnitude(
-			final RandomAccessibleInterval<T> in, final double minSigma, final double maxSigma) {
-		@SuppressWarnings("unchecked")
-		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops().run(
-				net.imagej.ops.features.pixelfeatures.GaussianGradientMagnitudePixelFeature.class, in, minSigma,
-				maxSigma);
-		return result;
-	}
-
 	// -- hessian --
 
 	@OpMethod(op = net.imagej.ops.features.pixelfeatures.HessianPixelFeature.class)
@@ -166,15 +154,27 @@ public class PixelFeatureNamespace extends AbstractNamespace {
 				.run(net.imagej.ops.features.pixelfeatures.NeighborsPixelFeature.class, in, minSigma, maxSigma);
 		return result;
 	}
+	
+	// -- sobel feature --
+
+	@OpMethod(op = net.imagej.ops.features.pixelfeatures.SobelPixelFeature.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> sobel(
+			final RandomAccessibleInterval<T> in, final double minSigma, final double maxSigma) {
+		@SuppressWarnings("unchecked")
+		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops().run(
+				net.imagej.ops.features.pixelfeatures.SobelPixelFeature.class, in, minSigma,
+				maxSigma);
+		return result;
+	}
 
 	// -- structure tensor --
 
 	@OpMethod(op = net.imagej.ops.features.pixelfeatures.StructureTensorEigenvaluesPixelFeature.class)
 	public <T extends RealType<T>> RandomAccessibleInterval<T> structureTensor(final RandomAccessibleInterval<T> in,
-			final double sigma) {
+			final double minSigma, final double maxSigma) {
 		@SuppressWarnings("unchecked")
 		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
-				.run(net.imagej.ops.features.pixelfeatures.StructureTensorEigenvaluesPixelFeature.class, in, sigma);
+				.run(net.imagej.ops.features.pixelfeatures.StructureTensorEigenvaluesPixelFeature.class, in, minSigma, maxSigma);
 		return result;
 	}
 
@@ -217,10 +217,4 @@ public class PixelFeatureNamespace extends AbstractNamespace {
 				criterionMethod);
 		return result;
 	}
-	
-	@OpMethod(op = net.imagej.ops.features.pixelfeatures.DummyThreadOp.class)
-	public void dummyThread(final int number) {
-		ops().run(net.imagej.ops.features.pixelfeatures.DummyThreadOp.class, number);
-	}
-
 }

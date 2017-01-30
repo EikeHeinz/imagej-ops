@@ -7,7 +7,6 @@ import java.util.List;
 
 import net.imagej.ops.Ops;
 import net.imagej.ops.Ops.Filter.Gauss;
-import net.imagej.ops.Ops.Pixelfeatures.GaussianGradientMagnitudeFeature;
 import net.imagej.ops.special.chain.RAIs;
 import net.imagej.ops.special.function.AbstractUnaryFunctionOp;
 import net.imagej.ops.special.function.UnaryFunctionOp;
@@ -18,10 +17,10 @@ import net.imglib2.view.Views;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
-@Plugin(type = Ops.Pixelfeatures.GaussianGradientMagnitudeFeature.class)
-public class GaussianGradientMagnitudePixelFeature<T extends RealType<T>>
+@Plugin(type = Ops.Pixelfeatures.SobelFeature.class)
+public class SobelPixelFeature<T extends RealType<T>>
 		extends AbstractUnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>>
-		implements GaussianGradientMagnitudeFeature {
+		implements Ops.Pixelfeatures.SobelFeature {
 
 	@Parameter
 	private double minSigma;
@@ -48,15 +47,10 @@ public class GaussianGradientMagnitudePixelFeature<T extends RealType<T>>
 	@Override
 	public RandomAccessibleInterval<T> calculate(RandomAccessibleInterval<T> input) {
 		RandomAccessibleInterval<T> extended = Views.interval(Views.extendMirrorSingle(input), input);
-		List<RandomAccessibleInterval<T>> blurredImgs = new ArrayList<>();
+		List<RandomAccessibleInterval<T>> results = new ArrayList<>();
 
 		for (UnaryFunctionOp<RandomAccessibleInterval<T>, RandomAccessibleInterval<T>> gaussOp : gaussOps) {
-			blurredImgs.add(gaussOp.calculate(extended));
-		}
-
-		List<RandomAccessibleInterval<T>> results = new ArrayList<>();
-		for (RandomAccessibleInterval<T> blurredImg : blurredImgs) {
-			results.add(sobelOp.calculate(blurredImg));
+			results.add(sobelOp.calculate((gaussOp.calculate(extended))));
 		}
 		return Views.stack(results);
 	}
