@@ -38,7 +38,7 @@ public class EntropyPixelFeatureTest extends AbstractOpTest {
 			}
 		}
 
-		RandomAccessibleInterval<FloatType> out = ops.pixelfeature().entropy(img, 3);
+		RandomAccessibleInterval<FloatType> out = ops.pixelfeature().entropy(img, 1.0d, 1.0d, 3);
 		RandomAccess<FloatType> outRA = out.randomAccess();
 		float[] values = new float[] { 0.0f, 0.5916728f, 0.86312056f, 0.86312056f, 0.86312056f, 0.86312056f, 0.9852281f,
 				0.0f, 0.86312056f, 0.0f };

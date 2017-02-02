@@ -333,6 +333,7 @@ namespaces = ```
 	    [name: "min",                            iface: "MinFeature"],
 	    [name: "neighbors",                      iface: "NeighborsFeature"],
 	    [name: "sobel",                          iface: "SobelFeature"],
+	    [name: "manualSobel",                    iface: "ManualSobel"],
 	    [name: "structureTensor",                iface: "StructureTensorFeature"],
 	    [name: "variance",                       iface: "VarianceFeature"],
 	    [name: "membraneProjections",            iface: "MembraneProjectionsFeature"],

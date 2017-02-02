@@ -20,6 +20,7 @@ import net.imglib2.realtransform.AffineRandomAccessible;
 import net.imglib2.realtransform.AffineTransform;
 import net.imglib2.realtransform.RealViews;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.Pair;
 import net.imglib2.view.ExtendedRandomAccessibleInterval;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.MixedTransformView;
@@ -59,6 +60,8 @@ public class MembraneProjection<T extends RealType<T>>
 	private UnaryFunctionOp<RealComposite, RealType> minOp;
 
 	private RandomAccessibleInterval<T>[] kernels;
+
+	private UnaryFunctionOp<RealComposite, Pair> minMaxOp;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -136,8 +139,9 @@ public class MembraneProjection<T extends RealType<T>>
 		meanOp = Functions.unary(ops(), Ops.Stats.Mean.class, RealType.class, RealComposite.class);
 		stdDevOp = Functions.unary(ops(), Ops.Stats.StdDev.class, RealType.class, RealComposite.class);
 		medianOp = Functions.unary(ops(), Ops.Stats.Median.class, RealType.class, RealComposite.class);
-		maxOp = Functions.unary(ops(), Ops.Stats.Max.class, RealType.class, RealComposite.class);
-		minOp = Functions.unary(ops(), Ops.Stats.Min.class, RealType.class, RealComposite.class);
+		minMaxOp = Functions.unary(ops(), Ops.Stats.MinMax.class, Pair.class, RealComposite.class);
+//		maxOp = Functions.unary(ops(), Ops.Stats.Max.class, RealType.class, RealComposite.class);
+//		minOp = Functions.unary(ops(), Ops.Stats.Min.class, RealType.class, RealComposite.class);
 
 	}
 
@@ -170,8 +174,9 @@ public class MembraneProjection<T extends RealType<T>>
 			outValues[1] = meanOp.calculate(composite).getRealDouble();
 			outValues[2] = stdDevOp.calculate(composite).getRealDouble();
 			outValues[3] = medianOp.calculate(composite).getRealDouble();
-			outValues[4] = maxOp.calculate(composite).getRealDouble();
-			outValues[5] = minOp.calculate(composite).getRealDouble();
+			Pair<T,T> minMax = minMaxOp.calculate(composite);
+			outValues[4] = minMax.getB().getRealDouble();
+			outValues[5] = minMax.getA().getRealDouble();
 			for (int i = 0; i < outImgsRAs.length; i++) {
 				outImgsRAs[i].setPosition(compositeCursor);
 				outImgsRAs[i].get().setReal(outValues[i]);

@@ -40,10 +40,10 @@ public class PixelFeatureNamespace extends AbstractNamespace {
 	// -- entropy --
 	@OpMethod(op = net.imagej.ops.features.pixelfeatures.EntropyPixelFeature.class)
 	public <T extends RealType<T>> RandomAccessibleInterval<T> entropy(final RandomAccessibleInterval<T> in,
-			final int radius) {
+			final double minSigma, final double maxSigma, final int radius) {
 		@SuppressWarnings("unchecked")
 		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
-				.run(net.imagej.ops.features.pixelfeatures.EntropyPixelFeature.class, in, radius);
+				.run(net.imagej.ops.features.pixelfeatures.EntropyPixelFeature.class, in, minSigma, maxSigma, radius);
 		return result;
 	}
 
@@ -164,6 +164,14 @@ public class PixelFeatureNamespace extends AbstractNamespace {
 		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops().run(
 				net.imagej.ops.features.pixelfeatures.SobelPixelFeature.class, in, minSigma,
 				maxSigma);
+		return result;
+	}
+	
+	// -- manual Sobel --
+	@OpMethod(op = net.imagej.ops.features.pixelfeatures.Sobel.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> manualSobel(final RandomAccessibleInterval<T> in) {
+		final RandomAccessibleInterval<T> result =
+			(RandomAccessibleInterval<T>) ops().run(net.imagej.ops.features.pixelfeatures.Sobel.class, in);
 		return result;
 	}
 
