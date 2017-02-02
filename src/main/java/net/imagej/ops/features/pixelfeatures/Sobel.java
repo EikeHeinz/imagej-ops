@@ -19,6 +19,7 @@ import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.Pair;
 import net.imglib2.util.Util;
 import net.imglib2.view.Views;
 
@@ -71,13 +72,14 @@ public class Sobel<T extends RealType<T>> extends
 		sqrtMapOp.compute(outTemp, outTemp);
 		Cursor<T> outTempCursor = Views.iterable(outTemp).cursor();
 		RandomAccess<T> outputRA = output.randomAccess();
-		T min = ops().stats().min((Iterable<T>) emp1);
-		T max = ops().stats().max((Iterable<T>) emp1);
+		Pair<T, T> minMax = ops().stats().minMax((Iterable<T>)emp1); 
+//		T min = ops().stats().min((Iterable<T>) emp1);
+//		T max = ops().stats().max((Iterable<T>) emp1);
 		while (outTempCursor.hasNext()) {
 			outTempCursor.next();
 			final double gradient = outTempCursor.get().getRealDouble();
 			outputRA.setPosition(outTempCursor);
-			outputRA.get().setReal(Math.min(Math.max(min.getRealDouble(), gradient), max.getRealDouble()));
+			outputRA.get().setReal(Math.min(Math.max(minMax.getA().getRealDouble(), gradient), minMax.getB().getRealDouble()));
 		}
 		// TODO Auto-generated method stub
 		return outTemp;
