@@ -319,10 +319,10 @@ namespaces = ```
 		[name: "topHat",                         iface: "TopHat"],
 	]],
 	[name: "pixelfeatures", iface: "Pixelfeatures", ops: [
-		[name: "dummyThread",                    iface: "DummyThread"],
 		[name: "bilateral",						 iface: "BilateralFeature"],
 	    [name: "doG",                            iface: "DoGFeature"],
 	    [name: "entropy",                        iface: "EntropyFeature"],
+	    [name: "entropyRegion",                  iface: "EntropyRegionFeature"],
 	    [name: "gaussian",                       iface: "GaussFeature"],
 		[name: "hessian",                        iface: "HessianFeature"],
 		[name: "kuwahara",                       iface: "KuwaharaFeature"],

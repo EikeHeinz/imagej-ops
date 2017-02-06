@@ -5,6 +5,7 @@ import net.imagej.ops.AbstractNamespace;
 import net.imagej.ops.Namespace;
 import net.imagej.ops.OpMethod;
 import net.imagej.ops.features.pixelfeatures.LinearKuwaharaPixelFeature.KuwaharaCriterionMethod;
+import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.RealType;
 
@@ -44,6 +45,13 @@ public class PixelFeatureNamespace extends AbstractNamespace {
 		@SuppressWarnings("unchecked")
 		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
 				.run(net.imagej.ops.features.pixelfeatures.EntropyPixelFeature.class, in, minSigma, maxSigma, radius);
+		return result;
+	}
+	
+	@OpMethod(op = net.imagej.ops.features.pixelfeatures.EntropyRegion.class)
+	public <T extends RealType<T>> RealType<T> entropyRegion(final RealType<T> out, final IterableInterval<T> in, final int binSize) {
+		final RealType<T> result =
+			(RealType<T>) ops().run(net.imagej.ops.features.pixelfeatures.EntropyRegion.class, out, in, binSize);
 		return result;
 	}
 
