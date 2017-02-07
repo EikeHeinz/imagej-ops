@@ -1,16 +1,15 @@
 package net.imagej.ops.features.pixelfeatures;
 
-import org.scijava.plugin.Parameter;
-import org.scijava.plugin.Plugin;
-
 import net.imagej.ops.Ops;
 import net.imagej.ops.special.computer.AbstractUnaryComputerOp;
-import net.imagej.ops.special.function.AbstractUnaryFunctionOp;
 import net.imglib2.IterableInterval;
 import net.imglib2.histogram.BinMapper1d;
 import net.imglib2.histogram.Histogram1d;
 import net.imglib2.histogram.Real1dBinMapper;
 import net.imglib2.type.numeric.RealType;
+
+import org.scijava.plugin.Parameter;
+import org.scijava.plugin.Plugin;
 
 @Plugin(type = Ops.Pixelfeatures.EntropyRegionFeature.class)
 public class EntropyRegion<T extends RealType<T>> extends AbstractUnaryComputerOp<IterableInterval<T>, T> implements Ops.Pixelfeatures.EntropyRegionFeature{
