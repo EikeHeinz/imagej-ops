@@ -161,6 +161,22 @@ public class FilterNamespace extends AbstractNamespace {
 				.run(net.imagej.ops.filter.bilateral.DefaultBilateral.class, in, spatial, domain, radius, fac);
 		return result;
 	}
+	
+	@OpMethod(op = net.imagej.ops.filter.bilateral.BilateralRegion.class)
+	public <T extends RealType<T>> RealType<T> bilateralRegion(final RealType<T> out, final IterableInterval<T> in,
+			final double spatial, final double domain) {
+		final RealType<T> result = (RealType<T>) ops().run(net.imagej.ops.filter.bilateral.BilateralRegion.class, out,
+				in, spatial, domain);
+		return result;
+	}
+	
+	@OpMethod(op = net.imagej.ops.filter.bilateral.OptimizedBilateralFilter.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> optimizedBilateral(final RandomAccessibleInterval<T> in,
+			final double spatial, final double domain, final int radius) {
+		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
+				.run(net.imagej.ops.filter.bilateral.OptimizedBilateralFilter.class, in, spatial, domain, radius);
+		return result;
+	}
 
 	// -- convolve --
 	/** Executes the "convolve" operation on the given arguments. */
