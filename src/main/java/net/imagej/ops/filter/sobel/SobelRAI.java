@@ -42,6 +42,7 @@ import net.imglib2.outofbounds.OutOfBoundsFactory;
 import net.imglib2.outofbounds.OutOfBoundsMirrorFactory;
 import net.imglib2.outofbounds.OutOfBoundsMirrorFactory.Boundary;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.Views;
 
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
@@ -89,7 +90,7 @@ public class SobelRAI<T extends RealType<T>> extends
 		derivativeComputers = new UnaryComputerOp[in().numDimensions()];
 		for (int i = 0; i < in().numDimensions(); i++) {
 			derivativeComputers[i] = RAIs.computer(ops(),
-				Ops.Filter.PartialDerivative.class, in(), i, fac);
+				Ops.Filter.NaivePartialDerivative.class, in(), i);
 		}
 
 	}

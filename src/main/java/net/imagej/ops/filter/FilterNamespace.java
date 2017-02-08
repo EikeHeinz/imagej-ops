@@ -1303,6 +1303,22 @@ public class FilterNamespace extends AbstractNamespace {
 				.run(net.imagej.ops.filter.derivative.PartialDerivativesRAI.class, in, fac);
 		return result;
 	}
+	
+	// -- naive partial derivative --
+	@OpMethod(op = net.imagej.ops.filter.derivative.DerivativeNaive.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> naivePartialDerivative(
+			final RandomAccessibleInterval<T> in, final int dimension) {
+		final RandomAccessibleInterval<T> result = (RandomAccessibleInterval<T>) ops()
+				.run(net.imagej.ops.filter.derivative.DerivativeNaive.class, in, dimension);
+		return result;
+	}
+	
+	@OpMethod(op = net.imagej.ops.filter.derivative.DerivativeNaive.class)
+	public <T extends RealType<T>> RandomAccessibleInterval<T> naivePartialDerivative(final RandomAccessibleInterval<T> out, final RandomAccessibleInterval<T> in, final int dimension) {
+		final RandomAccessibleInterval<T> result =
+			(RandomAccessibleInterval<T>) ops().run(net.imagej.ops.filter.derivative.DerivativeNaive.class, out, in, dimension);
+		return result;
+	}
 
 	/** Executes the "sigma" filter operation on the given arguments. */
 	@OpMethod(op = net.imagej.ops.filter.sigma.DefaultSigmaFilter.class)

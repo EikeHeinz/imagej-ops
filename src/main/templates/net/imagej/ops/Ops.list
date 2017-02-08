@@ -109,6 +109,7 @@ namespaces = ```
 		[name: "paddingIntervalCentered",        iface: "PaddingIntervalCentered"],
 		[name: "paddingIntervalOrigin",          iface: "PaddingIntervalOrigin"],
 		[name: "partialDerivative",              iface: "PartialDerivative"],
+		[name: "naivePartialDerivative",         iface: "NaivePartialDerivative"],
 		[name: "allPartialDerivatives",          iface: "AllPartialDerivatives"],
 		[name: "sigma",                          iface: "Sigma",               aliases: ["sigmaFilter", "filterSigma"]],
 		[name: "sobel",                          iface: "Sobel"],

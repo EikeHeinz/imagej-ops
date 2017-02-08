@@ -40,6 +40,7 @@ import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.util.Util;
+import net.imglib2.view.Views;
 import net.imglib2.view.composite.CompositeIntervalView;
 import net.imglib2.view.composite.CompositeView;
 import net.imglib2.view.composite.RealComposite;
@@ -79,6 +80,14 @@ public class PartialDerivativeFilterTest extends AbstractOpTest {
 		}
 
 		RandomAccessibleInterval<FloatType> out = ops.filter().partialDerivative(img, 0);
+		RandomAccessibleInterval<FloatType> test = ops.filter().naivePartialDerivative(img, 0);
+		Cursor<FloatType> outCursor = Views.iterable(out).cursor();
+		RandomAccess<FloatType> testRA = test.randomAccess();
+		while(outCursor.hasNext()) {
+			outCursor.fwd();
+			testRA.setPosition(outCursor);
+			assertEquals(outCursor.get(), testRA.get());
+		}
 
 		FloatType type = Util.getTypeFromInterval(out).createVariable();
 		type.set(4.0f);
