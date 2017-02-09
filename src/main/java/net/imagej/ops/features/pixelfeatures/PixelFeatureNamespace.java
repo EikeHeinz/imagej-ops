@@ -175,14 +175,6 @@ public class PixelFeatureNamespace extends AbstractNamespace {
 		return result;
 	}
 	
-	// -- manual Sobel --
-	@OpMethod(op = net.imagej.ops.features.pixelfeatures.Sobel.class)
-	public <T extends RealType<T>> RandomAccessibleInterval<T> manualSobel(final RandomAccessibleInterval<T> in) {
-		final RandomAccessibleInterval<T> result =
-			(RandomAccessibleInterval<T>) ops().run(net.imagej.ops.features.pixelfeatures.Sobel.class, in);
-		return result;
-	}
-
 	// -- structure tensor --
 
 	@OpMethod(op = net.imagej.ops.features.pixelfeatures.StructureTensorEigenvaluesPixelFeature.class)
