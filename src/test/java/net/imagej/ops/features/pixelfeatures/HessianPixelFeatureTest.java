@@ -67,7 +67,7 @@ public class HessianPixelFeatureTest extends AbstractOpTest {
 			pos[3] = 0;
 
 			outRA.setPosition(pos);
-//			assertEquals(valuesModule[i], outRA.get().getRealFloat(), 0.0000f);
+			assertEquals(valuesModule[i], outRA.get().getRealFloat(), 0.0000f);
 		}
 
 		// testing trace values with sigma of 1.0d
@@ -79,7 +79,7 @@ public class HessianPixelFeatureTest extends AbstractOpTest {
 			pos[3] = 0;
 
 			outRA.setPosition(pos);
-//			assertEquals(valuesTrace[i], outRA.get().getRealFloat(), 0.0000f);
+			assertEquals(valuesTrace[i], outRA.get().getRealFloat(), 0.0000f);
 		}
 
 		// testing determinant values with sigma of 2.0d
@@ -91,7 +91,7 @@ public class HessianPixelFeatureTest extends AbstractOpTest {
 			pos[3] = 1;
 
 			outRA.setPosition(pos);
-//			assertEquals(valuesDeterminant[i], outRA.get().getRealFloat(), 0.0000f);
+			assertEquals(valuesDeterminant[i], outRA.get().getRealFloat(), 0.0000f);
 		}
 
 		// testing first eigenvalue values with sigma of 4.0d
@@ -103,7 +103,7 @@ public class HessianPixelFeatureTest extends AbstractOpTest {
 			pos[3] = 2;
 
 			outRA.setPosition(pos);
-//			assertEquals(valuesFirstEigenvalue[i], outRA.get().getRealFloat(), 0.0000f);
+			assertEquals(valuesFirstEigenvalue[i], outRA.get().getRealFloat(), 0.0000f);
 		}
 
 		// testing second eigenvalue values with sigma of 8.0d
@@ -115,7 +115,7 @@ public class HessianPixelFeatureTest extends AbstractOpTest {
 			pos[3] = 3;
 
 			outRA.setPosition(pos);
-//			assertEquals(valuesSecondEigenvalue[i], outRA.get().getRealFloat(), 0.0000f);
+			assertEquals(valuesSecondEigenvalue[i], outRA.get().getRealFloat(), 0.0000f);
 		}
 
 		// testing orientatinon values with sigma of 1.0d
@@ -127,7 +127,7 @@ public class HessianPixelFeatureTest extends AbstractOpTest {
 			pos[3] = 4;
 
 			outRA.setPosition(pos);
-//			assertEquals(valuesOrientation[i], outRA.get().getRealFloat(), 0.0000f);
+			assertEquals(valuesOrientation[i], outRA.get().getRealFloat(), 0.0000f);
 		}
 
 		// testing gamma-normalized square eigenvalue difference values with
@@ -140,7 +140,7 @@ public class HessianPixelFeatureTest extends AbstractOpTest {
 			pos[3] = 5;
 
 			outRA.setPosition(pos);
-//			assertEquals(valuesgnsed[i], outRA.get().getRealFloat(), 0.0000f);
+			assertEquals(valuesgnsed[i], outRA.get().getRealFloat(), 0.0000f);
 		}
 
 		// testing square gamma-normalized eigenvalue difference values with
@@ -153,7 +153,7 @@ public class HessianPixelFeatureTest extends AbstractOpTest {
 			pos[3] = 6;
 
 			outRA.setPosition(pos);
-//			assertEquals(valuessgned[i], outRA.get().getRealFloat(), 0.0000f);
+			assertEquals(valuessgned[i], outRA.get().getRealFloat(), 0.0000f);
 		}
 	}
 }

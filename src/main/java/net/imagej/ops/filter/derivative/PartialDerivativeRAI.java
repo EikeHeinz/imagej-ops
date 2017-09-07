@@ -131,6 +131,7 @@ public class PartialDerivativeRAI<T extends RealType<T>>
 			}
 
 			rotatedKernelB = Views.interval(rotatedKernelB, kernelInterval);
+			// FIXME hack
 			kernelBConvolveOp = RAIs.computer(ops(), Ops.Filter.Convolve.class, in(), new Object[] { rotatedKernelB });
 		}
 
@@ -139,6 +140,7 @@ public class PartialDerivativeRAI<T extends RealType<T>>
 		// rotate kernel A to all other dimensions
 		kernelAConvolveOps = new UnaryComputerOp[in().numDimensions()];
 		if (dimension != 0) {
+			// FIXME hack
 			kernelAConvolveOps[0] = RAIs.computer(ops(), Ops.Filter.Convolve.class, in(), new Object[] { kernelA });
 		}
 		RandomAccessibleInterval<T> rotatedKernelA = kernelA;
@@ -157,6 +159,7 @@ public class PartialDerivativeRAI<T extends RealType<T>>
 					rotatedKernelA = Views.rotate(rotatedKernelA, j, j + 1);
 				}
 
+				// FIXME hack
 				kernelAConvolveOps[i] = RAIs.computer(ops(), Ops.Filter.Convolve.class, in(),
 						new Object[] { Views.interval(rotatedKernelA, kernelInterval) });
 				rotatedKernelA = kernelA;

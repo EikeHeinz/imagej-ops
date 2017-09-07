@@ -53,13 +53,13 @@ public class SobelPixelFeatureTest extends AbstractOpTest {
 			position[1] = i;
 			position[2] = 0;
 			outRA.setPosition(position);
-//			assertEquals(values[j], outRA.get().getRealFloat(), 0.000000001f);
+			assertEquals(values[j], outRA.get().getRealFloat(), 0.000000001f);
 			position[2] = 1;
 			outRA.setPosition(position);
-//			assertEquals(values[j + 1], outRA.get().getRealFloat(), 0.000000001f);
+			assertEquals(values[j + 1], outRA.get().getRealFloat(), 0.000000001f);
 			position[2] = 2;
 			outRA.setPosition(position);
-//			assertEquals(values[j + 2], outRA.get().getRealFloat(), 0.000000001f);
+			assertEquals(values[j + 2], outRA.get().getRealFloat(), 0.000000001f);
 			j += 3;
 		}
 	}

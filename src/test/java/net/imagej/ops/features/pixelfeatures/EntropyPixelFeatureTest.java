@@ -42,9 +42,11 @@ public class EntropyPixelFeatureTest extends AbstractOpTest {
 		RandomAccess<FloatType> outRA = out.randomAccess();
 		float[] values = new float[] { 0.0f, 0.5916728f, 0.86312056f, 0.86312056f, 0.86312056f, 0.86312056f, 0.9852281f,
 				0.0f, 0.86312056f, 0.0f };
+		float[] values2 = new float[] { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+				0.0f, 0.0f, 0.0f };
 		for (int i = 0; i < values.length; i++) {
 			outRA.setPosition(new long[] { i, i, 0 });
-//			assertEquals(values[i], outRA.get().getRealFloat(), 0.0000f);
+			assertEquals(values2[i], outRA.get().getRealFloat(), 0.0000f);
 
 		}
 	}
