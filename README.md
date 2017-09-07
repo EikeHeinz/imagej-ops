@@ -1,4 +1,4 @@
-[![](http://jenkins.imagej.net/job/ImageJ-Ops/lastBuild/badge/icon)](http://jenkins.imagej.net/job/ImageJ-Ops/)
+[![](https://travis-ci.org/imagej/imagej-ops.svg?branch=master)](https://travis-ci.org/imagej/imagej-ops)
 [![Join the chat at https://gitter.im/imagej/imagej-ops](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/imagej/imagej-ops?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ImageJ Ops
@@ -33,8 +33,8 @@ output_image = map(input_image, add_op)
 ```
 
 For more details, see these tutorials:
-* [Using Ops](https://github.com/imagej/imagej-tutorials/tree/master/using-ops)
-* [Create a new Op](https://github.com/imagej/imagej-tutorials/tree/master/create-a-new-op)
+* [Using Ops](https://github.com/imagej/tutorials/tree/master/maven-projects/using-ops)
+* [Create a new Op](https://github.com/imagej/tutorials/tree/master/maven-projects/create-a-new-op)
 * [Developing external Op namespaces](http://imagej.net/Adding_new_ops)
 
 Working example
